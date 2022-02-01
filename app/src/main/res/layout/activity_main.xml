@@ -55,10 +55,10 @@
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:rotation="180"
+            android:tint="#9032CD32"
             app:layout_constraintEnd_toStartOf="@+id/imageView2"
             app:layout_constraintTop_toBottomOf="@+id/imageView"
-            app:srcCompat="@drawable/tile_l"
-            android:tint="#9032CD32" />
+            app:srcCompat="@drawable/tile_l" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
