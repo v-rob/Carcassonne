@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/blackScore"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal">
@@ -12,6 +13,7 @@
         android:layout_weight="1">
 
         <Button
+            android:id="@+id/quit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
@@ -20,7 +22,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/mainView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -33,31 +35,31 @@
             app:layout_constraintVertical_bias="0.0" />
 
         <ImageView
-            android:id="@+id/imageView"
+            android:id="@+id/tileD"
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:layout_marginStart="340dp"
             android:layout_marginTop="196dp"
-            app:layout_constraintStart_toStartOf="@+id/textView"
-            app:layout_constraintTop_toTopOf="@+id/textView"
+            app:layout_constraintStart_toStartOf="@+id/mainView"
+            app:layout_constraintTop_toTopOf="@+id/mainView"
             app:srcCompat="@drawable/tile_d" />
 
         <ImageView
-            android:id="@+id/imageView2"
+            android:id="@+id/tileK"
             android:layout_width="150dp"
             android:layout_height="150dp"
-            app:layout_constraintStart_toStartOf="@+id/imageView"
-            app:layout_constraintTop_toBottomOf="@+id/imageView"
+            app:layout_constraintStart_toStartOf="@+id/tileD"
+            app:layout_constraintTop_toBottomOf="@+id/tileD"
             app:srcCompat="@drawable/tile_k" />
 
         <ImageView
-            android:id="@+id/imageView3"
+            android:id="@+id/tileI"
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:rotation="180"
             android:tint="#9032CD32"
-            app:layout_constraintEnd_toStartOf="@+id/imageView2"
-            app:layout_constraintTop_toBottomOf="@+id/imageView"
+            app:layout_constraintEnd_toStartOf="@+id/tileK"
+            app:layout_constraintTop_toBottomOf="@+id/tileD"
             app:srcCompat="@drawable/tile_l" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -83,6 +85,7 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
+                    android:id="@+id/blueFollower"
                     android:layout_width="65dp"
                     android:layout_height="65dp"
                     app:srcCompat="@drawable/blue_follower" />
@@ -93,17 +96,20 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/bluePlayerName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Vincent"
                         android:textSize="16sp" />
 
                     <TextView
+                        android:id="@+id/blueScore"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Score: 10" />
 
                     <TextView
+                        android:id="@+id/blueFollowerCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Followers: 3" />
@@ -115,6 +121,7 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
+                    android:id="@+id/yellowFollower"
                     android:layout_width="65dp"
                     android:layout_height="65dp"
                     app:srcCompat="@drawable/yellow_follower" />
@@ -125,17 +132,20 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/yellowPlayerName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="George Washington"
                         android:textSize="16sp" />
 
                     <TextView
+                        android:id="@+id/yellowScore"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Score: 1776" />
 
                     <TextView
+                        android:id="@+id/yellowFollowerCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Followers: 7" />
@@ -147,6 +157,7 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
+                    android:id="@+id/greenFollower"
                     android:layout_width="65dp"
                     android:layout_height="65dp"
                     app:srcCompat="@drawable/green_follower" />
@@ -157,17 +168,20 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/greenPlayerName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Dr. Nuxoll"
                         android:textSize="16sp" />
 
                     <TextView
+                        android:id="@+id/greenScore"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Score: ∞" />
 
                     <TextView
+                        android:id="@+id/greenFollowerCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Followers: 5" />
@@ -179,6 +193,7 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
+                    android:id="@+id/redFollower"
                     android:layout_width="65dp"
                     android:layout_height="65dp"
                     app:srcCompat="@drawable/red_follower" />
@@ -189,17 +204,20 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/redPlayerName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="King Louis XIV"
                         android:textSize="16sp" />
 
                     <TextView
+                        android:id="@+id/redScore"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Score: -125" />
 
                     <TextView
+                        android:id="@+id/redFollowerCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Followers: 0" />
@@ -211,6 +229,7 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
+                    android:id="@+id/blackFollower"
                     android:layout_width="65dp"
                     android:layout_height="65dp"
                     app:srcCompat="@drawable/black_follower" />
@@ -221,17 +240,20 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/blackPlayerName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Mr. Potato Head"
                         android:textSize="16sp" />
 
                     <TextView
+                        android:id="@+id/blackScore"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Score: 0" />
 
                     <TextView
+                        android:id="@+id/blackFollowerCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Followers: 1" />
@@ -241,6 +263,7 @@
         </TableLayout>
 
         <Space
+            android:id="@+id/sideSpacing"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
@@ -251,21 +274,24 @@
             android:orientation="horizontal">
 
             <Button
+                android:id="@+id/rotate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="3dp"
-                android:text="Rotate"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:text="Rotate" />
 
             <Button
+                android:id="@+id/confirm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="3dp"
-                android:text="Confirm"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:text="Confirm" />
         </LinearLayout>
 
         <ImageView
+            android:id="@+id/tileI"
             android:layout_width="200dp"
             android:layout_height="200dp"
             android:rotation="180"
