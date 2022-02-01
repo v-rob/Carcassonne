@@ -215,20 +215,30 @@
             android:layout_height="wrap_content"
             android:layout_weight="1" />
 
-        <Button
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Rotate" />
+            android:orientation="horizontal">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="3dp"
+                android:text="Rotate"
+                android:layout_weight="1" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="3dp"
+                android:text="Confirm"
+                android:layout_weight="1" />
+        </LinearLayout>
 
         <ImageView
             android:layout_width="200dp"
             android:layout_height="200dp"
             app:srcCompat="@drawable/tile_d" />
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Confirm" />
 
     </LinearLayout>
 
