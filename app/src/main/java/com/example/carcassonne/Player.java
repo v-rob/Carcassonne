@@ -9,6 +9,11 @@ public class Player {
         score = 0;
     }
 
+    public Player(Player player){
+        this.meepleCount = player.meepleCount;
+        this.score = player.score;
+    }
+
     public int getMeepleCount(Player p){
         return p.meepleCount;
     }
