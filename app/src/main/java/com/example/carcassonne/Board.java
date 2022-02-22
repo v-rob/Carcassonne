@@ -15,13 +15,6 @@ public class Board {
     private int currentTileX;
     private int currentTileY;
 
-    public Board(Tile startingTile) {
-        this.tiles = new Tile[3][3];
-
-        setCurrentTile(1, 1, startingTile);
-        commitCurrentTile();
-    }
-
     public int getWidth() {
         return this.tiles[0].length;
     }
@@ -100,14 +93,35 @@ public class Board {
         return true;
     }
 
+    public Board(Tile startingTile) {
+        this.tiles = new Tile[3][3];
+
+        setCurrentTile(1, 1, startingTile);
+        commitCurrentTile();
+    }
+
+    public Board(Board other) {
+        this.tiles = new Tile[other.getHeight()][other.getWidth()];
+
+        for (int y = 0; y < getHeight(); y++) {
+            for (int x = 0; x < getWidth(); x++) {
+                this.tiles[y][x] = new Tile(other.tiles[y][x]);
+            }
+        }
+
+        this.currentTile = new Tile(other.currentTile);
+        this.currentTileX = other.currentTileX;
+        this.currentTileY = other.currentTileY;
+    }
+
     private void growSize(int srcX, int srcY, int destX, int destY) {
         int incX = Math.max(srcX, destX);
         int incY = Math.max(srcY, destY);
 
         Tile[][] dest = new Tile[getHeight() + incY][getWidth() + incX];
 
-        for (int y = 0; y < this.tiles.length; y++) {
-            for (int x = 0; x < this.tiles[y].length; x++) {
+        for (int y = 0; y < getHeight(); y++) {
+            for (int x = 0; x < getWidth(); x++) {
                 dest[y + destY][x + destX] = this.tiles[y + srcY][x + srcX];
             }
         }

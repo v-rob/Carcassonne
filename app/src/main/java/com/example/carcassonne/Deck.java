@@ -12,22 +12,18 @@ public class Deck {
     ArrayList<Tile> tiles;
     Tile startingTile;
 
-    private void addTiles(char id, int num, int[][] farmSections,
-                          int[][] citySections, int[] roads, boolean hasPennant,
-                          boolean isCloister) {
-        for (int i = 0; i < num; i++) {
-            this.tiles.add(new Tile(id, farmSections, citySections, roads,
-                    hasPennant, isCloister));
-        }
+    public Tile drawTile() {
+        return this.tiles.remove((int)(Math.random() * this.tiles.size()));
     }
 
-    private void addPennantTiles(char normalId, int normalNum, char pennantId,
-                                 int pennantNum, int[][] farmSections, int[][] citySections,
-                                 int[] roads) {
-        addTiles(normalId, normalNum,
-                farmSections, citySections, roads, false, false);
-        addTiles(pennantId, pennantNum,
-                farmSections, citySections, roads, true, false);
+    public Tile drawStartingTile() {
+        Tile ret = this.startingTile;
+        this.startingTile = null;
+        return ret;
+    }
+
+    public boolean isEmpty() {
+        return this.tiles.size() == 0;
     }
 
     public Deck() {
@@ -257,17 +253,21 @@ public class Deck {
         this.startingTile = new Tile(other.startingTile);
     }
 
-    public Tile drawTile() {
-        return this.tiles.remove((int)(Math.random() * this.tiles.size()));
+    private void addTiles(char id, int num, int[][] farmSections,
+                          int[][] citySections, int[] roads, boolean hasPennant,
+                          boolean isCloister) {
+        for (int i = 0; i < num; i++) {
+            this.tiles.add(new Tile(id, farmSections, citySections, roads,
+                    hasPennant, isCloister));
+        }
     }
 
-    public Tile drawStartingTile() {
-        Tile ret = this.startingTile;
-        this.startingTile = null;
-        return ret;
-    }
-
-    public boolean isEmpty() {
-        return this.tiles.size() == 0;
+    private void addPennantTiles(char normalId, int normalNum, char pennantId,
+                                 int pennantNum, int[][] farmSections, int[][] citySections,
+                                 int[] roads) {
+        addTiles(normalId, normalNum,
+                farmSections, citySections, roads, false, false);
+        addTiles(pennantId, pennantNum,
+                farmSections, citySections, roads, true, false);
     }
 }

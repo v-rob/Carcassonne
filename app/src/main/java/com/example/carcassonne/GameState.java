@@ -1,43 +1,41 @@
 package com.example.carcassonne;
 
 public class GameState {
-    //instance variables
     private Player[] playerList;
-    private Deck deck;
+
     private int currentTurn;
-    private Tile currentTile;
-    private boolean isTileValid;
     private boolean isPlacementStage;
 
-    public GameState(Player[] players, Tile t){
-        playerList = players;
-        isPlacementStage = true;
-        deck = new Deck();
-        currentTurn = 0;
-        currentTile = t;
+    private Deck deck;
+    private Board board;
+
+    public GameState(Player[] players) {
+        this.playerList = players;
+
+        this.currentTurn = 0;
+        this.isPlacementStage = true;
+
+        this.deck = new Deck();
+        this.board = new Board(this.deck.drawStartingTile());
     }
 
-    // Copy constructor for gamestate constructor
+    // Copy constructor for GameState constructor
     // link for citation: https://www.javainterviewpoint.com/copy-constructor/
-    public GameState(GameState gs){
+    public GameState(GameState gs) {
         this.playerList = new Player[gs.playerList.length];
-        for(int i = 0; i < this.playerList.length; i++){
+        for (int i = 0; i < this.playerList.length; i++){
             this.playerList[i] = new Player(gs.playerList[i]);
         }
-        this.deck = new Deck(gs.deck);
+
         this.currentTurn = gs.currentTurn;
-        this.currentTile = new Tile(gs.currentTile);
-        this.isTileValid = gs.isTileValid;
         this.isPlacementStage = gs.isPlacementStage;
 
+        this.deck = new Deck(gs.deck);
+        this.board = new Board(gs.board);
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "hi";
     }
-
-    //actions here
-
-
 }
