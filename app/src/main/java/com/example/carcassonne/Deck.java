@@ -2,6 +2,12 @@ package com.example.carcassonne;
 
 import java.util.ArrayList;
 
+/**
+ * Represents a deck of Tiles that can be drawn from until empty as well as the
+ * special starting tile that can be retrieved separately.
+ *
+ * @author Vincent Robinson
+ */
 public class Deck {
     ArrayList<Tile> tiles;
     Tile startingTile;
@@ -25,8 +31,11 @@ public class Deck {
     }
 
     public Deck() {
+        // Set a capacity of the number of tiles the deck will have.
         this.tiles = new ArrayList<>(71);
 
+        // These are helpful constants for tiles that have simple layouts that are
+        // shared with many other tiles.
         final int[][] ALL_SECTIONS = new int[][]{{0, 1, 2, 3, 4, 5, 6, 7}};
         final int[][] NO_SECTIONS = new int[][]{{}};
         final int[] NO_ROADS = new int[]{};
@@ -66,6 +75,8 @@ public class Deck {
                 false
         );
 
+        // The starting tile is special: it's always tile D, so we remove one from
+        // the ArrayList and set it as the starting tile.
         this.startingTile = this.tiles.remove(this.tiles.size() - 1);
 
         addTiles('E', 5,
@@ -231,6 +242,7 @@ public class Deck {
                 false
         );
 
+        // This is 71 instead of 72 because the starting tile is not stored in the ArrayList.
         assert this.tiles.size() == 71;
     }
 
@@ -239,7 +251,7 @@ public class Deck {
         this.tiles = new ArrayList<>(size);
 
         for (int i = 0; i < size; i++) {
-            this.tiles.set(i, other.tiles.get(i));
+            this.tiles.set(i, new Tile(other.tiles.get(i)));
         }
 
         this.startingTile = new Tile(other.startingTile);
@@ -257,9 +269,5 @@ public class Deck {
 
     public boolean isEmpty() {
         return this.tiles.size() == 0;
-    }
-
-    public static void main(String[] args) {
-        Deck deck = new Deck();
     }
 }

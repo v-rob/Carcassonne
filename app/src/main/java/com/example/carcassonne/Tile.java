@@ -107,50 +107,8 @@ public class Tile {
         return 9 - part;
     }
 
-    private static void rotateSectionsBy(int[][] sections, int amount) {
-        for (int i = 0; i < sections.length; i++) {
-            int[] section = sections[i];
-            for (int j = 0; j < section.length; j++) {
-                section[j] = (section[j] + amount * 2) % 8;
-            }
-        }
-    }
-
-    private void rotateBy(int amount) {
-        rotateSectionsBy(this.farmSections, amount);
-        rotateSectionsBy(this.citySections, amount);
-
-        for (int i = 0; i < this.roads.length; i++) {
-            this.roads[i] = (this.roads[i] + amount) % 4;
-        }
-    }
-
-    public void rotateRight() {
+    public void rotate() {
         rotateBy(1);
-    }
-
-    public void rotateLeft() {
-        rotateBy(5);
-    }
-
-    private static int[] copyArray(int[] array) {
-        int[] ret = new int[array.length];
-
-        for (int i = 0; i < array.length; i++) {
-            ret[i] = array[i];
-        }
-
-        return ret;
-    }
-
-    private static int[][] copyNestedArray(int[][] array) {
-        int[][] ret = new int[array.length][];
-
-        for (int i = 0; i < array.length; i++) {
-            ret[i] = copyArray(array[i]);
-        }
-
-        return ret;
     }
 
     public Tile(char id, int[][] farmSections, int[][] citySections,
@@ -178,5 +136,43 @@ public class Tile {
 
         this.hasPennant = other.hasPennant;
         this.isCloister = other.isCloister;
+    }
+
+    private static void rotateSectionsBy(int[][] sections, int amount) {
+        for (int i = 0; i < sections.length; i++) {
+            int[] section = sections[i];
+            for (int j = 0; j < section.length; j++) {
+                section[j] = (section[j] + amount * 2) % 8;
+            }
+        }
+    }
+
+    private void rotateBy(int amount) {
+        rotateSectionsBy(this.farmSections, amount);
+        rotateSectionsBy(this.citySections, amount);
+
+        for (int i = 0; i < this.roads.length; i++) {
+            this.roads[i] = (this.roads[i] + amount) % 4;
+        }
+    }
+
+    private static int[] copyArray(int[] array) {
+        int[] ret = new int[array.length];
+
+        for (int i = 0; i < array.length; i++) {
+            ret[i] = array[i];
+        }
+
+        return ret;
+    }
+
+    private static int[][] copyNestedArray(int[][] array) {
+        int[][] ret = new int[array.length][];
+
+        for (int i = 0; i < array.length; i++) {
+            ret[i] = copyArray(array[i]);
+        }
+
+        return ret;
     }
 };
