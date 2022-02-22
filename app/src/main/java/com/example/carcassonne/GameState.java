@@ -7,11 +7,14 @@ public class GameState {
     private int currentTurn;
     private Tile currentTile;
     private boolean isTileValid;
-    private int tilesLeft;
     private boolean isPlacementStage;
 
-    public GameState(){
-
+    public GameState(Player[] players, Tile t){
+        playerList = players;
+        isPlacementStage = true;
+        deck = new Deck();
+        currentTurn = 0;
+        currentTile = t;
     }
 
     public GameState(GameState gs){
