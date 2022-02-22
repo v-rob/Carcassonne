@@ -133,7 +133,7 @@ public class Tile {
         rotateBy(5);
     }
 
-    private int[] copyArray(int[] array) {
+    private static int[] copyArray(int[] array) {
         int[] ret = new int[array.length];
 
         for (int i = 0; i < array.length; i++) {
@@ -143,7 +143,7 @@ public class Tile {
         return ret;
     }
 
-    private int[][] copyNestedArray(int[][] array) {
+    private static int[][] copyNestedArray(int[][] array) {
         int[][] ret = new int[array.length][];
 
         for (int i = 0; i < array.length; i++) {
@@ -166,5 +166,17 @@ public class Tile {
 
         this.hasPennant = hasPennant;
         this.isCloister = isCloister;
+    }
+    
+    public Tile(Tile other) {
+        this.id = other.id;
+
+        this.farmSections = copyNestedArray(other.farmSections);
+        this.citySections = copyNestedArray(other.citySections);
+
+        this.roads = copyArray(other.roads);
+
+        this.hasPennant = other.hasPennant;
+        this.isCloister = other.isCloister;
     }
 };

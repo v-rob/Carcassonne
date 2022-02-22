@@ -234,6 +234,17 @@ public class Deck {
         assert this.tiles.size() == 71;
     }
 
+    public Deck(Deck other) {
+        int size = other.tiles.size();
+        this.tiles = new ArrayList<>(size);
+
+        for (int i = 0; i < size; i++) {
+            this.tiles.set(i, other.tiles.get(i));
+        }
+
+        this.startingTile = new Tile(other.startingTile);
+    }
+
     public Tile drawTile() {
         return this.tiles.remove((int)(Math.random() * this.tiles.size()));
     }
