@@ -23,7 +23,7 @@ public class GameState {
     // link for citation: https://www.javainterviewpoint.com/copy-constructor/
     public GameState(GameState gs) {
         this.playerList = new Player[gs.playerList.length];
-        for (int i = 0; i < this.playerList.length; i++){
+        for (int i = 0; i < this.playerList.length; i++) {
             this.playerList[i] = new Player(gs.playerList[i]);
         }
 
