@@ -7,7 +7,7 @@
     android:orientation="horizontal">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
+        android:layout_width="691dp"
         android:layout_height="match_parent"
         android:layout_weight="1">
 
@@ -147,13 +147,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
-        android:layout_width="2dp"
-        android:layout_height="match_parent"
-        android:background="@color/purple_500"
-        android:orientation="vertical"></LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="237dp"
         android:layout_height="match_parent"
         android:layout_margin="10dp"
         android:isScrollContainer="false"
@@ -370,12 +364,12 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="3dp"
                 android:layout_weight="1"
-                android:text="Confirm" />
+                android:text="Confirm Tile" />
         </LinearLayout>
 
         <ImageView
             android:id="@+id/inPlay"
-            android:layout_width="200dp"
+            android:layout_width="match_parent"
             android:layout_height="200dp"
             android:rotation="180"
             app:srcCompat="@drawable/tile_l" />

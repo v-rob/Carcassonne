@@ -150,7 +150,7 @@ public class CarcassonneGameState {
      */
     public boolean confirmMeeple(int p){
         if(!isPlacementStage && p == currentTurn ){
-            if(board.isCurrentTilePlacementValid()) {
+            if(board.isCurrentMeeplePlacementValid()) {
                 currentTurn++;
                 return true;
             }

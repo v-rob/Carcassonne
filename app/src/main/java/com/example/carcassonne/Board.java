@@ -141,8 +141,6 @@ public class Board {
         } else if (type == Tile.TYPE_ROAD) {
             return checkAdjacentHasRoadMeeples(this.currentTileX, this.currentTileY, visited);
         }
-
-        // TODO
         return false;
     }
 
