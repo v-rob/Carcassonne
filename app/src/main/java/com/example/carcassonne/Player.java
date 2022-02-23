@@ -13,15 +13,21 @@ public class Player {
     private int score;
     private String name;
 
-    //constructor for the player only taking in a string as the player's name and
-    // setting the starting number of meeples and starting score for each player
+    /** constructor for the player only taking in a string as the player's name and
+     * setting the starting number of meeples and starting score for each player
+     *
+     * @param n the name of the player
+     */
     public Player(String n){
         meepleCount = 7;
         score = 0;
         name = n;
     }
 
-    //copy constructor for the player constructor
+    /**copy constructor for the player constructor
+     *
+     * @param player the player object to be copied
+     */
     public Player(Player player){
         this.meepleCount = player.meepleCount;
         this.score = player.score;

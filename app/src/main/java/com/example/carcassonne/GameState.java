@@ -54,8 +54,11 @@ public class GameState {
         this.board = new Board(gs.board);
     }
 
-    // Describes the state of the game as a String by printing the values of all the
-    // variables
+    /**
+     *Prints information on all instance variables
+     *
+     * @return a String with all relevant information on the state of the game
+     */
     @Override
     public String toString() {
         String allPlayers = null;
@@ -63,10 +66,16 @@ public class GameState {
             allPlayers = playerList.get(i) + " ";
         }
         return "Current Player Turn: " + currentTurn + " Is it the placement stage? "
-                + isPlacementStage + " Player List: " +  allPlayers;
+                + isPlacementStage + " Player List: " +  allPlayers + " Board: " + board
+                + " Deck: " + deck;
     }
 
     //ACTIONS
+    /**
+     * All actions follow a similar format, first checking if it is the turn
+     * of the player taking that action. The one exception is quit, as
+     * it can be taken at any time.
+     */
     public boolean placeTile(Player p){
         if(isPlacementStage && playerList.indexOf(p) == currentTurn ){
             return true;
@@ -101,6 +110,7 @@ public class GameState {
 
     public boolean confirmTile(Player p){
         if(isPlacementStage && playerList.indexOf(p) == currentTurn ){
+            //if(tile placement is legal)
             return true;
         }
         return false;
@@ -108,6 +118,7 @@ public class GameState {
 
     public boolean confirmMeeple(Player p){
         if(!isPlacementStage && playerList.indexOf(p) == currentTurn ){
+            //if(meeple placement is legal)
             currentTurn++;
             return true;
         }
