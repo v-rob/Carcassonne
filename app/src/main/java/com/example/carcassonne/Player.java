@@ -2,8 +2,8 @@ package com.example.carcassonne;
 /**
  * Represents a player in our game of Carcassonne, each player will consist of
  * the number of meeples placed and the current score that player has. This class
- * will help keep track of what every player has, while allowing access to get and set
- * those values for each player.
+ * will help keep track of what every player has, while allowing access to get
+ * and set those values for each player.
  *
  * @author Sophie Arcangel, Cheyanne Yim, Alex Martinez-Lopez, DJ Backus, Vincent Robinison
  */
@@ -34,7 +34,8 @@ public class Player {
         this.name = player.name;
     }
 
-    public int getMeepleCount(Player p){ return p.meepleCount;
+    public int getMeepleCount(Player p){
+        return p.meepleCount;
     }
 
     public int getScore(Player p){
