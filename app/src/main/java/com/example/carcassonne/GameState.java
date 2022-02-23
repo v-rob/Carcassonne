@@ -20,7 +20,16 @@ public class GameState {
     }
 
     // Copy constructor for GameState constructor
-    // link for citation: https://www.javainterviewpoint.com/copy-constructor/
+
+    /**
+    External Citation
+    Date: 21 February 2022
+    Problem: Didn't know how to make a deep copy
+    Resource:
+     https://www.javainterviewpoint.com/copy-constructor/
+    Solution: We used this website to learn how to deep copy
+     and used it as an example for our code
+*/
     public GameState(GameState gs) {
         this.playerList = new Player[gs.playerList.length];
         for (int i = 0; i < this.playerList.length; i++) {
