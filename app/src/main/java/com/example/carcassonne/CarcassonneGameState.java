@@ -76,8 +76,8 @@ public class CarcassonneGameState {
      * of the player taking that action. The one exception is quit, as
      * it can be taken at any time.
      */
-    public boolean placeTile(Player p){
-        if(isPlacementStage && playerList.indexOf(p) == currentTurn ){
+    public boolean placeTile(int p){
+        if(isPlacementStage && p == currentTurn ){
             return true;
         }
         return false;
@@ -96,8 +96,8 @@ public class CarcassonneGameState {
      * @param p the name of the player
      * @return true if player resets on current turn and false otherwise
      */
-    public boolean resetTurn(Player p){
-        if(playerList.indexOf(p) == currentTurn ){
+    public boolean resetTurn(int p){
+        if(p == currentTurn){
             return true;
         }
         return false;
@@ -108,8 +108,8 @@ public class CarcassonneGameState {
      * @param p name of the player
      * @return true if Meeple is placed and false otherwise
      */
-    public boolean placeMeeple(Player p){
-        if(!isPlacementStage && playerList.indexOf(p) == currentTurn ){
+    public boolean placeMeeple(int p){
+        if(!isPlacementStage && p == currentTurn ){
             return true;
         }
         return false;
@@ -121,8 +121,8 @@ public class CarcassonneGameState {
      * @param p name of the player
      * @return true if the tile is rotated and false otherwise
      */
-    public boolean rotateTile(Player p){
-        if(isPlacementStage && playerList.indexOf(p) == currentTurn ){
+    public boolean rotateTile(int p){
+        if(isPlacementStage && p == currentTurn ){
             return true;
         }
         return false;
@@ -133,10 +133,11 @@ public class CarcassonneGameState {
      * @param p name of the player
      * @return if the player confirmed the tile and if the tile placement is legal. False otherwise
      */
-    public boolean confirmTile(Player p){
-        if(isPlacementStage && playerList.indexOf(p) == currentTurn ){
-            //if(tile placement is legal)
-            return true;
+    public boolean confirmTile(int p){
+        if(isPlacementStage && p == currentTurn ) {
+            if (board.isCurrentTileValid()){
+                return true;
+            }
         }
         return false;
     }
@@ -147,11 +148,12 @@ public class CarcassonneGameState {
      * @param p name of the player
      * @return true if the player placed a Meeple and if the placement is valid. False otherwise.
      */
-    public boolean confirmMeeple(Player p){
-        if(!isPlacementStage && playerList.indexOf(p) == currentTurn ){
-            //if(meeple placement is legal)
-            currentTurn++;
-            return true;
+    public boolean confirmMeeple(int p){
+        if(!isPlacementStage && p == currentTurn ){
+            if(board.isCurrentTileValid()) {
+                currentTurn++;
+                return true;
+            }
         }
         return false;
     }
