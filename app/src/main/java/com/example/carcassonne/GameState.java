@@ -1,15 +1,9 @@
 package com.example.carcassonne;
 
-/**
- * Represents the game state of Carcassonne that contains the instance variables
- * that display the needed information about the current state of the game
- * for a human user or the computer player to make decisions.
- *
- *  * @author DJ Backus, Sophie Arcangel
- */
+import java.util.ArrayList;
 
 public class GameState {
-    private Player[] playerList;
+    private ArrayList<Player> playerList;
 
     private int currentTurn;
     private boolean isPlacementStage;
@@ -17,9 +11,7 @@ public class GameState {
     private Deck deck;
     private Board board;
 
-
-
-    public GameState(Player[] players) {
+    public GameState(ArrayList<Player> players) {
         this.playerList = players;
 
         this.currentTurn = 0;
@@ -41,9 +33,10 @@ public class GameState {
      and used it as an example for our code
 */
     public GameState(GameState gs) {
-        this.playerList = new Player[gs.playerList.length];
-        for (int i = 0; i < this.playerList.length; i++) {
-            this.playerList[i] = new Player(gs.playerList[i]);
+        this.playerList = new ArrayList<Player>();
+        for (int i = 0; i < this.playerList.size(); i++) {
+            Player x = new Player(gs.playerList.get(i));
+            this.playerList.add(x);
         }
 
         this.currentTurn = gs.currentTurn;
@@ -53,10 +46,54 @@ public class GameState {
         this.board = new Board(gs.board);
     }
 
-    // Describes the state of the game as a string by printing all
-    // the variables in the GameState
     @Override
     public String toString() {
-        return "hi";
+        String allPlayers = null;
+        for(int i = 0; i < playerList.size(); i++){
+            allPlayers = playerList.get(i) + " ";
+        }
+        return "Current Player Turn: " + currentTurn + " Is it the placement stage? "
+                + isPlacementStage + " Player List: " +  allPlayers;
     }
+
+    //ACTIONS
+    public boolean placeTile(Player p){
+        if(isPlacementStage && playerList.indexOf(p) == currentTurn ){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean quitGame(){
+        return false;
+    }
+
+    public boolean resetTurn(Player p){
+        if(isPlacementStage && playerList.indexOf(p) == currentTurn ){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean placeMeeple(Player p){
+        if(isPlacementStage && playerList.indexOf(p) == currentTurn ){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean rotateTile(Player p){
+        if(isPlacementStage && playerList.indexOf(p) == currentTurn ){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean confirm(Player p){
+        if(isPlacementStage && playerList.indexOf(p) == currentTurn ){
+            return true;
+        }
+        return false;
+    }
+
 }

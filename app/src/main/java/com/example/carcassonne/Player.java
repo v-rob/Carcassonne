@@ -5,25 +5,27 @@ package com.example.carcassonne;
  * will help keep track of what every player has, while allowing access to get and set
  * those values for each player.
  *
- * @author Sophie Arcangel
+ * @author Sophie Arcangel, Cheyanne Yim, Alex Martinez-Lopez, DJ Backus, Vincent Robinison
  */
 
 public class Player {
     private int meepleCount;
     private int score;
+    private String name;
 
-    public Player(){
+    public Player(String n){
         meepleCount = 7;
         score = 0;
+        name = n;
     }
 
     public Player(Player player){
         this.meepleCount = player.meepleCount;
         this.score = player.score;
+        this.name = player.name;
     }
 
-    public int getMeepleCount(Player p){
-        return p.meepleCount;
+    public int getMeepleCount(Player p){ return p.meepleCount;
     }
 
     public int getScore(Player p){
@@ -36,5 +38,10 @@ public class Player {
 
     public void setScore(Player p, int i){
         p.score = i;
+    }
+
+    @Override
+    public String toString(){
+        return "Name: " + this.name + " Score: " + score + " Meeple Count: " + meepleCount;
     }
 }
