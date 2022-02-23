@@ -26,6 +26,24 @@ public class Deck {
         return this.tiles.size() == 0;
     }
 
+    @Override
+    public String toString() {
+        String str = "Deck {\n" +
+                "    tiles = {";
+
+        for (int i = 0; i < this.tiles.size(); i++) {
+            str += Util.indent(8, this.tiles.get(i).toString()) + "\n";
+            if (i != this.tiles.size() - 1) {
+                str += ",\n";
+            }
+        }
+        str += "    startingTile = " +
+                Util.indent(8, this.startingTile.toString()) + "\n}";
+
+        str += "}";
+        return str;
+    }
+
     public Deck() {
         // Set a capacity of the number of tiles the deck will have.
         this.tiles = new ArrayList<>(71);

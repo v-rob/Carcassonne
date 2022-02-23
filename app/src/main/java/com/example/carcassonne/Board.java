@@ -93,6 +93,29 @@ public class Board {
         return true;
     }
 
+    @Override
+    public String toString() {
+        String str = "Board {\n" +
+                "    currentTile = " + this.currentTile + "\n" +
+                "    currentTileX = " + this.currentTileX + "\n" +
+                "    currentTileY = " + this.currentTileY + "\n" +
+                "    getWidth() = " + getWidth() + "\n" +
+                "    getHeight() = " + getHeight() + "\n";
+
+        for (int y = 0; y < getHeight(); y++) {
+            for (int x = 0; x < getWidth(); x++) {
+                Tile tile = getTile(x, y);
+                if (tile != null) {
+                    str += "    tiles[" + y + "][" + x + "] = " +
+                            Util.indent(8, tile.toString()) + "\n";
+                }
+            }
+        }
+
+        str += "}";
+        return str;
+    }
+
     public Board(Tile startingTile) {
         this.tiles = new Tile[3][3];
 
