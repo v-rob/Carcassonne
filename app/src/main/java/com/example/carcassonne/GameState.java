@@ -83,10 +83,19 @@ public class GameState {
         return false;
     }
 
+    /**
+     * Determine whether or not to quit the game
+     * @return true if the user wants to quit game and false otherwise
+     */
     public boolean quitGame(){
         return false;
     }
 
+    /**
+     * Determine whether or not the user wants to reset their turn to move the tile again
+     * @param p the name of the player
+     * @return true if player resets on current turn and false otherwise
+     */
     public boolean resetTurn(Player p){
         if(playerList.indexOf(p) == currentTurn ){
             return true;
@@ -94,6 +103,11 @@ public class GameState {
         return false;
     }
 
+    /**
+     * Determine if the player wants to place a Meeple on the tile that was just placed
+     * @param p name of the player
+     * @return true if Meeple is placed and false otherwise
+     */
     public boolean placeMeeple(Player p){
         if(!isPlacementStage && playerList.indexOf(p) == currentTurn ){
             return true;
@@ -101,6 +115,12 @@ public class GameState {
         return false;
     }
 
+
+    /**
+     * Determine if the player wants to rotate the current tile
+     * @param p name of the player
+     * @return true if the tile is rotated and false otherwise
+     */
     public boolean rotateTile(Player p){
         if(isPlacementStage && playerList.indexOf(p) == currentTurn ){
             return true;
@@ -108,6 +128,11 @@ public class GameState {
         return false;
     }
 
+    /**
+     * Determine if the player confirmed where they wanted to place the tile
+     * @param p name of the player
+     * @return if the player confirmed the tile and if the tile placement is legal. False otherwise
+     */
     public boolean confirmTile(Player p){
         if(isPlacementStage && playerList.indexOf(p) == currentTurn ){
             //if(tile placement is legal)
@@ -116,6 +141,12 @@ public class GameState {
         return false;
     }
 
+    /**
+     * Determine if the current player confirmed if they wanted to place a Meeple on the
+     * tile and where the player wanted to place
+     * @param p name of the player
+     * @return true if player placed a Meeple and if the placement is valid. False otherwise.
+     */
     public boolean confirmMeeple(Player p){
         if(!isPlacementStage && playerList.indexOf(p) == currentTurn ){
             //if(meeple placement is legal)
