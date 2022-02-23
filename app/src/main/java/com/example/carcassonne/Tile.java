@@ -105,6 +105,8 @@ public class Tile {
     private boolean hasPennant;
     private boolean isCloister;
 
+    private int meeple;
+
     public static int flipPart(int part) {
         if (part == 0 || part == 1 || part == 4 || part == 5) {
             return 5 - part;
