@@ -1,5 +1,11 @@
 package com.example.carcassonne;
 
+/**
+ * Represents the game state of Carcassonne that contains the instance variables
+ * that display the needed information about the current state of the game
+ * for a human user or the computer player to make decisions.
+ */
+
 public class GameState {
     private Player[] playerList;
 
@@ -8,6 +14,8 @@ public class GameState {
 
     private Deck deck;
     private Board board;
+
+
 
     public GameState(Player[] players) {
         this.playerList = players;
@@ -43,6 +51,8 @@ public class GameState {
         this.board = new Board(gs.board);
     }
 
+    // Describes the state of the game as a string by printing all
+    // the variables in the GameState
     @Override
     public String toString() {
         return "hi";
