@@ -79,14 +79,14 @@ public class GameState {
     }
 
     public boolean resetTurn(Player p){
-        if(isPlacementStage && playerList.indexOf(p) == currentTurn ){
+        if(playerList.indexOf(p) == currentTurn ){
             return true;
         }
         return false;
     }
 
     public boolean placeMeeple(Player p){
-        if(isPlacementStage && playerList.indexOf(p) == currentTurn ){
+        if(!isPlacementStage && playerList.indexOf(p) == currentTurn ){
             return true;
         }
         return false;
@@ -99,8 +99,16 @@ public class GameState {
         return false;
     }
 
-    public boolean confirm(Player p){
+    public boolean confirmTile(Player p){
         if(isPlacementStage && playerList.indexOf(p) == currentTurn ){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean confirmMeeple(Player p){
+        if(!isPlacementStage && playerList.indexOf(p) == currentTurn ){
+            currentTurn++;
             return true;
         }
         return false;
