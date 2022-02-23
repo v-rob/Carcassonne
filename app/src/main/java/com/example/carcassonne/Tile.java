@@ -120,24 +120,35 @@ public class Tile {
                 int[] roads, boolean hasPennant, boolean isCloister) {
         this.id = id;
 
-        this.farmSections = copyNestedArray(farmSections);
-        this.citySections = copyNestedArray(citySections);
+        this.farmSections = Util.copyNestedArray(farmSections);
+        this.citySections = Util.copyNestedArray(citySections);
 
-        this.roads = copyArray(roads);
+        this.roads = Util.copyArray(roads);
 
         rotateBy((int)(Math.random() * 4));
 
         this.hasPennant = hasPennant;
         this.isCloister = isCloister;
     }
+
+    @Override
+    public String toString() {
+        return "Tile {\n" +
+                "    id = " + this.id + "\n" +
+                "    farmSections = " + Util.nestedArrayToString(this.farmSections) + "\n" +
+                "    citySections = " + Util.nestedArrayToString(this.citySections) + "\n" +
+                "    roads = " + Util.arrayToString(this.roads) + "\n" +
+                "    hasPennant = " + this.hasPennant + "\n" +
+                "    isCloister = " + this.isCloister + "\n}";
+    }
     
     public Tile(Tile other) {
         this.id = other.id;
 
-        this.farmSections = copyNestedArray(other.farmSections);
-        this.citySections = copyNestedArray(other.citySections);
+        this.farmSections = Util.copyNestedArray(other.farmSections);
+        this.citySections = Util.copyNestedArray(other.citySections);
 
-        this.roads = copyArray(other.roads);
+        this.roads = Util.copyArray(other.roads);
 
         this.hasPennant = other.hasPennant;
         this.isCloister = other.isCloister;
@@ -159,25 +170,5 @@ public class Tile {
         for (int i = 0; i < this.roads.length; i++) {
             this.roads[i] = (this.roads[i] + amount) % 4;
         }
-    }
-
-    private static int[] copyArray(int[] array) {
-        int[] ret = new int[array.length];
-
-        for (int i = 0; i < array.length; i++) {
-            ret[i] = array[i];
-        }
-
-        return ret;
-    }
-
-    private static int[][] copyNestedArray(int[][] array) {
-        int[][] ret = new int[array.length][];
-
-        for (int i = 0; i < array.length; i++) {
-            ret[i] = copyArray(array[i]);
-        }
-
-        return ret;
     }
 };
