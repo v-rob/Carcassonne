@@ -1,4 +1,11 @@
 package com.example.carcassonne;
+/**
+ * Represents a player in our game of Carcassonne, each player will consist of
+ * the number of meeples placed and the current score that player has. This class
+ * will help keep track of what every player has, while allowing access to get and set
+ * those values for each player.
+ *
+ */
 
 public class Player {
     private int meepleCount;
