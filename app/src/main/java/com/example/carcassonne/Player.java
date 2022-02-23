@@ -5,6 +5,7 @@ package com.example.carcassonne;
  * will help keep track of what every player has, while allowing access to get and set
  * those values for each player.
  *
+ * @author Sophie Arcangel
  */
 
 public class Player {
