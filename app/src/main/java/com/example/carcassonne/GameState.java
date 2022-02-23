@@ -2,6 +2,14 @@ package com.example.carcassonne;
 
 import java.util.ArrayList;
 
+/**
+ * Represents the game state of Carcassonne that includes instance variables
+ * that displays all the information of the current state of the game to help
+ * the human user or the computer player to make decisions
+ *
+ * @author DJ Backus, Sophie Arcangel, Vincent Robinson, Alex Martinez-Lopez, Cheyanne Yim
+ */
+
 public class GameState {
     private ArrayList<Player> playerList;
 
@@ -46,6 +54,8 @@ public class GameState {
         this.board = new Board(gs.board);
     }
 
+    // Describes the state of the game as a String by printing the values of all the
+    // variables
     @Override
     public String toString() {
         String allPlayers = null;
