@@ -10,7 +10,7 @@ import java.util.ArrayList;
  * @author DJ Backus, Sophie Arcangel, Vincent Robinson, Alex Martinez-Lopez, Cheyanne Yim
  */
 
-public class GameState {
+public class CarcassonneGameState {
     private ArrayList<Player> playerList;
 
     private int currentTurn;
@@ -19,7 +19,7 @@ public class GameState {
     private Deck deck;
     private Board board;
 
-    public GameState(ArrayList<Player> players) {
+    public CarcassonneGameState(ArrayList<Player> players) {
         this.playerList = players;
 
         this.currentTurn = 0;
@@ -29,7 +29,7 @@ public class GameState {
         this.board = new Board(this.deck.drawStartingTile());
     }
 
-    // Copy constructor for GameState constructor
+    // Copy constructor for CarcassonneGameState constructor
 
     /*
      * External Citation
@@ -40,7 +40,7 @@ public class GameState {
      * Solution: We used this website to learn how to deep copy
      *     and used it as an example for our code
      */
-    public GameState(GameState gs) {
+    public CarcassonneGameState(CarcassonneGameState gs) {
         this.playerList = new ArrayList<Player>();
         for (int i = 0; i < this.playerList.size(); i++) {
             Player x = new Player(gs.playerList.get(i));
