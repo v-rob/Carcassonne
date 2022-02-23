@@ -83,9 +83,15 @@ package com.example.carcassonne;
  *
  *     int[] roads = {0, 2};
  *
- * A final note: rotating a tile causes all the part and road numbers to be
- * rotated with it. In other words, a right rotation would cause tile D's city
- * to become 4 and 5 instead of the normal 2 and 3.
+ * A final note on sections: rotating a tile causes all the part and road numbers
+ * to be rotated with it. In other words, a right rotation would cause tile D's
+ * city to become 4 and 5 instead of the normal 2 and 3.
+ *
+ * Meeple placement on tiles is represented as two integers: the type of the meeple
+ * (which is one of the `MEEPLE_<type>` constants) and the section number, if placed
+ * on something that is divided into sections. For instance, a meeple placed on the
+ * second farm section has a `meepleType` of `MEEPLE_FARMER` and a `meepleSection`
+ * of 1.
  *
  * Tiles have two additional boolean fields: hasPennant states whether the city
  * in the tile has a pennant. Tiles with two cities never have pennants, so this
@@ -129,7 +135,15 @@ public class Tile {
      */
     private boolean isCloister;
 
-    private int meeple;
+    public static final int TYPE_FARM = 1;
+    public static final int TYPE_CITY = 2;
+    public static final int TYPE_ROAD = 3;
+    public static final int TYPE_CLOISTER = 4;
+
+    // TODO: This
+    private int meepleType;
+
+    private int meepleSection;
 
     /**
      * Returns the part number on the opposite side of the tile. For instance, the
@@ -145,6 +159,34 @@ public class Tile {
             return 5 - part;
         }
         return 9 - part;
+    }
+
+    public static int flipRoadPart(int roadPart) {
+        if (roadPart == 1 || roadPart == 3) {
+            return 4 - roadPart;
+        }
+        return 2 - roadPart;
+    }
+
+    public int getSectionType(int part) {
+        for (int i = 0; i < this.citySections.length; i++) {
+            int[] parts = this.citySections[i];
+            for (int j = 0; j < parts.length; j++) {
+                if (parts[j] == part) {
+                    return TYPE_CITY;
+                }
+            }
+        }
+        return TYPE_FARM;
+    }
+
+    public boolean hasRoad(int roadPart) {
+        for (int i = 0; i < this.roads.length; i++) {
+            if (this.roads[i] == roadPart) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

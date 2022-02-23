@@ -52,8 +52,8 @@ public class Board {
         this.currentTileY = y;
     }
 
-    public void commitCurrentTile() {
-        assert isCurrentTileValid();
+    public void confirmCurrentTile() {
+        assert isCurrentTilePlacementValid() && isCurrentMeeplePlacementValid();
 
         this.tiles[this.currentTileY][this.currentTileX] = this.currentTile;
 
@@ -77,7 +77,7 @@ public class Board {
         this.currentTileX = this.currentTileY = -1;
     }
 
-    public boolean isCurrentTileValid() {
+    public boolean isCurrentTilePlacementValid() {
         // Out-of-bounds tiles are never valid.
         if (this.currentTileX < 0 || this.currentTileY < 0 ||
                 this.currentTileX >= getWidth() || this.currentTileY >= getHeight()) {
@@ -89,8 +89,44 @@ public class Board {
             return false;
         }
 
-        // TODO: Detect when tiles don't match with adjacent tiles.
-        return true;
+        boolean foundAdjacent = false;
+        boolean adjacentIsValid = true;
+
+        // TODO: Split into helper methods
+        // Left
+        Tile adjacent = getTile(this.currentTileX - 1, this.currentTileY);
+        if (adjacent != null) {
+            foundAdjacent = true;
+            adjacentIsValid &= isAdjacentValid(adjacent, 6, 7, 3);
+        }
+
+        // Right
+        adjacent = getTile(this.currentTileX + 1, this.currentTileY);
+        if (adjacent != null) {
+            foundAdjacent = true;
+            adjacentIsValid &= isAdjacentValid(adjacent, 2, 3, 1);
+        }
+
+        // Above
+        adjacent = getTile(this.currentTileX, this.currentTileY - 1);
+        if (adjacent != null) {
+            foundAdjacent = true;
+            adjacentIsValid &= isAdjacentValid(adjacent, 0, 1, 0);
+        }
+
+        // Below
+        adjacent = getTile(this.currentTileX, this.currentTileY + 1);
+        if (adjacent != null) {
+            foundAdjacent = true;
+            adjacentIsValid &= isAdjacentValid(adjacent, 4, 5, 2);
+        }
+
+        return foundAdjacent && adjacentIsValid;
+    }
+
+    public boolean isCurrentMeeplePlacementValid() {
+        // TODO
+        return false;
     }
 
     @Override
@@ -120,7 +156,7 @@ public class Board {
         this.tiles = new Tile[3][3];
 
         setCurrentTile(1, 1, startingTile);
-        commitCurrentTile();
+        confirmCurrentTile();
     }
 
     public Board(Board other) {
@@ -150,5 +186,15 @@ public class Board {
         }
 
         this.tiles = dest;
+    }
+
+    private boolean isAdjacentValid(Tile adjacent, int firstPart, int secondPart,
+                                    int roadPart) {
+        return (this.currentTile.getSectionType(firstPart) ==
+                adjacent.getSectionType(Tile.flipPart(firstPart))) &&
+                (this.currentTile.getSectionType(secondPart) ==
+                        adjacent.getSectionType(Tile.flipPart(secondPart))) &&
+                (this.currentTile.hasRoad(roadPart) ==
+                        adjacent.hasRoad(Tile.flipRoadPart(roadPart)));
     }
 }
