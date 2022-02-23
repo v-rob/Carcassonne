@@ -95,44 +95,78 @@ package com.example.carcassonne;
  * @author Vincent Robinson
  */
 public class Tile {
+    /**
+     * The ID of the tile, which is a letter between 'a' and 'x' that corresponds to
+     * the "tile_<id>.png" file of this tile.
+     */
     private char id;
 
+    /**
+     * The parts of the tile that comprise each section of each farm in this tile. See
+     * the main comment for Tile for more information.
+     */
     private int[][] farmSections;
+    /**
+     * The parts of the tile that comprise each section of each cities in this tile. See
+     * the main comment for Tile for more information.
+     */
     private int[][] citySections;
 
+    /**
+     * The road parts that indicate which edge of the tile has a road in that direction.
+     * See the main comment for Tile for more information.
+     */
     private int[] roads;
 
+    /**
+     * Indicates whether the city on this tile has a pennant or not. Always false for
+     * tiles with zero or two cities.
+     */
     private boolean hasPennant;
+    /**
+     * Indicates whether this tile has a cloister on it. No tiles have both cities and
+     * cloisters.
+     */
     private boolean isCloister;
 
     private int meeple;
 
+    /**
+     * Returns the part number on the opposite side of the tile. For instance, the
+     * opposite for 2 is 7.
+     *
+     * @param part The part number to find the opposite of.
+     * @return The opposite of the provided part number.
+     */
     public static int flipPart(int part) {
+        // This is an interesting property that subtracting five by the vertical
+        // numbers and nine by the horizontal numbers give the opposite part.
         if (part == 0 || part == 1 || part == 4 || part == 5) {
             return 5 - part;
         }
         return 9 - part;
     }
 
+    /**
+     * Rotates the tile 90 degrees clockwise. All sections and roads are rotated
+     * with it.
+     */
     public void rotate() {
-        rotateBy(1);
+        rotateSections(this.farmSections);
+        rotateSections(this.citySections);
+
+        for (int i = 0; i < this.roads.length; i++) {
+            // Increase the road parts by one and modulus by four to ensure they stay
+            // in the range 0-3.
+            this.roads[i] = (this.roads[i] + 1) % 4;
+        }
     }
 
-    public Tile(char id, int[][] farmSections, int[][] citySections,
-                int[] roads, boolean hasPennant, boolean isCloister) {
-        this.id = id;
-
-        this.farmSections = Util.copyNestedArray(farmSections);
-        this.citySections = Util.copyNestedArray(citySections);
-
-        this.roads = Util.copyArray(roads);
-
-        rotateBy((int)(Math.random() * 4));
-
-        this.hasPennant = hasPennant;
-        this.isCloister = isCloister;
-    }
-
+    /**
+     * Converts the tile to a string representation showing all instance variables.
+     *
+     * @return The string representation of the tile.
+     */
     @Override
     public String toString() {
         return "Tile {\n" +
@@ -143,7 +177,43 @@ public class Tile {
                 "    hasPennant = " + this.hasPennant + "\n" +
                 "    isCloister = " + this.isCloister + "\n}";
     }
-    
+
+    /**
+     * Creates a new Tile. Generally, only Deck needs to create Tiles, as everything
+     * else will get its tiles from Deck. Deep copies are made of all array parameters.
+     *
+     * @param id           The character id of the tile.
+     * @param farmSections The parts of the tile that comprise each farm section.
+     * @param citySections The parts of the tile that comprise each city section.
+     * @param roads        The road parts for each road exiting the tile.
+     * @param hasPennant   Whether or not the tile has a pennant for the city.
+     * @param isCloister   Whether or not the tile has a cloister.
+     */
+    public Tile(char id, int[][] farmSections, int[][] citySections,
+                int[] roads, boolean hasPennant, boolean isCloister) {
+        this.id = id;
+
+        this.farmSections = Util.copyNestedArray(farmSections);
+        this.citySections = Util.copyNestedArray(citySections);
+
+        this.roads = Util.copyArray(roads);
+
+        // Give the tile a random rotation since tiles will be in no particular
+        // rotation when drawing a tile in real Carcassonne.
+        int by = (int)(Math.random() * 4);
+        for (int i = 0; i < by; i++) {
+            rotate();
+        }
+
+        this.hasPennant = hasPennant;
+        this.isCloister = isCloister;
+    }
+
+    /**
+     * Performs a deep copy of the tile and all its instance variables.
+     *
+     * @param other The tile to make a copy of.
+     */
     public Tile(Tile other) {
         this.id = other.id;
 
@@ -156,21 +226,18 @@ public class Tile {
         this.isCloister = other.isCloister;
     }
 
-    private static void rotateSectionsBy(int[][] sections, int amount) {
+    /**
+     * Rotates a set of sections by 90 degrees clockwise in place.
+     *
+     * @param sections The array of sections to rotate.
+     */
+    private static void rotateSections(int[][] sections) {
         for (int i = 0; i < sections.length; i++) {
-            int[] section = sections[i];
-            for (int j = 0; j < section.length; j++) {
-                section[j] = (section[j] + amount * 2) % 8;
+            for (int j = 0; j < sections[i].length; j++) {
+                // There are two part numbers per side of the tile, so add two,
+                // and then modulus by eight to ensure it stays in the range 0-7.
+                sections[i][j] = (sections[i][j] + 2) % 8;
             }
-        }
-    }
-
-    private void rotateBy(int amount) {
-        rotateSectionsBy(this.farmSections, amount);
-        rotateSectionsBy(this.citySections, amount);
-
-        for (int i = 0; i < this.roads.length; i++) {
-            this.roads[i] = (this.roads[i] + amount) % 4;
         }
     }
 };
