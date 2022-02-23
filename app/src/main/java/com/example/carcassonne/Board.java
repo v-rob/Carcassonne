@@ -139,27 +139,11 @@ public class Board {
         if (type == Tile.TYPE_CLOISTER && this.currentTile.hasCloister()) {
             return true;
         } else if (type == Tile.TYPE_ROAD) {
-            return checkAdjacentHasRoadMeeples(this.currentTileX, this.currentTileY, visited);
+            return checkAdjacentHasRoadMeeples(this.currentTileX, this.currentTileY,
+                    this.currentTile, visited);
         }
-        return false;
-    }
-
-    private boolean checkAdjacentHasRoadMeeples(int x, int y, HashSet<Tile> visited) {
-        return hasRoadMeeple(x - 1, y, visited) ||
-               hasRoadMeeple(x + 1, y, visited) ||
-               hasRoadMeeple(x, y - 1, visited) ||
-               hasRoadMeeple(x, y + 1, visited);
-    }
-
-    private boolean hasRoadMeeple(int x, int y, HashSet<Tile> visited) {
-        Tile tile = getTile(x, y);
-        if (tile == null || visited.contains(tile)) {
-            return false;
-        }
-
-        visited.add(tile);
-        return tile.getMeepleType() == Tile.TYPE_ROAD ||
-                checkAdjacentHasRoadMeeples(x, y, visited);
+        return checkAdjacentHasSectionMeeples(this.currentTileX, this.currentTileY,
+                this.currentTile, visited);
     }
 
     @Override
@@ -229,5 +213,52 @@ public class Board {
                         adjacent.getSectionType(Tile.flipPart(secondPart))) &&
                 (this.currentTile.hasRoad(roadPart) ==
                         adjacent.hasRoad(Tile.flipRoadPart(roadPart)));
+    }
+
+    private boolean checkAdjacentHasRoadMeeples(int x, int y, Tile tile,
+            HashSet<Tile> visited) {
+        if (tile == null) {
+            tile = getTile(x, y);
+        }
+
+        int[] roads = tile.getRoads();
+        boolean foundMeeple = false;
+
+        for (int i = 0; i < roads.length; i++) {
+            int road = roads[i];
+
+            switch (road) {
+                case 0:
+                    foundMeeple |= hasRoadMeeple(x, y - 1, visited);
+                    break;
+                case 1:
+                    foundMeeple |= hasRoadMeeple(x + 1, y, visited);
+                    break;
+                case 2:
+                    foundMeeple |= hasRoadMeeple(x, y + 1, visited);
+                    break;
+                case 3:
+                    foundMeeple |= hasRoadMeeple(x - 1, y, visited);
+                    break;
+            }
+        }
+
+        return foundMeeple;
+    }
+
+    private boolean hasRoadMeeple(int x, int y, HashSet<Tile> visited) {
+        Tile tile = getTile(x, y);
+        if (tile == null || visited.contains(tile)) {
+            return false;
+        }
+
+        visited.add(tile);
+        return tile.getMeepleType() == Tile.TYPE_ROAD ||
+                checkAdjacentHasRoadMeeples(x, y, null, visited);
+    }
+
+    private boolean checkAdjacentHasSectionMeeples(int x, int y, Tile tile,
+            HashSet<Tile> visited) {
+        return false;
     }
 }

@@ -155,8 +155,12 @@ public class Tile {
     public static int flipPart(int part) {
         // This is an interesting property that subtracting five by the vertical
         // numbers and nine by the horizontal numbers give the opposite part.
-        if (part == 0 || part == 1 || part == 4 || part == 5) {
-            return 5 - part;
+        switch (part) {
+            case 0:
+            case 1:
+            case 4:
+            case 5:
+                return 5 - part;
         }
         return 9 - part;
     }
@@ -187,14 +191,6 @@ public class Tile {
             }
         }
         return false;
-    }
-
-    public int[][] getFarmSections() {
-        return this.farmSections;
-    }
-
-    public int[][] getCitySections() {
-        return this.citySections;
     }
 
     public int[] getRoads() {
