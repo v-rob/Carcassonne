@@ -91,11 +91,11 @@ package com.example.carcassonne;
  * (which is one of the `MEEPLE_<type>` constants) and the section number, if placed
  * on something that is divided into sections. For instance, a meeple placed on the
  * second farm section has a `meepleType` of `MEEPLE_FARMER` and a `meepleSection`
- * of 1.
+ * of 1. If a meeple type has no need of a section, the section is zero.
  *
  * Tiles have two additional boolean fields: hasPennant states whether the city
  * in the tile has a pennant. Tiles with two cities never have pennants, so this
- * this does not have to be accounted for. Secondly, isCloister states whether
+ * this does not have to be accounted for. Secondly, hasCloister states whether
  * the tile is a cloister or not.
  *
  * @author Vincent Robinson
@@ -133,7 +133,7 @@ public class Tile {
      * Indicates whether this tile has a cloister on it. No tiles have both cities and
      * cloisters.
      */
-    private boolean isCloister;
+    private boolean hasCloister;
 
     public static final int TYPE_FARM = 1;
     public static final int TYPE_CITY = 2;
@@ -189,6 +189,34 @@ public class Tile {
         return false;
     }
 
+    public int[][] getFarmSections() {
+        return this.farmSections;
+    }
+
+    public int[][] getCitySections() {
+        return this.citySections;
+    }
+
+    public int[] getRoads() {
+        return this.roads;
+    }
+
+    public boolean hasPennant() {
+        return this.hasPennant;
+    }
+    
+    public boolean hasCloister() {
+        return this.hasCloister;
+    }
+
+    public int getMeepleType() {
+        return this.meepleType;
+    }
+
+    public int getMeepleSection() {
+        return this.meepleSection;
+    }
+
     /**
      * Rotates the tile 90 degrees clockwise. All sections and roads are rotated
      * with it.
@@ -217,7 +245,7 @@ public class Tile {
                 "    citySections = " + Util.nestedArrayToString(this.citySections) + "\n" +
                 "    roads = " + Util.arrayToString(this.roads) + "\n" +
                 "    hasPennant = " + this.hasPennant + "\n" +
-                "    isCloister = " + this.isCloister + "\n}";
+                "    hasCloister = " + this.hasCloister + "\n}";
     }
 
     /**
@@ -229,10 +257,10 @@ public class Tile {
      * @param citySections The parts of the tile that comprise each city section.
      * @param roads        The road parts for each road exiting the tile.
      * @param hasPennant   Whether or not the tile has a pennant for the city.
-     * @param isCloister   Whether or not the tile has a cloister.
+     * @param hasCloister   Whether or not the tile has a cloister.
      */
     public Tile(char id, int[][] farmSections, int[][] citySections,
-                int[] roads, boolean hasPennant, boolean isCloister) {
+                int[] roads, boolean hasPennant, boolean hasCloister) {
         this.id = id;
 
         this.farmSections = Util.copyNestedArray(farmSections);
@@ -248,7 +276,7 @@ public class Tile {
         }
 
         this.hasPennant = hasPennant;
-        this.isCloister = isCloister;
+        this.hasCloister = hasCloister;
     }
 
     /**
@@ -265,7 +293,7 @@ public class Tile {
         this.roads = Util.copyArray(other.roads);
 
         this.hasPennant = other.hasPennant;
-        this.isCloister = other.isCloister;
+        this.hasCloister = other.hasCloister;
     }
 
     /**

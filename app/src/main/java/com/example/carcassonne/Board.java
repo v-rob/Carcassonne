@@ -1,5 +1,7 @@
 package com.example.carcassonne;
 
+import java.util.HashSet;
+
 /**
  * Represents the "board" of tiles, i.e. all the tiles in play, including the special
  * current tile that is not fully committed to the board, if there is one. Any positions
@@ -125,8 +127,41 @@ public class Board {
     }
 
     public boolean isCurrentMeeplePlacementValid() {
+        assert isCurrentTilePlacementValid();
+
+        int type = this.currentTile.getMeepleType();
+
+        // Set of all tiles (not including the current tile) that have already
+        // been visited by hasRoadMeeple() or hasSectionMeeple(). It is unused for
+        // cloisters.
+        HashSet<Tile> visited = new HashSet<>();
+
+        if (type == Tile.TYPE_CLOISTER && this.currentTile.hasCloister()) {
+            return true;
+        } else if (type == Tile.TYPE_ROAD) {
+            return checkAdjacentHasRoadMeeples(this.currentTileX, this.currentTileY, visited);
+        }
+
         // TODO
         return false;
+    }
+
+    private boolean checkAdjacentHasRoadMeeples(int x, int y, HashSet<Tile> visited) {
+        return hasRoadMeeple(x - 1, y, visited) ||
+               hasRoadMeeple(x + 1, y, visited) ||
+               hasRoadMeeple(x, y - 1, visited) ||
+               hasRoadMeeple(x, y + 1, visited);
+    }
+
+    private boolean hasRoadMeeple(int x, int y, HashSet<Tile> visited) {
+        Tile tile = getTile(x, y);
+        if (tile == null || visited.contains(tile)) {
+            return false;
+        }
+
+        visited.add(tile);
+        return tile.getMeepleType() == Tile.TYPE_ROAD ||
+                checkAdjacentHasRoadMeeples(x, y, visited);
     }
 
     @Override
