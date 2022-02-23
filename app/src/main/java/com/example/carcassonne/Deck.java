@@ -54,7 +54,7 @@ public class Deck {
         final int[][] NO_SECTIONS = new int[][]{{}};
         final int[] NO_ROADS = new int[]{};
 
-        addTiles('A', 2,
+        addTiles('a', 2,
                 ALL_SECTIONS,
                 NO_SECTIONS,
                 new int[]{2},
@@ -62,7 +62,7 @@ public class Deck {
                 true
         );
 
-        addTiles('B', 4,
+        addTiles('b', 4,
                 ALL_SECTIONS,
                 NO_SECTIONS,
                 NO_ROADS,
@@ -70,7 +70,7 @@ public class Deck {
                 true
         );
 
-        addTiles('C', 1,
+        addTiles('c', 1,
                 NO_SECTIONS,
                 ALL_SECTIONS,
                 NO_ROADS,
@@ -78,7 +78,7 @@ public class Deck {
                 false
         );
 
-        addTiles('D', 4,
+        addTiles('d', 4,
                 new int[][]{
                         {1, 4},
                         {0, 5, 6, 7}
@@ -93,7 +93,7 @@ public class Deck {
         // the ArrayList and set it as the starting tile.
         this.startingTile = this.tiles.remove(this.tiles.size() - 1);
 
-        addTiles('E', 5,
+        addTiles('e', 5,
                 new int[][]{{2, 3, 4, 5, 6, 7}},
                 new int[][]{{0, 1}},
                 NO_ROADS,
@@ -101,7 +101,7 @@ public class Deck {
                 false
         );
 
-        addTiles('F', 2,
+        addTiles('f', 2,
                 new int[][]{
                         {0, 1},
                         {4, 5}
@@ -112,7 +112,7 @@ public class Deck {
                 false
         );
 
-        addTiles('G', 1,
+        addTiles('g', 1,
                 new int[][]{
                         {2, 3},
                         {6, 7}
@@ -123,7 +123,7 @@ public class Deck {
                 false
         );
 
-        addTiles('H', 3,
+        addTiles('h', 3,
                 new int[][]{{0, 1, 4, 5}},
                 new int[][]{
                         {2, 3},
@@ -134,7 +134,7 @@ public class Deck {
                 false
         );
 
-        addTiles('I', 2,
+        addTiles('i', 2,
                 new int[][]{{0, 1, 6, 7}},
                 new int[][]{
                         {2, 3},
@@ -145,7 +145,7 @@ public class Deck {
                 false
         );
 
-        addTiles('J', 3,
+        addTiles('j', 3,
                 new int[][]{
                         {2, 5, 6, 7},
                         {3, 4}
@@ -156,7 +156,7 @@ public class Deck {
                 false
         );
 
-        addTiles('K', 3,
+        addTiles('k', 3,
                 new int[][]{
                         {1, 4, 5, 6},
                         {7, 0}
@@ -167,7 +167,7 @@ public class Deck {
                 false
         );
 
-        addTiles('L', 3,
+        addTiles('l', 3,
                 new int[][]{
                         {1, 4},
                         {5, 6},
@@ -179,13 +179,13 @@ public class Deck {
                 false
         );
 
-        addPennantTiles('M', 2, 'N', 3,
+        addPennantTiles('m', 2, 'n', 3,
                 new int[][]{{2, 3, 4, 5}},
                 new int[][]{{6, 7, 0, 1}},
                 NO_ROADS
         );
 
-        addPennantTiles('O', 2, 'P', 3,
+        addPennantTiles('o', 2, 'p', 3,
                 new int[][]{
                         {2, 5},
                         {3, 4}
@@ -194,13 +194,13 @@ public class Deck {
                 new int[]{1, 2}
         );
 
-        addPennantTiles('Q', 1, 'R', 3,
+        addPennantTiles('q', 1, 'r', 3,
                 new int[][]{{4, 5}},
                 new int[][]{{6, 7, 0, 1, 2, 3}},
                 NO_ROADS
         );
 
-        addPennantTiles('S', 2, 'T', 1,
+        addPennantTiles('s', 2, 't', 1,
                 new int[][]{
                         {4},
                         {5}
@@ -209,7 +209,7 @@ public class Deck {
                 new int[]{2}
         );
 
-        addTiles('U', 8,
+        addTiles('u', 8,
                 new int[][]{
                         {1, 2, 3, 4},
                         {5, 6, 7, 0},
@@ -220,7 +220,7 @@ public class Deck {
                 false
         );
 
-        addTiles('V', 9,
+        addTiles('v', 9,
                 new int[][]{
                         {7, 0, 1, 2, 3, 4},
                         {5, 6}
@@ -231,7 +231,7 @@ public class Deck {
                 false
         );
 
-        addTiles('W', 4,
+        addTiles('w', 4,
                 new int[][]{
                         {7, 0, 1, 2},
                         {3, 4},
@@ -243,7 +243,7 @@ public class Deck {
                 false
         );
 
-        addTiles('X', 1,
+        addTiles('x', 1,
                 new int[][]{
                         {1, 2},
                         {3, 4},
