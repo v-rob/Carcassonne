@@ -145,7 +145,7 @@ public class GameState {
      * Determine if the current player confirmed if they wanted to place a Meeple on the
      * tile and where the player wanted to place
      * @param p name of the player
-     * @return true if player placed a Meeple and if the placement is valid. False otherwise.
+     * @return true if the player placed a Meeple and if the placement is valid. False otherwise.
      */
     public boolean confirmMeeple(Player p){
         if(!isPlacementStage && playerList.indexOf(p) == currentTurn ){
