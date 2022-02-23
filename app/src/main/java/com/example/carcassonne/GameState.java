@@ -4,6 +4,8 @@ package com.example.carcassonne;
  * Represents the game state of Carcassonne that contains the instance variables
  * that display the needed information about the current state of the game
  * for a human user or the computer player to make decisions.
+ *
+ *  * @author DJ Backus, Sophie Arcangel
  */
 
 public class GameState {
