@@ -93,7 +93,8 @@ import java.util.HashSet;
  * (which is one of the `MEEPLE_<type>` constants) and the section number, if placed
  * on something that is divided into sections. For instance, a meeple placed on the
  * second farm section has a `meepleType` of `MEEPLE_FARMER` and a `meepleSection`
- * of 1. If a meeple type has no need of a section, the section is zero.
+ * of 1. Finally, there is a field for determining which player placed the tile (and
+ * therefore the color of the meeple).
  *
  * Tiles have two additional boolean fields: hasPennant states whether the city
  * in the tile has a pennant. Tiles with two cities never have pennants, so this
@@ -112,7 +113,6 @@ public class Tile {
     /**
      * The parts of the tile that comprise each section of each farm in this tile. See
      * the main comment for Tile for more information.
-     * TODO: Refactor to use HashSet<Integer>
      */
     private HashSet<Integer>[] farmSections;
     /**
@@ -138,6 +138,7 @@ public class Tile {
      */
     private boolean hasCloister;
 
+    public static final int TYPE_NONE = 0;
     public static final int TYPE_FARM = 1;
     public static final int TYPE_CITY = 2;
     public static final int TYPE_ROAD = 3;
@@ -146,6 +147,8 @@ public class Tile {
     private int meepleType;
 
     private int meepleSection;
+
+    private int owner;
 
     /**
      * Returns the part number on the opposite side of the tile. For instance, the
@@ -167,11 +170,55 @@ public class Tile {
         return 9 - part;
     }
 
-    public static int flipRoadPart(int roadPart) {
-        if (roadPart == 1 || roadPart == 3) {
-            return 4 - roadPart;
+    public static int flipRoadPart(int part) {
+        if (part == 1 || part == 3) {
+            return 4 - part;
         }
-        return 2 - roadPart;
+        return 2 - part;
+    }
+
+    public static int partXOffset(int part) {
+        switch (part) {
+            case 2:
+            case 3:
+                return 1;
+            case 6:
+            case 7:
+                return -1;
+        }
+        return 0;
+    }
+
+    public static int partYOffset(int part) {
+        switch (part) {
+            case 0:
+            case 1:
+                return -1;
+            case 4:
+            case 5:
+                return 1;
+        }
+        return 0;
+    }
+
+    public static int roadPartXOffset(int part) {
+        if (part == 1) {
+            return 1;
+        }
+        else if (part == 3) {
+            return -1;
+        }
+        return 0;
+    }
+
+    public static int roadPartYOffset(int part) {
+        if (part == 0) {
+            return -1;
+        }
+        else if (part == 2) {
+            return 1;
+        }
+        return 0;
     }
 
     public int getSectionType(int part) {
@@ -181,8 +228,8 @@ public class Tile {
         return TYPE_FARM;
     }
 
-    public boolean hasRoad(int roadPart) {
-        return this.roads.contains(roadPart);
+    public boolean hasRoad(int part) {
+        return this.roads.contains(part);
     }
 
     public HashSet<Integer> getSectionFromPart(int part) {
@@ -209,8 +256,18 @@ public class Tile {
         return this.meepleType;
     }
 
-    public int getMeepleSection() {
-        return this.meepleSection;
+    public HashSet<Integer> getMeepleSection() {
+        if (this.meepleType == TYPE_CITY) {
+            return this.citySections[this.meepleSection];
+        }
+        else if (this.meepleType == TYPE_FARM) {
+            return this.farmSections[this.meepleSection];
+        }
+        return null;
+    }
+
+    public int getOwner() {
+        return this.owner;
     }
 
     /**

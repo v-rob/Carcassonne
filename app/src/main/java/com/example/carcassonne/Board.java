@@ -1,5 +1,6 @@
 package com.example.carcassonne;
 
+import java.util.HashMap;
 import java.util.HashSet;
 
 /**
@@ -30,6 +31,13 @@ public class Board {
             return null;
         }
         return this.tiles[y][x];
+    }
+
+    public Tile getAnyTile(int x, int y) {
+        if (x == this.currentTileX && y == this.currentTileY) {
+            return this.currentTile;
+        }
+        return getTile(x, y);
     }
 
     public Tile getCurrentTile() {
@@ -131,20 +139,25 @@ public class Board {
 
         int type = this.currentTile.getMeepleType();
 
-        // Set of all tiles (not including the current tile) that have already
-        // been visited by hasRoadMeeple() or hasSectionMeeple(). It is unused for
-        // cloisters.
         HashSet<Tile> visited = new HashSet<>();
+        HashMap<Integer, Integer> count = new HashMap<>();
 
-        if (type == Tile.TYPE_CLOISTER && this.currentTile.hasCloister()) {
+        if (type == Tile.TYPE_NONE) {
             return true;
-        } else if (type == Tile.TYPE_ROAD) {
-            return checkAdjacentHasRoadMeeples(this.currentTileX, this.currentTileY,
-                    this.currentTile, visited);
         }
-        // return checkAdjacentHasSectionMeeples(this.currentTileX, this.currentTileY,
-        //         this.currentTile, visited);
-        return false;
+        else if (type == Tile.TYPE_CLOISTER && this.currentTile.hasCloister()) {
+            return true;
+        }
+        else if (type == Tile.TYPE_ROAD) {
+            return countRoadMeeples(count, this.currentTileX, this.currentTileY, visited) == 1;
+        }
+
+        int total = 0;
+        for (int part : this.currentTile.getMeepleSection()) {
+            total += countSectionMeeples(count, type, this.currentTileX, this.currentTileY,
+                    part, visited);
+        }
+        return total == 1;
     }
 
     @Override
@@ -209,58 +222,74 @@ public class Board {
     private boolean isAdjacentValid(Tile adjacent, int firstPart, int secondPart,
                                     int roadPart) {
         return (this.currentTile.getSectionType(firstPart) ==
-                adjacent.getSectionType(Tile.flipPart(firstPart))) &&
-                (this.currentTile.getSectionType(secondPart) ==
-                        adjacent.getSectionType(Tile.flipPart(secondPart))) &&
-                (this.currentTile.hasRoad(roadPart) ==
-                        adjacent.hasRoad(Tile.flipRoadPart(roadPart)));
+                       adjacent.getSectionType(Tile.flipPart(firstPart))) &&
+               (this.currentTile.getSectionType(secondPart) ==
+                       adjacent.getSectionType(Tile.flipPart(secondPart))) &&
+               (this.currentTile.hasRoad(roadPart) ==
+                       adjacent.hasRoad(Tile.flipRoadPart(roadPart)));
     }
 
-    private boolean checkAdjacentHasRoadMeeples(int x, int y, Tile tile,
-            HashSet<Tile> visited) {
-        if (tile == null) {
-            tile = getTile(x, y);
+    private static int getOrDefault(HashMap<Integer, Integer> map, int key, int def) {
+        if (map.containsKey(key)) {
+            return map.get(key);
         }
-
-        boolean foundMeeple = false;
-
-        for (int road : tile.getRoads()) {
-            switch (road) {
-                case 0:
-                    foundMeeple |= hasRoadMeeple(x, y - 1, visited);
-                    break;
-                case 1:
-                    foundMeeple |= hasRoadMeeple(x + 1, y, visited);
-                    break;
-                case 2:
-                    foundMeeple |= hasRoadMeeple(x, y + 1, visited);
-                    break;
-                case 3:
-                    foundMeeple |= hasRoadMeeple(x - 1, y, visited);
-                    break;
-            }
-        }
-
-        return foundMeeple;
+        return def;
     }
 
-    private boolean hasRoadMeeple(int x, int y, HashSet<Tile> visited) {
-        Tile tile = getTile(x, y);
+    private int countRoadMeeples(HashMap<Integer, Integer> count, int x, int y,
+                                  HashSet<Tile> visited) {
+        Tile tile = getAnyTile(x, y);
+
+        // Don't count non-existent tile or tiles we've already searched through so
+        // that we don't run into infinite recursion.
         if (tile == null || visited.contains(tile)) {
-            return false;
+            return 0;
+        }
+        visited.add(tile);
+
+        int total = 0;
+
+        // Add the meeple from the current tile if it's a road meeple
+        if (tile.getMeepleType() == Tile.TYPE_ROAD) {
+            total++;
+
+            int owner = tile.getOwner();
+            count.put(owner, getOrDefault(count, owner, 0) + 1);
         }
 
+        // Run this same function on all possible adjacent tiles
+        for (int road_it : tile.getRoads()) {
+            total += countRoadMeeples(count, x + Tile.roadPartXOffset(road_it),
+                    y + Tile.roadPartYOffset(road_it), visited);
+        }
+
+        return total;
+    }
+
+    private int countSectionMeeples(HashMap<Integer, Integer> count, int type, int x,
+                                    int y, int part, HashSet<Tile> visited) {
+        Tile tile = getAnyTile(x, y);
+
+        if (tile == null || visited.contains(tile)) {
+            return 0;
+        }
         visited.add(tile);
-        return tile.getMeepleType() == Tile.TYPE_ROAD ||
-                checkAdjacentHasRoadMeeples(x, y, null, visited);
-    }
 
-    private boolean checkAdjacentHasSectionMeeples(int x, int y, int[] parts,
-            HashSet<Tile> visited) {
-        return false;
-    }
+        int total = 0;
 
-    private boolean hasSectionMeeple(int x, int y, int[] parts, HashSet<Tile> visited) {
-        return false;
+        if (tile.getMeepleType() == type) {
+            total++;
+
+            int owner = tile.getOwner();
+            count.put(owner, getOrDefault(count, owner, 0) + 1);
+        }
+
+        HashSet<Integer> section = tile.getSectionFromPart(part);
+        for (int part_it : section) {
+            total += countSectionMeeples(count, type, x + Tile.partXOffset(part_it),
+                    y + Tile.partYOffset(part_it), Tile.flipPart(part_it), visited);
+        }
+
+        return total;
     }
 }
