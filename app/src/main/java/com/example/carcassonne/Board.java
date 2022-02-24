@@ -99,39 +99,18 @@ public class Board {
             return false;
         }
 
-        boolean foundAdjacent = false;
-        boolean adjacentIsValid = true;
+        // Check all possible surrounding positions for validity in clockwise order
+        // starting from the top
+        AdjacentValidation adjacent = new AdjacentValidation();
 
-        // TODO: Split into helper methods
-        // Left
-        Tile adjacent = getTile(this.currentTileX - 1, this.currentTileY);
-        if (adjacent != null) {
-            foundAdjacent = true;
-            adjacentIsValid &= isAdjacentValid(adjacent, 6, 7, 3);
-        }
+        isAdjacentValid(adjacent, 0, -1, 0, 1, 0);
+        isAdjacentValid(adjacent, 1,  0, 2, 3, 1);
+        isAdjacentValid(adjacent, 0,  1, 4, 5, 2);
+        isAdjacentValid(adjacent, -1, 0, 6, 7, 3);
 
-        // Right
-        adjacent = getTile(this.currentTileX + 1, this.currentTileY);
-        if (adjacent != null) {
-            foundAdjacent = true;
-            adjacentIsValid &= isAdjacentValid(adjacent, 2, 3, 1);
-        }
-
-        // Above
-        adjacent = getTile(this.currentTileX, this.currentTileY - 1);
-        if (adjacent != null) {
-            foundAdjacent = true;
-            adjacentIsValid &= isAdjacentValid(adjacent, 0, 1, 0);
-        }
-
-        // Below
-        adjacent = getTile(this.currentTileX, this.currentTileY + 1);
-        if (adjacent != null) {
-            foundAdjacent = true;
-            adjacentIsValid &= isAdjacentValid(adjacent, 4, 5, 2);
-        }
-
-        return foundAdjacent && adjacentIsValid;
+        // We can only place the tile if there is another tile next to this one and
+        // if all farms, cities, and roads match up.
+        return adjacent.found && adjacent.isValid;
     }
 
     public boolean isCurrentMeeplePlacementValid() {
@@ -219,14 +198,26 @@ public class Board {
         this.tiles = dest;
     }
 
-    private boolean isAdjacentValid(Tile adjacent, int firstPart, int secondPart,
-                                    int roadPart) {
-        return (this.currentTile.getSectionType(firstPart) ==
-                       adjacent.getSectionType(Tile.flipPart(firstPart))) &&
-               (this.currentTile.getSectionType(secondPart) ==
-                       adjacent.getSectionType(Tile.flipPart(secondPart))) &&
-               (this.currentTile.hasRoad(roadPart) ==
-                       adjacent.hasRoad(Tile.flipRoadPart(roadPart)));
+    private class AdjacentValidation {
+        public boolean found = false;
+        public boolean isValid = true;
+    }
+
+    private void isAdjacentValid(AdjacentValidation adjacent, int xOffset, int yOffset,
+                                 int firstPart, int secondPart, int roadPart) {
+        Tile tile = getTile(this.currentTileX + xOffset, this.currentTileY + yOffset);
+        if (tile == null) {
+            return;
+        }
+
+        adjacent.found = true;
+
+        adjacent.isValid &= this.currentTile.getSectionType(firstPart) ==
+                tile.getSectionType(Tile.flipPart(firstPart));
+        adjacent.isValid &= this.currentTile.getSectionType(secondPart) ==
+                tile.getSectionType(Tile.flipPart(secondPart));
+        adjacent.isValid &= this.currentTile.hasRoad(roadPart) ==
+                tile.hasRoad(Tile.flipRoadPart(roadPart));
     }
 
     private static int getOrDefault(HashMap<Integer, Integer> map, int key, int def) {
