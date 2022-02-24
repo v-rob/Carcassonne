@@ -1,5 +1,7 @@
 package com.example.carcassonne;
 
+import java.util.HashSet;
+
 /**
  * Represents a single Carcassonne tile. Carcassonne's main complexity lies in
  * how things connect: for instance, farmland connects to farmland on different
@@ -110,19 +112,20 @@ public class Tile {
     /**
      * The parts of the tile that comprise each section of each farm in this tile. See
      * the main comment for Tile for more information.
+     * TODO: Refactor to use HashSet<Integer>
      */
-    private int[][] farmSections;
+    private HashSet<Integer>[] farmSections;
     /**
      * The parts of the tile that comprise each section of each cities in this tile. See
      * the main comment for Tile for more information.
      */
-    private int[][] citySections;
+    private HashSet<Integer>[] citySections;
 
     /**
      * The road parts that indicate which edge of the tile has a road in that direction.
      * See the main comment for Tile for more information.
      */
-    private int[] roads;
+    private HashSet<Integer> roads;
 
     /**
      * Indicates whether the city on this tile has a pennant or not. Always false for
@@ -140,7 +143,6 @@ public class Tile {
     public static final int TYPE_ROAD = 3;
     public static final int TYPE_CLOISTER = 4;
 
-    // TODO: This
     private int meepleType;
 
     private int meepleSection;
@@ -173,27 +175,25 @@ public class Tile {
     }
 
     public int getSectionType(int part) {
-        for (int i = 0; i < this.citySections.length; i++) {
-            int[] parts = this.citySections[i];
-            for (int j = 0; j < parts.length; j++) {
-                if (parts[j] == part) {
-                    return TYPE_CITY;
-                }
-            }
+        if (getGenericSectionFromPart(this.citySections, part) != null) {
+            return TYPE_CITY;
         }
         return TYPE_FARM;
     }
 
     public boolean hasRoad(int roadPart) {
-        for (int i = 0; i < this.roads.length; i++) {
-            if (this.roads[i] == roadPart) {
-                return true;
-            }
-        }
-        return false;
+        return this.roads.contains(roadPart);
     }
 
-    public int[] getRoads() {
+    public HashSet<Integer> getSectionFromPart(int part) {
+        HashSet<Integer> section = getGenericSectionFromPart(this.citySections, part);
+        if (section != null) {
+            return section;
+        }
+        return getGenericSectionFromPart(this.farmSections, part);
+    }
+
+    public HashSet<Integer> getRoads() {
         return this.roads;
     }
 
@@ -221,11 +221,7 @@ public class Tile {
         rotateSections(this.farmSections);
         rotateSections(this.citySections);
 
-        for (int i = 0; i < this.roads.length; i++) {
-            // Increase the road parts by one and modulus by four to ensure they stay
-            // in the range 0-3.
-            this.roads[i] = (this.roads[i] + 1) % 4;
-        }
+        this.roads = rotateSet(this.roads, 1, 4);
     }
 
     /**
@@ -237,9 +233,9 @@ public class Tile {
     public String toString() {
         return "Tile {\n" +
                 "    id = " + this.id + "\n" +
-                "    farmSections = " + Util.nestedArrayToString(this.farmSections) + "\n" +
-                "    citySections = " + Util.nestedArrayToString(this.citySections) + "\n" +
-                "    roads = " + Util.arrayToString(this.roads) + "\n" +
+                "    farmSections = " + sectionsToString(this.farmSections) + "\n" +
+                "    citySections = " + sectionsToString(this.citySections) + "\n" +
+                "    roads = " + setToString(this.roads) + "\n" +
                 "    hasPennant = " + this.hasPennant + "\n" +
                 "    hasCloister = " + this.hasCloister + "\n}";
     }
@@ -259,10 +255,10 @@ public class Tile {
                 int[] roads, boolean hasPennant, boolean hasCloister) {
         this.id = id;
 
-        this.farmSections = Util.copyNestedArray(farmSections);
-        this.citySections = Util.copyNestedArray(citySections);
+        this.farmSections = sectionsFromIntArray(farmSections);
+        this.citySections = sectionsFromIntArray(citySections);
 
-        this.roads = Util.copyArray(roads);
+        this.roads = setFromIntArray(roads);
 
         // Give the tile a random rotation since tiles will be in no particular
         // rotation when drawing a tile in real Carcassonne.
@@ -283,27 +279,81 @@ public class Tile {
     public Tile(Tile other) {
         this.id = other.id;
 
-        this.farmSections = Util.copyNestedArray(other.farmSections);
-        this.citySections = Util.copyNestedArray(other.citySections);
+        this.farmSections = copySections(other.farmSections);
+        this.citySections = copySections(other.citySections);
 
-        this.roads = Util.copyArray(other.roads);
+        this.roads = new HashSet<>(other.roads);
 
         this.hasPennant = other.hasPennant;
         this.hasCloister = other.hasCloister;
     }
 
-    /**
-     * Rotates a set of sections by 90 degrees clockwise in place.
-     *
-     * @param sections The array of sections to rotate.
-     */
-    private static void rotateSections(int[][] sections) {
+    private static HashSet<Integer> getGenericSectionFromPart(
+            HashSet<Integer>[] sections, int part) {
         for (int i = 0; i < sections.length; i++) {
-            for (int j = 0; j < sections[i].length; j++) {
-                // There are two part numbers per side of the tile, so add two,
-                // and then modulus by eight to ensure it stays in the range 0-7.
-                sections[i][j] = (sections[i][j] + 2) % 8;
+            HashSet<Integer> section = sections[i];
+            if (sections[i].contains(part)) {
+                return section;
             }
         }
+        return null;
+    }
+
+    private static void rotateSections(HashSet<Integer>[] sections) {
+        for (int i = 0; i < sections.length; i++) {
+            sections[i] = rotateSet(sections[i], 2, 8);
+        }
+    }
+
+    private static HashSet<Integer> rotateSet(HashSet<Integer> set, int add, int mod) {
+        HashSet<Integer> rotated = new HashSet<>();
+        for (int part : set) {
+            rotated.add((part + add) % mod);
+        }
+        return rotated;
+    }
+
+    private static HashSet<Integer> setFromIntArray(int[] array) {
+        HashSet<Integer> set = new HashSet<>();
+        for (int i = 0; i < array.length; i++) {
+            set.add(array[i]);
+        }
+        return set;
+    }
+
+    private static HashSet<Integer>[] sectionsFromIntArray(int[][] array) {
+        HashSet<Integer>[] sections = new HashSet[array.length];
+        for (int i = 0; i < array.length; i++) {
+            sections[i] = setFromIntArray(array[i]);
+        }
+        return sections;
+    }
+
+    private static HashSet<Integer>[] copySections(HashSet<Integer>[] sections) {
+        HashSet<Integer>[] copy = new HashSet[sections.length];
+        for (int i = 0; i < sections.length; i++) {
+            copy[i] = new HashSet<>(sections[i]);
+        }
+        return copy;
+    }
+
+    public static String setToString(HashSet<Integer> array) {
+        String str = "{";
+
+        for (int part : array) {
+            str += part + ", ";
+        }
+
+        return str.substring(0, str.length() - 2) + "}";
+    }
+
+    public static String sectionsToString(HashSet<Integer>[] array) {
+        String str = "{";
+
+        for (int i = 0; i < array.length; i++) {
+            str += "\n    " + setToString(array[i]) + ",";
+        }
+
+        return str.substring(0, str.length() - 1) + "\n}";
     }
 };

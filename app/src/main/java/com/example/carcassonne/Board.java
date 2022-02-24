@@ -142,8 +142,9 @@ public class Board {
             return checkAdjacentHasRoadMeeples(this.currentTileX, this.currentTileY,
                     this.currentTile, visited);
         }
-        return checkAdjacentHasSectionMeeples(this.currentTileX, this.currentTileY,
-                this.currentTile, visited);
+        // return checkAdjacentHasSectionMeeples(this.currentTileX, this.currentTileY,
+        //         this.currentTile, visited);
+        return false;
     }
 
     @Override
@@ -160,7 +161,7 @@ public class Board {
                 Tile tile = getTile(x, y);
                 if (tile != null) {
                     str += "    tiles[" + y + "][" + x + "] = " +
-                            Util.indent(8, tile.toString()) + "\n";
+                            Util.indent(4, tile.toString()) + "\n";
                 }
             }
         }
@@ -221,12 +222,9 @@ public class Board {
             tile = getTile(x, y);
         }
 
-        int[] roads = tile.getRoads();
         boolean foundMeeple = false;
 
-        for (int i = 0; i < roads.length; i++) {
-            int road = roads[i];
-
+        for (int road : tile.getRoads()) {
             switch (road) {
                 case 0:
                     foundMeeple |= hasRoadMeeple(x, y - 1, visited);
@@ -257,8 +255,12 @@ public class Board {
                 checkAdjacentHasRoadMeeples(x, y, null, visited);
     }
 
-    private boolean checkAdjacentHasSectionMeeples(int x, int y, Tile tile,
+    private boolean checkAdjacentHasSectionMeeples(int x, int y, int[] parts,
             HashSet<Tile> visited) {
+        return false;
+    }
+
+    private boolean hasSectionMeeple(int x, int y, int[] parts, HashSet<Tile> visited) {
         return false;
     }
 }
