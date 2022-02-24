@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 
 public class CarcassonneGameState {
-    private ArrayList<Player> playerList;
+    private Player[] playerList;
 
     private int currentTurn;
     private boolean isPlacementStage;
@@ -19,7 +19,7 @@ public class CarcassonneGameState {
     private Deck deck;
     private Board board;
 
-    public CarcassonneGameState(ArrayList<Player> players) {
+    public CarcassonneGameState(Player[] players) {
         this.playerList = players;
 
         this.currentTurn = 0;
@@ -41,10 +41,9 @@ public class CarcassonneGameState {
      *     and used it as an example for our code
      */
     public CarcassonneGameState(CarcassonneGameState gs) {
-        this.playerList = new ArrayList<Player>();
-        for (int i = 0; i < this.playerList.size(); i++) {
-            Player x = new Player(gs.playerList.get(i));
-            this.playerList.add(x);
+        this.playerList = new Player[gs.playerList.length];
+        for (int i = 0; i < this.playerList.length; i++) {
+            this.playerList[i] = new Player(gs.playerList[i]);
         }
 
         this.currentTurn = gs.currentTurn;
@@ -61,20 +60,27 @@ public class CarcassonneGameState {
      */
     @Override
     public String toString() {
-        String allPlayers = null;
-        for(int i = 0; i < playerList.size(); i++){
-            allPlayers = playerList.get(i) + " ";
+        String str = "CarcassonneGameState {\n" +
+                "    playerList = {";
+
+        for (int i = 0; i < this.playerList.length; i++) {
+            str += "        " + Util.indent(this.playerList[i].toString()) + "\n";
         }
-        return "Current Player Turn: " + currentTurn + " Is it the placement stage? "
-                + isPlacementStage + " Player List: " +  allPlayers + " Board: " + board
-                + " Deck: " + deck;
+
+        str += "    currentTurn = " + this.currentTurn + "\n" +
+                "    isPlacementStage = " + this.isPlacementStage + "\n" +
+                Util.indent(this.deck.toString()) + "\n" +
+                Util.indent(this.board.toString()) + "\n}";
+
+        return str;
     }
 
     //ACTIONS
     /**
      * All actions follow a similar format, first checking if it is the turn
-     * of the player taking that action. The one exception is quit, as
-     * it can be taken at any time.
+     * of the player taking that action.
+     * @param p the index of the player
+     * @return true if player places a tile and false otherwise
      */
     public boolean placeTile(int p){
         if(isPlacementStage && p == currentTurn ){
@@ -85,15 +91,19 @@ public class CarcassonneGameState {
 
     /**
      * Determine whether or not to quit the game
-     * @return true if the user wants to quit game and false otherwise
+     * @param p the index of the player
+     * @return true if the game was quit and false otherwise
      */
-    public boolean quitGame(){
+    public boolean quitGame(int p){
+        if (p == currentTurn) {
+            return true;
+        }
         return false;
     }
 
     /**
      * Determine whether or not the user wants to reset their turn to move the tile again
-     * @param p the name of the player
+     * @param p the index of the player
      * @return true if player resets on current turn and false otherwise
      */
     public boolean resetTurn(int p){
@@ -105,7 +115,7 @@ public class CarcassonneGameState {
 
     /**
      * Determine if the player wants to place a Meeple on the tile that was just placed
-     * @param p name of the player
+     * @param p index of the player
      * @return true if Meeple is placed and false otherwise
      */
     public boolean placeMeeple(int p){
@@ -118,7 +128,7 @@ public class CarcassonneGameState {
 
     /**
      * Determine if the player wants to rotate the current tile
-     * @param p name of the player
+     * @param p index of the player
      * @return true if the tile is rotated and false otherwise
      */
     public boolean rotateTile(int p){
@@ -130,14 +140,12 @@ public class CarcassonneGameState {
 
     /**
      * Determine if the player confirmed where they wanted to place the tile
-     * @param p name of the player
+     * @param p index of the player
      * @return if the player confirmed the tile and if the tile placement is legal. False otherwise
      */
     public boolean confirmTile(int p){
-        if(isPlacementStage && p == currentTurn ) {
-            if (board.isCurrentTilePlacementValid()){
-                return true;
-            }
+        if(isPlacementStage && p == currentTurn && board.isCurrentTilePlacementValid()){
+            return true;
         }
         return false;
     }
@@ -145,15 +153,13 @@ public class CarcassonneGameState {
     /**
      * Determine if the current player confirmed if they wanted to place a Meeple on the
      * tile and where the player wanted to place
-     * @param p name of the player
+     * @param p index of the player
      * @return true if the player placed a Meeple and if the placement is valid. False otherwise.
      */
     public boolean confirmMeeple(int p){
-        if(!isPlacementStage && p == currentTurn ){
-            if(board.isCurrentMeeplePlacementValid()) {
-                currentTurn++;
-                return true;
-            }
+        if(!isPlacementStage && p == currentTurn && board.isCurrentMeeplePlacementValid()){
+            currentTurn = (currentTurn + 1) % this.playerList.length;
+            return true;
         }
         return false;
     }

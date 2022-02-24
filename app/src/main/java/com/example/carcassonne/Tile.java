@@ -398,19 +398,19 @@ public class Tile {
         String str = "{";
 
         for (int part : array) {
-            str += part + ", ";
+            str += part + " ";
         }
 
-        return str.substring(0, str.length() - 2) + "}";
+        return str.substring(0, str.length() - 1) + "}";
     }
 
     public static String sectionsToString(HashSet<Integer>[] array) {
-        String str = "{";
+        String str = "{\n";
 
         for (int i = 0; i < array.length; i++) {
-            str += "\n    " + setToString(array[i]) + ",";
+            str += "    " + setToString(array[i]) + "\n";
         }
 
-        return str.substring(0, str.length() - 1) + "\n}";
+        return str + "}";
     }
 };

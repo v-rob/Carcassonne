@@ -153,7 +153,7 @@ public class Board {
                 Tile tile = getTile(x, y);
                 if (tile != null) {
                     str += "    tiles[" + y + "][" + x + "] = " +
-                            Util.indent(4, tile.toString()) + "\n";
+                            Util.indent(tile.toString()) + "\n";
                 }
             }
         }

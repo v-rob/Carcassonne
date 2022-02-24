@@ -32,13 +32,13 @@ public class Deck {
                 "    tiles = {";
 
         for (int i = 0; i < this.tiles.size(); i++) {
-            str += Util.indent(4, this.tiles.get(i).toString()) + "\n";
+            str += Util.indent(this.tiles.get(i).toString()) + "\n";
             if (i != this.tiles.size() - 1) {
                 str += ",\n";
             }
         }
         str += "    startingTile = " +
-                Util.indent(4, this.startingTile.toString()) + "\n}";
+                Util.indent(this.startingTile.toString()) + "\n}";
 
         str += "}";
         return str;
