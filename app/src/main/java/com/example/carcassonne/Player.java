@@ -7,7 +7,6 @@ package com.example.carcassonne;
  *
  * @author Sophie Arcangel, Cheyanne Yim, Alex Martinez-Lopez, DJ Backus, Vincent Robinison
  */
-
 public class Player {
     private int meepleCount;
     private int score;

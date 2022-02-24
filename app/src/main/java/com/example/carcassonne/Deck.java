@@ -3,29 +3,62 @@ package com.example.carcassonne;
 import java.util.ArrayList;
 
 /**
- * Represents a deck of Tiles that can be drawn from until empty as well as the
- * special starting tile that can be retrieved separately.
+ * Represents a deck of Tiles that can be drawn from until empty. The Deck also
+ * contains the special starting tile, which is drawn separately from the rest
+ * of the tiles.
  *
  * @author Vincent Robinson
  */
 public class Deck {
+    /**
+     * The array of tiles in the deck, not including the starting tile. When tiles
+     * are drawn, a random tile is chosen from anywhere in the array, which then
+     * gets removed from the array directly.
+     */
     ArrayList<Tile> tiles;
+
+    /**
+     * The Carcassonne starting tile, which is always tile D. When the starting tile
+     * is drawn, this is set to null.
+     */
     Tile startingTile;
 
+    /**
+     * Draws a tile from the deck at random. Once drawn, the tile is removed from the
+     * deck entirely.
+     *
+     * @return The tile drawn from the deck.
+     */
     public Tile drawTile() {
         return this.tiles.remove((int)(Math.random() * this.tiles.size()));
     }
 
+    /**
+     * Draws the starting tile from the deck. Once drawn, the tile is removed from the
+     * deck entirely.
+     *
+     * @return The starting tile drawn from the deck.
+     */
     public Tile drawStartingTile() {
         Tile ret = this.startingTile;
         this.startingTile = null;
         return ret;
     }
 
+    /**
+     * Queries whether or not there are any more tiles left in the deck.
+     *
+     * @return True if there are no more tiles in the deck, false otherwise.
+     */
     public boolean isEmpty() {
-        return this.tiles.size() == 0;
+        return this.tiles.size() == 0 && this.startingTile == null;
     }
 
+    /**
+     * Converts the deck to a string representation showing all tiles in the deck.
+     *
+     * @return The string representation of the deck and all its tiles.
+     */
     @Override
     public String toString() {
         String str = "Deck {\n" +
@@ -44,8 +77,83 @@ public class Deck {
         return str;
     }
 
+    /**
+     * Creates a new deck with all the default tiles in it.
+     */
     public Deck() {
-        // Set a capacity of the number of tiles the deck will have.
+        populateTiles();
+    }
+
+    /**
+     * Creates a new deck that is a deep copy of another deck.
+     *
+     * @param other The deck to make a deep copy of.
+     */
+    public Deck(Deck other) {
+        int size = other.tiles.size();
+        this.tiles = new ArrayList<>(size);
+
+        for (int i = 0; i < size; i++) {
+            this.tiles.set(i, new Tile(other.tiles.get(i)));
+        }
+
+        if (this.startingTile != null) {
+            this.startingTile = new Tile(other.startingTile);
+        }
+        else {
+            this.startingTile = null;
+        }
+    }
+
+    /**
+     * Adds multiple copies of a tile to the deck during populateTiles().
+     *
+     * @param id           The character id of the tile.
+     * @param num          The number of times to add this tile.
+     * @param farmSections The parts of the tile that comprise each farm section.
+     * @param citySections The parts of the tile that comprise each city section.
+     * @param roads        The road parts for each road exiting the tile.
+     * @param hasPennant   Whether or not the tile has a pennant for the city.
+     * @param hasCloister  Whether or not the tile has a cloister.
+     */
+    private void addTiles(char id, int num, int[][] farmSections,
+                          int[][] citySections, int[] roads, boolean hasPennant,
+                          boolean hasCloister) {
+        for (int i = 0; i < num; i++) {
+            this.tiles.add(new Tile(id, farmSections, citySections, roads,
+                    hasPennant, hasCloister));
+        }
+    }
+
+
+    /**
+     * Adds multiple copies of a tile that has both pennant and non-pennant varieties
+     * to the deck during populateTiles().
+     *
+     * @param normalId     The character id of the tile variant without a pennant.
+     * @param normalNum    The number of times to add the tile variant without a pennant.
+     * @param pennantId    The character id of the tile variant with a pennant.
+     * @param pennantNum   The number of times to add the tile variant with a pennant.
+     * @param farmSections The parts of the tile that comprise each farm section.
+     * @param citySections The parts of the tile that comprise each city section.
+     * @param roads        The road parts for each road exiting the tile.
+     */
+    private void addPennantTiles(char normalId, int normalNum, char pennantId,
+                                 int pennantNum, int[][] farmSections, int[][] citySections,
+                                 int[] roads) {
+        addTiles(normalId, normalNum,
+                farmSections, citySections, roads, false, false);
+        addTiles(pennantId, pennantNum,
+                farmSections, citySections, roads, true, false);
+    }
+
+    /**
+     * During construction, populates the deck with the default set of 72 tiles
+     * in Carcassonne.
+     */
+    private void populateTiles() {
+        // Set a capacity of the number of tiles the deck will have. This is 71
+        // instead of 72 because the starting tile is not stored in the ArrayList.
         this.tiles = new ArrayList<>(71);
 
         // These are helpful constants for tiles that have simple layouts that are
@@ -89,8 +197,8 @@ public class Deck {
                 false
         );
 
-        // The starting tile is special: it's always tile D, so we remove one from
-        // the ArrayList and set it as the starting tile.
+        // The starting tile is special: it's always tile D, so we remove one of the
+        // just created ones from the ArrayList and set it as the starting tile.
         this.startingTile = this.tiles.remove(this.tiles.size() - 1);
 
         addTiles('e', 5,
@@ -256,36 +364,7 @@ public class Deck {
                 false
         );
 
-        // This is 71 instead of 72 because the starting tile is not stored in the ArrayList.
+        // Basic check to ensure we have the right number of tiles.
         assert this.tiles.size() == 71;
-    }
-
-    public Deck(Deck other) {
-        int size = other.tiles.size();
-        this.tiles = new ArrayList<>(size);
-
-        for (int i = 0; i < size; i++) {
-            this.tiles.set(i, new Tile(other.tiles.get(i)));
-        }
-
-        this.startingTile = new Tile(other.startingTile);
-    }
-
-    private void addTiles(char id, int num, int[][] farmSections,
-                          int[][] citySections, int[] roads, boolean hasPennant,
-                          boolean isCloister) {
-        for (int i = 0; i < num; i++) {
-            this.tiles.add(new Tile(id, farmSections, citySections, roads,
-                    hasPennant, isCloister));
-        }
-    }
-
-    private void addPennantTiles(char normalId, int normalNum, char pennantId,
-                                 int pennantNum, int[][] farmSections, int[][] citySections,
-                                 int[] roads) {
-        addTiles(normalId, normalNum,
-                farmSections, citySections, roads, false, false);
-        addTiles(pennantId, pennantNum,
-                farmSections, citySections, roads, true, false);
     }
 }

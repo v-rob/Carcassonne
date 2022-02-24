@@ -259,6 +259,8 @@ public class Board {
 
     private int countSectionMeeples(HashMap<Integer, Integer> count, int type, int x,
                                     int y, int part, HashSet<Tile> visited) {
+        // TODO: Take into account different sections on the same tile being connected
+        // via other tiles.
         Tile tile = getAnyTile(x, y);
 
         if (tile == null || visited.contains(tile)) {

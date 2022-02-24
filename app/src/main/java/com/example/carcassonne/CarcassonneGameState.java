@@ -7,7 +7,7 @@ import java.util.ArrayList;
  * that displays all the information of the current state of the game to help
  * the human user or the computer player to make decisions
  *
- * @author DJ Backus, Sophie Arcangel, Vincent Robinson, Alex Martinez-Lopez, Cheyanne Yim
+ * @author DJ Backus, Sophie Arcangel, Alex Martinez-Lopez, Cheyanne Yim, Vincent Robinson
  */
 
 public class CarcassonneGameState {
