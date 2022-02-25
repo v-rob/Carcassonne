@@ -66,14 +66,12 @@ public class Deck {
 
         for (int i = 0; i < this.tiles.size(); i++) {
             str += Util.indent(this.tiles.get(i).toString()) + "\n";
-            if (i != this.tiles.size() - 1) {
-                str += ",\n";
-            }
         }
-        str += "    startingTile = " +
+
+        str += "}\n" +
+                "    startingTile = " +
                 Util.indent(this.startingTile.toString()) + "\n}";
 
-        str += "}";
         return str;
     }
 
@@ -97,12 +95,9 @@ public class Deck {
             this.tiles.set(i, new Tile(other.tiles.get(i)));
         }
 
-        if (this.startingTile != null) {
-            this.startingTile = new Tile(other.startingTile);
-        }
-        else {
-            this.startingTile = null;
-        }
+        // Don't try to copy null as that would cause an error.
+        this.startingTile = (other.startingTile == null) ? null :
+                new Tile(other.startingTile);
     }
 
     /**
@@ -139,8 +134,9 @@ public class Deck {
      * @param roads        The road parts for each road exiting the tile.
      */
     private void addPennantTiles(char normalId, int normalNum, char pennantId,
-                                 int pennantNum, int[][] farmSections, int[][] citySections,
-                                 int[] roads) {
+                                 int pennantNum, int[][] farmSections,
+                                 int[][] citySections, int[] roads) {
+        // No pennant tiles have monasteries, so we can conveniently leave that as false.
         addTiles(normalId, normalNum,
                 farmSections, citySections, roads, false, false);
         addTiles(pennantId, pennantNum,

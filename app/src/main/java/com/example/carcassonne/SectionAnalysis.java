@@ -40,7 +40,7 @@ public class SectionAnalysis extends Analysis {
     }
 
     public void runAnalysis(int x, int y, int part) {
-        this.start = this.board.getAnyTile(x, y);
+        this.start = this.board.getTile(x, y);
 
         this.type = this.start.getMeepleType();
         this.pennantCount = 0;
@@ -79,7 +79,7 @@ public class SectionAnalysis extends Analysis {
     }
 
     private void doAnalysis(int x, int y, int part) {
-        Tile tile = this.board.getAnyTile(x, y);
+        Tile tile = this.board.getTile(x, y);
 
         if (tile == null) {
             this.complete = false;

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+// TODO: Document
+// TODO: Make sure externally-facing functions return copies of sets/arrays
 public abstract class Analysis {
     protected Board board;
     protected Tile start;

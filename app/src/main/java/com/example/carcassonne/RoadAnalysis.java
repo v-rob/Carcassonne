@@ -92,7 +92,7 @@ public class RoadAnalysis extends Analysis {
     }
 
     public void runAnalysis(int x, int y) {
-        this.start = this.board.getAnyTile(x, y);
+        this.start = this.board.getTile(x, y);
 
         this.roadEnds = new ArrayList<>();
         this.subRoads = new ArrayList<>();
@@ -140,7 +140,7 @@ public class RoadAnalysis extends Analysis {
     }
 
     private void findRoadEnds(int x, int y, HashSet<Tile> visited) {
-        Tile tile = this.board.getAnyTile(x, y);
+        Tile tile = this.board.getTile(x, y);
         if (tile == null || visited.contains(tile)) {
             return;
         }
@@ -161,7 +161,7 @@ public class RoadAnalysis extends Analysis {
     }
 
     private void subRoadAnalysis(SubRoad subRoad, int x, int y, int part) {
-        Tile tile = this.board.getAnyTile(x, y);
+        Tile tile = this.board.getTile(x, y);
         if (tile == null) {
             subRoad.complete = false;
             return;
@@ -182,6 +182,7 @@ public class RoadAnalysis extends Analysis {
 
         subRoad.tileCount++;
         if (tile.getMeepleType() == Tile.TYPE_ROAD) {
+            // TODO: Thieves need to be on only one branch of the intersection.
             subRoad.meeples.add(tile);
             this.meepleCount++;
         }

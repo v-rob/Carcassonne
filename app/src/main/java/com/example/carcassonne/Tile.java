@@ -107,6 +107,9 @@ import java.util.HashSet;
  * distinct for every purpose. Care must therefore be taken to not mix Tiles and
  * their deep copies.
  *
+ * All externally-facing functions that return sets make a copy of the set so
+ * callers can't inadvertently make changed to the original.
+ *
  * @author Vincent Robinson
  */
 public class Tile {
@@ -144,10 +147,33 @@ public class Tile {
      */
     private boolean hasCloister;
 
+    // Constants used for the type of meeple on the board as well as getting the
+    // section type of a tile part:
+    /**
+     * Indicates that there is no meeple on the board.
+     */
     public static final int TYPE_NONE = 0;
+    /**
+     * Used for two things:
+     * - `meepleType`: Indicates that the meeple is a farmer and placed on one of
+     *   the farm sections.
+     * - getSectionType(): Indicates that the section is a farm section.
+     */
     public static final int TYPE_FARM = 1;
+    /**
+     * Used for two things:
+     * - `meepleType`: Indicates that the meeple is a knight and placed on one of
+     *   the city sections.
+     * - getSectionType(): Indicates that the section is a city section.
+     */
     public static final int TYPE_CITY = 2;
+    /**
+     * Indicates that the meeple is a thief and placed on a road on this tile.
+     */
     public static final int TYPE_ROAD = 3;
+    /**
+     * Indicates that the meeple is a monk and placed on the monastery on this tile.
+     */
     public static final int TYPE_CLOISTER = 4;
 
     /**
@@ -176,8 +202,9 @@ public class Tile {
      * @return The opposite of the provided part number.
      */
     public static int flipPart(int part) {
-        // This is an interesting property that subtracting five by the vertical
-        // numbers and nine by the horizontal numbers give the opposite part.
+        // Section numbers have an interesting property: subtracting five by the
+        // vertical numbers and nine by the horizontal numbers give the part on
+        // the opposite side.
         switch (part) {
             case 0:
             case 1:
@@ -196,6 +223,8 @@ public class Tile {
      * @return The opposite of the provided road part number.
      */
     public static int flipRoadPart(int part) {
+        // Similarly to flipPart(), some subtraction can give the road part number on
+        // the opposite side based on the axis.
         if (part == 1 || part == 3) {
             return 4 - part;
         }
@@ -256,7 +285,6 @@ public class Tile {
         return 0;
     }
 
-
     /**
      * See roadPartXOffset(), but for the vertical direction.
      *
@@ -305,11 +333,12 @@ public class Tile {
      * @return The entire set of parts in the part's section.
      */
     public HashSet<Integer> getSectionFromPart(int part) {
-        HashSet<Integer> section = getGenericSectionFromPart(this.citySections, part);
-        if (section != null) {
-            return section;
+        HashSet<Integer> section = getGenericSectionFromPart(this.farmSections, part);
+        if (section == null) {
+            // We didn't find a farm, so find the city section that must then exist.
+            section = getGenericSectionFromPart(this.citySections, part);
         }
-        return getGenericSectionFromPart(this.farmSections, part);
+        return new HashSet<>(section);
     }
 
     /**
@@ -318,9 +347,7 @@ public class Tile {
      * @return The set of all roads.
      */
     public HashSet<Integer> getRoads() {
-        // TODO: It might be better if we returned copies everywhere so the original
-        //  can't be modified inadvertently.
-        return this.roads;
+        return new HashSet<>(this.roads);
     }
 
     /**
@@ -361,17 +388,16 @@ public class Tile {
      */
     public HashSet<Integer> getMeepleSection() {
         if (this.meepleType == TYPE_CITY) {
-            return this.citySections[this.meepleSection];
+            return new HashSet<>(this.citySections[this.meepleSection]);
         }
         else if (this.meepleType == TYPE_FARM) {
-            return this.farmSections[this.meepleSection];
+            return new HashSet<>(this.farmSections[this.meepleSection]);
         }
         return null;
     }
 
     /**
-     * Removes the meeple from the current tile, if there is one. In other words, the
-     * meeple type is set to `TYPE_NONE`.
+     * Removes the meeple from this tile, if there is one.
      */
     public void removeMeeple() {
         this.meepleType = TYPE_NONE;
@@ -379,9 +405,9 @@ public class Tile {
     }
 
     /**
-     * Queries the index of the player that placed this tile, and therefore any
-     * meeples on the tile as well. If there is no owner (i.e. it was freshly drawn
-     * from the deck), it returns -1.
+     * Queries the index of the player that placed this tile, and therefore the owner
+     * of any meeples on the tile as well. If there is no owner (i.e. it was freshly
+     * drawn from the deck), it returns -1.
      *
      * @return The index of the player that placed this tile, or -1 if there is no
      *         owner yet.
@@ -391,8 +417,8 @@ public class Tile {
     }
 
     /**
-     * Sets the player index of the player that placed this tile and therefore owns
-     * the meeples on the tile.
+     * Sets the player index of the player that placed this tile and therefore the
+     * owner of any meeples on the tile as well.
      *
      * @param owner The index of the player that placed this tile.
      */
@@ -429,7 +455,8 @@ public class Tile {
 
     /**
      * Creates a new Tile. Generally, only Deck needs to create Tiles, as everything
-     * else will get its tiles from Deck.
+     * else will get its tiles from Deck. Arrays are used in the constructor while
+     * sets are used Tile itself for ease of construction.
      *
      * By default, each tile will have a random rotation, no meeple, and a player
      * index of -1.
@@ -445,13 +472,14 @@ public class Tile {
                 int[] roads, boolean hasPennant, boolean hasCloister) {
         this.id = id;
 
+        // Copy all arrays into sets.
         this.farmSections = sectionsFromIntArray(farmSections);
         this.citySections = sectionsFromIntArray(citySections);
 
         this.roads = setFromIntArray(roads);
 
         // Give the tile a random rotation since tiles will be in no particular
-        // rotation when drawing a tile in real Carcassonne.
+        // rotation when drawing a tile from the deck in real Carcassonne.
         int by = (int)(Math.random() * 4);
         for (int i = 0; i < by; i++) {
             rotate();
@@ -460,6 +488,7 @@ public class Tile {
         this.hasPennant = hasPennant;
         this.hasCloister = hasCloister;
 
+        // Tiles start out with no meeple.
         this.meepleType = TYPE_NONE;
         this.meepleSection = -1;
         this.owner = -1;
@@ -495,9 +524,8 @@ public class Tile {
     private static HashSet<Integer> getGenericSectionFromPart(
             HashSet<Integer>[] sections, int part) {
         for (int i = 0; i < sections.length; i++) {
-            HashSet<Integer> section = sections[i];
             if (sections[i].contains(part)) {
-                return section;
+                return sections[i];
             }
         }
         return null;
@@ -527,6 +555,8 @@ public class Tile {
      * @return The rotated set.
      */
     private static HashSet<Integer> rotateSet(HashSet<Integer> set, int add, int mod) {
+        // We have to create a new set and return it because we can't change set
+        // elements in place: they aren't positional.
         HashSet<Integer> rotated = new HashSet<>();
         for (int part : set) {
             rotated.add((part + add) % mod);

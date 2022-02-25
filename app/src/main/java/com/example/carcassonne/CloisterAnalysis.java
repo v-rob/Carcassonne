@@ -42,7 +42,7 @@ public class CloisterAnalysis extends Analysis {
     }
 
     private void doAnalysis(int x, int y) {
-        Tile tile = this.board.getAnyTile(x, y);
+        Tile tile = this.board.getTile(x, y);
         if (this.visited.contains(tile) ||
                 tile.getMeepleType() != Tile.TYPE_CLOISTER) {
             return;
@@ -52,7 +52,7 @@ public class CloisterAnalysis extends Analysis {
 
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
-                if (this.board.getAnyTile(dx, dy) != null) {
+                if (this.board.getTile(dx, dy) != null) {
                     this.score++;
                 }
             }
