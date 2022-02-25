@@ -101,6 +101,12 @@ import java.util.HashSet;
  * this does not have to be accounted for. Secondly, hasCloister states whether
  * the tile is a cloister or not.
  *
+ * Tiles are used in HashSets; however, equals() and hashCode() are deliberately
+ * not implemented. This is because identical tiles are distinct: there can be two
+ * tile D's with the same rotation and meeples on the same map, but they are
+ * distinct for every purpose. Care must therefore be taken to not mix Tiles and
+ * their deep copies.
+ *
  * @author Vincent Robinson
  */
 public class Tile {
@@ -312,6 +318,8 @@ public class Tile {
      * @return The set of all roads.
      */
     public HashSet<Integer> getRoads() {
+        // TODO: It might be better if we returned copies everywhere so the original
+        //  can't be modified inadvertently.
         return this.roads;
     }
 
@@ -359,6 +367,15 @@ public class Tile {
             return this.farmSections[this.meepleSection];
         }
         return null;
+    }
+
+    /**
+     * Removes the meeple from the current tile, if there is one. In other words, the
+     * meeple type is set to `TYPE_NONE`.
+     */
+    public void removeMeeple() {
+        this.meepleType = TYPE_NONE;
+        this.meepleSection = -1;
     }
 
     /**

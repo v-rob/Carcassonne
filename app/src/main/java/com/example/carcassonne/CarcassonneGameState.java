@@ -7,7 +7,8 @@ import java.util.ArrayList;
  * that displays all the information of the current state of the game to help
  * the human user or the computer player to make decisions
  *
- * @author DJ Backus, Sophie Arcangel, Alex Martinez-Lopez, Cheyanne Yim, Vincent Robinson
+ * @author DJ Backus, Sophie Arcangel, Alex Martinez-Lopez, Cheyanne Yim,
+ *         Vincent Robinson
  */
 
 public class CarcassonneGameState {
@@ -19,8 +20,16 @@ public class CarcassonneGameState {
     private Deck deck;
     private Board board;
 
-    public CarcassonneGameState(Player[] players) {
-        this.playerList = players;
+    /**
+     * Creates a new game state given the number of players the game has.
+     *
+     * @param numPlayers The number of players the game has.
+     */
+    public CarcassonneGameState(int numPlayers) {
+        this.playerList = new Player[numPlayers];
+        for (int i = 0; i < this.playerList.length; i++) {
+            this.playerList[i] = new Player();
+        }
 
         this.currentTurn = 0;
         this.isPlacementStage = true;
@@ -28,8 +37,6 @@ public class CarcassonneGameState {
         this.deck = new Deck();
         this.board = new Board(this.deck.drawStartingTile());
     }
-
-    // Copy constructor for CarcassonneGameState constructor
 
     /*
      * External Citation
@@ -39,6 +46,12 @@ public class CarcassonneGameState {
      *     https://www.javainterviewpoint.com/copy-constructor/
      * Solution: We used this website to learn how to deep copy
      *     and used it as an example for our code
+     */
+
+    /**
+     * Makes a deep copy of the game state and all its instance variables.
+     *
+     * @param gs The game state to make a deep copy of.
      */
     public CarcassonneGameState(CarcassonneGameState gs) {
         this.playerList = new Player[gs.playerList.length];
@@ -163,5 +176,4 @@ public class CarcassonneGameState {
         }
         return false;
     }
-
 }

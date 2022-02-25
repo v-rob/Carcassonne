@@ -5,7 +5,8 @@ package com.example.carcassonne;
  * will help keep track of what every player has, while allowing access to get
  * and set those values for each player.
  *
- * @author Sophie Arcangel, Cheyanne Yim, Alex Martinez-Lopez, DJ Backus, Vincent Robinison
+ * @author Sophie Arcangel, Cheyanne Yim, Alex Martinez-Lopez, DJ Backus,
+ *         Vincent Robinison
  */
 public class Player {
     private int meepleCount;

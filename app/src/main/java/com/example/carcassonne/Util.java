@@ -1,5 +1,7 @@
 package com.example.carcassonne;
 
+import java.util.HashMap;
+
 /**
  * A class that contains static utility methods (similar to Math) that are applicable
  * anywhere, not only in a single class.
