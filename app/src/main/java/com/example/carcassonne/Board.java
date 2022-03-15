@@ -332,7 +332,7 @@ public class Board {
             }
         }
 
-        this.currentTile = (this.currentTile == null) ? null :
+        this.currentTile = (other.currentTile == null) ? null :
                 new Tile(other.currentTile);
         this.currentTileX = other.currentTileX;
         this.currentTileY = other.currentTileY;
