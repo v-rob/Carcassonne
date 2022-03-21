@@ -15,13 +15,13 @@ public class Deck {
      * are drawn, a random tile is chosen from anywhere in the array, which then
      * gets removed from the array directly.
      */
-    ArrayList<Tile> tiles;
+    private ArrayList<Tile> tiles;
 
     /**
      * The Carcassonne starting tile, which is always tile D. When the starting tile
      * is drawn, this is set to null.
      */
-    Tile startingTile;
+    private Tile startingTile;
 
     /**
      * Draws a tile from the deck at random. Once drawn, the tile is removed from the

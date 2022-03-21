@@ -1,7 +1,5 @@
 package com.example.carcassonne;
 
-import java.util.ArrayList;
-
 /**
  * Represents the game state of Carcassonne that includes instance variables
  * that displays all the information of the current state of the game to help

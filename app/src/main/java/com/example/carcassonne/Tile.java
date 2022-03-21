@@ -1,6 +1,5 @@
 package com.example.carcassonne;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 
 /**
@@ -114,92 +113,6 @@ import java.util.HashSet;
  * @author Vincent Robinson
  */
 public class Tile {
-    /*private static class Section {
-        HashSet<Integer> parts;
-
-        private int meepleX;
-        private int meepleY;
-
-        public HashSet<Integer> getParts() {
-            return this.parts;
-        }
-
-        public int getMeepleX() {
-            return this.meepleX;
-        }
-
-        public int getMeepleY() {
-            return this.meepleY;
-        }
-
-        public Section(int meepleX, int meepleY) {
-            this.parts = new HashSet<>();
-
-            this.meepleX = meepleX;
-            this.meepleY = meepleY;
-        }
-
-        public Section(Section other) {
-            this.parts = new HashSet<>(other.parts);
-
-            this.meepleX = other.meepleX;
-            this.meepleY = other.meepleY;
-        }
-    }
-
-    private static class Sections {
-        public static final int MAX_SECTIONS = 4;
-
-        private Section[] sections;
-
-        public Section[] getSections() {
-            return this.sections;
-        }
-
-        public Sections(Bitmap mapBitmap, Bitmap connBitmap,
-                       int sectionsNum, int[] sectionColors, int[][] sectionMap) {
-            this.sections = new Section[MAX_SECTIONS];
-
-            for (int x = 0; x < mapBitmap.getWidth(); x++) {
-                for (int y = 0; y < mapBitmap.getHeight(); y++) {
-                    // TODO: Cite https://developer.android.com/reference/android/graphics/Bitmap#getPixel(int,%20int)
-                    int mapColor = mapBitmap.getPixel(x, y);
-                    for (int i = 0; i < sectionColors.length; i++) {
-                        if (sectionColors[i] == mapColor) {
-                            sectionMap[y][x] = sectionsNum * MAX_SECTIONS + i;
-                        }
-                    }
-
-                    int connColor = connBitmap.getPixel(x, y);
-                }
-            }
-        }
-
-        public Sections(Sections other) {
-            this.sections = new Section[MAX_SECTIONS];
-            for (int i = 0; i < other.sections.length; i++) {
-                this.sections[i] = other.sections[i];
-            }
-        }
-
-        @Override
-        public String toString() {
-            String str = "{\n";
-
-            for (int i = 0; i < this.sections.size(); i++) {
-                str += "    {";
-
-                for (int part : this.sections.get(i)) {
-                    str += part + " ";
-                }
-
-                str = str.substring(0, str.length() - 1) + "}\n";
-            }
-
-            return str + "}";
-        }
-    }*/
-
     /**
      * The ID of the tile, which is a letter between 'a' and 'x' that corresponds to
      * the "tile_<id>.png" file of this tile.
