@@ -193,7 +193,6 @@ public class Board {
             // Replace the original tile array with the copy.
             this.tiles = copy;
         }
-
     }
 
     /**
