@@ -88,16 +88,8 @@ public class Deck {
      * @param other The deck to make a deep copy of.
      */
     public Deck(Deck other) {
-        int size = other.tiles.size();
-        this.tiles = new ArrayList<>(size);
-
-        for (int i = 0; i < size; i++) {
-            this.tiles.set(i, new Tile(other.tiles.get(i)));
-        }
-
-        // Don't try to copy null as that would cause an error.
-        this.startingTile = (other.startingTile == null) ? null :
-                new Tile(other.startingTile);
+        this.tiles = Util.deepCopyCol(other.tiles, ArrayList::new, Tile::new);
+        this.startingTile = Util.copyOrNull(other.startingTile, Tile::new);
     }
 
     /**

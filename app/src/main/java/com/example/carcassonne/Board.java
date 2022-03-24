@@ -321,18 +321,9 @@ public class Board {
      * @param other The board to make a deep copy of.
      */
     public Board(Board other) {
-        this.tiles = new Tile[other.getHeight()][other.getWidth()];
+        this.tiles = Util.deepCopyNested(other.tiles, Tile::new);
 
-        for (int y = 0; y < getHeight(); y++) {
-            for (int x = 0; x < getWidth(); x++) {
-                // Don't try to copy null as that would cause an error.
-                Tile to_copy = other.tiles[y][x];
-                this.tiles[y][x] = (to_copy == null) ? null : new Tile(to_copy);
-            }
-        }
-
-        this.currentTile = (other.currentTile == null) ? null :
-                new Tile(other.currentTile);
+        this.currentTile = Util.copyOrNull(other.currentTile, Tile::new);
         this.currentTileX = other.currentTileX;
         this.currentTileY = other.currentTileY;
     }

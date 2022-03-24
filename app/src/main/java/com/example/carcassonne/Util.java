@@ -64,6 +64,7 @@ import java.util.Map;
  *     // Shallow copy of outer array
  *     Tile[][][] copy = Util.copyArray(orig);
  *
+ *     // Now deep copy each element in the shallow copy
  *     for (int i = 0; i < copy.length; i++) {
  *         // Make a deep copy of the Tile[][] at this index
  *         copy[i] = Util.deepCopyNested(copy[i], Tile::new);
@@ -138,6 +139,19 @@ public final class Util {
     }
 
     /**
+     * Most copy constructors fail on null values, but it is often desirable to call a
+     * copy constructor on a possibly null value, returning null if it is null and
+     * calling the copy constructor otherwise.
+     *
+     * @param value  The value to either copy or return as null verbatim.
+     * @param copier The copy constructor to call on non-null values.
+     * @return Null if the parameter is null, or the copy of it otherwise.
+     */
+    public static <T> T copyOrNull(T value, Copier<T> copier) {
+        return (value == null) ? null :  copier.copy(value);
+    }
+
+    /**
      * Performs a deep copy of a one-dimensional non-primitive array type or a
      * two-dimensional primitive array type.
      *
@@ -152,7 +166,7 @@ public final class Util {
         T[] copy = Arrays.copyOf(src, src.length);
 
         for (int i = 0; i < copy.length; i++) {
-            copy[i] = copyNonNull(src[i], copier);
+            copy[i] = copyOrNull(src[i], copier);
         }
 
         return copy;
@@ -197,7 +211,7 @@ public final class Util {
         C copy = constructor.construct();
 
         for (T elem : other) {
-            copy.add(copyNonNull(elem, copier));
+            copy.add(copyOrNull(elem, copier));
         }
 
         return copy;
@@ -223,8 +237,8 @@ public final class Util {
         C copy = constructor.construct();
 
         for (C.Entry<K, V> entry : other.entrySet()) {
-            copy.put(copyNonNull(entry.getKey(), keyCopier),
-                    copyNonNull(entry.getValue(), valCopier));
+            copy.put(copyOrNull(entry.getKey(), keyCopier),
+                    copyOrNull(entry.getValue(), valCopier));
         }
 
         return copy;
@@ -339,20 +353,5 @@ public final class Util {
      */
     public static double[] copyArray(double[] src) {
         return Arrays.copyOf(src, src.length);
-    }
-
-    /**
-     * Most copy constructors do not handle null values, but containers can contain null.
-     * This method takes a value and copies it if it is not null and returns null if it is.
-     *
-     * @param value  The value to either copy or return as null verbatim.
-     * @param copier The copy constructor to call on non-null values.
-     * @return Null if the parameter is null, or the copy of it otherwise.
-     */
-    private static <T> T copyNonNull(T value, Copier<T> copier) {
-        if (value == null) {
-            return null;
-        }
-        return copier.copy(value);
     }
 }
