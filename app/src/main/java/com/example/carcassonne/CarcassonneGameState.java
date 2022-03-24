@@ -1,5 +1,7 @@
 package com.example.carcassonne;
 
+import com.example.carcassonne.infoMsg.GameState;
+
 /**
  * Represents the game state of Carcassonne that includes instance variables
  * that displays all the information of the current state of the game to help
@@ -8,8 +10,12 @@ package com.example.carcassonne;
  * @author DJ Backus, Sophie Arcangel, Alex Martinez-Lopez, Cheyanne Yim,
  * Vincent Robinson
  */
-public class CarcassonneGameState {
-    private Player[] playerList;
+public class CarcassonneGameState extends GameState {
+    private int numPlayers;
+
+    private int[] playerMeeples;
+    private int[] playerCompleteScores;
+    private int[] playerIncompleteScores;
 
     private int currentTurn;
     private boolean isPlacementStage;
@@ -23,10 +29,11 @@ public class CarcassonneGameState {
      * @param numPlayers The number of players the game has.
      */
     public CarcassonneGameState(int numPlayers) {
-        this.playerList = new Player[numPlayers];
-        for (int i = 0; i < this.playerList.length; i++) {
-            this.playerList[i] = new Player();
-        }
+        this.numPlayers = numPlayers;
+
+        this.playerMeeples = new int[numPlayers];
+        this.playerCompleteScores = new int[numPlayers];
+        this.playerIncompleteScores = new int[numPlayers];
 
         this.currentTurn = 0;
         this.isPlacementStage = true;
@@ -48,19 +55,18 @@ public class CarcassonneGameState {
     /**
      * Makes a deep copy of the game state and all its instance variables.
      *
-     * @param gs The game state to make a deep copy of.
+     * @param other The game state to make a deep copy of.
      */
-    public CarcassonneGameState(CarcassonneGameState gs) {
-        this.playerList = new Player[gs.playerList.length];
-        for (int i = 0; i < this.playerList.length; i++) {
-            this.playerList[i] = new Player(gs.playerList[i]);
-        }
+    public CarcassonneGameState(CarcassonneGameState other) {
+        this.playerMeeples = Util.copyArray(other.playerMeeples);
+        this.playerCompleteScores = Util.copyArray(other.playerCompleteScores);
+        this.playerIncompleteScores = Util.copyArray(other.playerIncompleteScores);
 
-        this.currentTurn = gs.currentTurn;
-        this.isPlacementStage = gs.isPlacementStage;
+        this.currentTurn = other.currentTurn;
+        this.isPlacementStage = other.isPlacementStage;
 
-        this.deck = new Deck(gs.deck);
-        this.board = new Board(gs.board);
+        this.deck = new Deck(other.deck);
+        this.board = new Board(other.board);
     }
 
     /**
@@ -71,13 +77,23 @@ public class CarcassonneGameState {
     @Override
     public String toString() {
         String str = "CarcassonneGameState {\n" +
-                "    playerList = {";
+                "    playerMeeples = {";
 
-        for (int i = 0; i < this.playerList.length; i++) {
-            str += "        " + Util.indent(this.playerList[i].toString()) + "\n";
+        for (int i = 0; i < numPlayers; i++) {
+            str += this.playerMeeples[i] + " ";
         }
-
-        str += "    currentTurn = " + this.currentTurn + "\n" +
+        str += "}\n" +
+                "    playerCompleteScores = {";
+        for (int i = 0; i < numPlayers; i++) {
+            str += this.playerCompleteScores[i] + " ";
+        }
+        str += "}\n" +
+                "    playerIncompleteScores = {";
+        for (int i = 0; i < numPlayers; i++) {
+            str += this.playerIncompleteScores[i] + " ";
+        }
+        str += "}\n" +
+                "    currentTurn = " + this.currentTurn + "\n" +
                 "    isPlacementStage = " + this.isPlacementStage + "\n" +
                 Util.indent(this.deck.toString()) + "\n" +
                 Util.indent(this.board.toString()) + "\n}";
@@ -174,7 +190,7 @@ public class CarcassonneGameState {
      */
     public boolean confirmMeeple(int p) {
         if (!isPlacementStage && p == currentTurn && board.isCurrentMeeplePlacementValid()) {
-            currentTurn = (currentTurn + 1) % this.playerList.length;
+            currentTurn = (currentTurn + 1) % this.numPlayers;
             return true;
         }
         return false;
