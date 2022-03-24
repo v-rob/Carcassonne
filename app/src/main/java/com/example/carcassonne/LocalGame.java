@@ -31,7 +31,7 @@ import com.example.carcassonne.util.Tickable;
  * @author Andrew Nuxoll
  * @version July 2013
  */
-public abstract class LocalGame implements com.example.carcassonne.Game, Tickable {
+public abstract class LocalGame<i> implements com.example.carcassonne.Game, Tickable {
 	
 	// the stage that the game is in
 	private GameStage gameStage = GameStage.BEFORE_GAME;
@@ -123,19 +123,19 @@ public abstract class LocalGame implements com.example.carcassonne.Game, Tickabl
 	 * a GameInfo object to the player. If the game is not a perfect-information game
 	 * this method should remove any information from the game that the player is not
 	 * allowed to know.
-	 * 
-	 * @param p
+	 *
+	 * @param player
 	 * 			the player to notify
 	 */
-	protected abstract void sendUpdatedStateTo(GamePlayer p);
+	protected abstract void sendUpdatedStateTo(GamePlayer player);
 	
 	/**
 	 * Notify all players that the game's state has changed. Typically this simply
 	 * calls the 'notifyStateChanged' method for each player.
 	 */
 	protected final void sendAllUpdatedState() {
-		for (GamePlayer p : players) {
-			sendUpdatedStateTo(p);
+		for (GamePlayer player : players) {
+			sendUpdatedStateTo(player);
 		}
 	}
 	
@@ -293,12 +293,12 @@ public abstract class LocalGame implements com.example.carcassonne.Game, Tickabl
 	 * Tell whether the given player is allowed to make a move at the
 	 * present point in the game. 
 	 * 
-	 * @param playerIdx
+	 * @param player
 	 * 		the player's player-number (ID)
 	 * @return
 	 * 		true iff the player is allowed to move
 	 */
-	protected abstract boolean canMove(int playerIdx);
+	protected abstract boolean canMove(int player);
 	
 	/**
 	 * Check if the game is over. It is over, return a string that tells
@@ -381,8 +381,8 @@ public abstract class LocalGame implements com.example.carcassonne.Game, Tickabl
 	// a handler class for the game's thread
 	private static class MyHandler extends Handler {
 		// the game
-		private LocalGame game;
-		
+		private LocalGame gameStage.getPlayerScore(i);
+
 		// constructor; parameter is expected to be this game
 		public MyHandler(LocalGame game) {
 			this.game = game;
