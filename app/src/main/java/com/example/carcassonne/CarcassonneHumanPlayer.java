@@ -11,15 +11,16 @@ import android.view.MotionEvent;
 public class CarcassonneHumanPlayer extends GameHumanPlayer{
     private CarcassonneGameState gameState;
     private GameMainActivity activity;
-    private TextView playerNameTextView;
-    private TextView completeScoreTextView;
-    private TextView incompleteScoreTextView;
-    private TextView meepleCountTextView;
+    private TextView[] playerNameTextViews;
+    private TextView[] scoreTextViews;
+    private TextView[] meepleCountTextViews;
     private Button rotateResetButton;
     private Button confirmButton;
     private Button quitButton;
     private ImageView tileImageView;
     private BoardSurfaceView boardSurfaceView;
+
+
 
 
     /**
@@ -38,11 +39,56 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer{
 
     @Override
     public void receiveInfo(GameInfo info) {
+       CarcassonneGameState gameState = (CarcassonneGameState)info;
+
+
 
     }
 
+    private static final int[] PLAYER_NAME_RESOURCES = {
+            R.id.bluePlayerName,
+            R.id.yellowPlayerName,
+            R.id.greenPlayerName,
+            R.id.redPlayerName,
+            R.id.blackPlayerName
+    };
+    private static final int[] PLAYER_SCORE_RESOURCES = {
+            R.id.blueScore,
+            R.id.yellowScore,
+            R.id.greenScore,
+            R.id.redScore,
+            R.id.blackScore
+    };
+    private static final int[] MEEPLE_COUNT_RESOURCES = {
+            R.id.blueFollowerCount,
+            R.id.yellowFollowerCount,
+            R.id.greenFollowerCount,
+            R.id.redFollowerCount,
+            R.id.blackFollowerCount
+    };
     @Override
     public void setAsGui(GameMainActivity activity) {
+        this.activity = activity;
+
+        activity.setContentView(R.layout.activity_main);
+
+        playerNameTextViews = new TextView[playerNum];
+        scoreTextViews = new TextView[playerNum];
+        meepleCountTextViews = new TextView[playerNum];
+
+        for(int i = 0; i < playerNum; i++) {
+            playerNameTextViews[i] = activity.findViewById(PLAYER_NAME_RESOURCES[i]);
+            scoreTextViews[i] = activity.findViewById(PLAYER_SCORE_RESOURCES[i]);
+            meepleCountTextViews[i] = activity.findViewById(MEEPLE_COUNT_RESOURCES[i]);
+        }
+
+
+
+        this.rotateResetButton = activity.findViewById(R.id.rotate);
+        this.confirmButton = activity.findViewById(R.id.confirm);
+        this.quitButton = activity.findViewById(R.id.quit);
+        this.tileImageView = activity.findViewById(R.id.inPlay);
+        // TODO: get surface view later
 
     }
 
