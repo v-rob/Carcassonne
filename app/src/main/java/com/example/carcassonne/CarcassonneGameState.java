@@ -95,6 +95,15 @@ public class CarcassonneGameState extends GameState {
     }
 
     /**
+     * Returns the Board object used by this game state.
+     *
+     * @return The board.
+     */
+    public Board getBoard() {
+        return this.board;
+    }
+
+    /**
      * All actions follow a similar format, first checking if it is the turn
      * of the player taking that action.
      *

@@ -156,7 +156,7 @@ public class Tile {
         return 0;
     }
 
-    int getId() {
+    public char getId() {
         return this.id;
     }
 
