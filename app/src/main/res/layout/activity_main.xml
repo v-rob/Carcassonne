@@ -8,7 +8,7 @@
 
 
     <com.example.carcassonne.BoardSurfaceView
-        android:id="@+id/surfaceView"
+        android:id="@+id/boardSurfaceView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1" />
@@ -29,7 +29,7 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
-                    android:id="@+id/blueFollower"
+                    android:id="@+id/blueMeeple"
                     android:layout_width="65dp"
                     android:layout_height="65dp"
                     app:srcCompat="@drawable/meeple_blue" />
@@ -53,10 +53,10 @@
                         android:text="Score: 10" />
 
                     <TextView
-                        android:id="@+id/blueFollowerCount"
+                        android:id="@+id/blueMeepleCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Followers: 3" />
+                        android:text="Meeples: 3" />
                 </LinearLayout>
             </TableRow>
 
@@ -65,7 +65,7 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
-                    android:id="@+id/yellowFollower"
+                    android:id="@+id/yellowMeeple"
                     android:layout_width="65dp"
                     android:layout_height="65dp"
                     app:srcCompat="@drawable/meeple_yellow" />
@@ -89,10 +89,10 @@
                         android:text="Score: 1776" />
 
                     <TextView
-                        android:id="@+id/yellowFollowerCount"
+                        android:id="@+id/yellowMeepleCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Followers: 7" />
+                        android:text="Meeples: 7" />
                 </LinearLayout>
             </TableRow>
 
@@ -101,7 +101,7 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
-                    android:id="@+id/greenFollower"
+                    android:id="@+id/greenMeeple"
                     android:layout_width="65dp"
                     android:layout_height="65dp"
                     app:srcCompat="@drawable/meeple_green" />
@@ -125,10 +125,10 @@
                         android:text="Score: ∞" />
 
                     <TextView
-                        android:id="@+id/greenFollowerCount"
+                        android:id="@+id/greenMeepleCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Followers: 5" />
+                        android:text="Meeples: 5" />
                 </LinearLayout>
             </TableRow>
 
@@ -137,7 +137,7 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
-                    android:id="@+id/redFollower"
+                    android:id="@+id/redMeeple"
                     android:layout_width="65dp"
                     android:layout_height="65dp"
                     app:srcCompat="@drawable/meeple_red" />
@@ -161,10 +161,10 @@
                         android:text="Score: -125" />
 
                     <TextView
-                        android:id="@+id/redFollowerCount"
+                        android:id="@+id/redMeepleCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Followers: 0" />
+                        android:text="Meeples: 0" />
                 </LinearLayout>
             </TableRow>
 
@@ -173,7 +173,7 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
-                    android:id="@+id/blackFollower"
+                    android:id="@+id/blackMeeple"
                     android:layout_width="65dp"
                     android:layout_height="65dp"
                     app:srcCompat="@drawable/meeple_black" />
@@ -197,17 +197,16 @@
                         android:text="Score: 0" />
 
                     <TextView
-                        android:id="@+id/blackFollowerCount"
+                        android:id="@+id/blackMeepleCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Followers: 1" />
+                        android:text="Meeples: 1" />
                 </LinearLayout>
             </TableRow>
 
         </TableLayout>
 
         <Space
-            android:id="@+id/sideSpacing"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
@@ -218,7 +217,7 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/rotate"
+                android:id="@+id/rotateResetButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="3dp"
@@ -226,7 +225,7 @@
                 android:text="Rotate" />
 
             <Button
-                android:id="@+id/confirm"
+                android:id="@+id/confirmButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="3dp"
@@ -235,11 +234,18 @@
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/inPlay"
+            android:id="@+id/currentTile"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:rotation="180"
             app:srcCompat="@drawable/tile_l" />
+
+        <Button
+            android:id="@+id/quitButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:text="Quit" />
 
     </LinearLayout>
 

@@ -52,6 +52,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer{
             R.id.redPlayerName,
             R.id.blackPlayerName
     };
+    
     private static final int[] PLAYER_SCORE_RESOURCES = {
             R.id.blueScore,
             R.id.yellowScore,
@@ -59,13 +60,15 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer{
             R.id.redScore,
             R.id.blackScore
     };
+    
     private static final int[] MEEPLE_COUNT_RESOURCES = {
-            R.id.blueFollowerCount,
-            R.id.yellowFollowerCount,
-            R.id.greenFollowerCount,
-            R.id.redFollowerCount,
-            R.id.blackFollowerCount
+            R.id.blueMeepleCount,
+            R.id.yellowMeepleCount,
+            R.id.greenMeepleCount,
+            R.id.redMeepleCount,
+            R.id.blackMeepleCount
     };
+    
     @Override
     public void setAsGui(GameMainActivity activity) {
         this.activity = activity;
@@ -76,20 +79,17 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer{
         scoreTextViews = new TextView[playerNum];
         meepleCountTextViews = new TextView[playerNum];
 
-        for(int i = 0; i < playerNum; i++) {
+        for (int i = 0; i < playerNum; i++) {
             playerNameTextViews[i] = activity.findViewById(PLAYER_NAME_RESOURCES[i]);
             scoreTextViews[i] = activity.findViewById(PLAYER_SCORE_RESOURCES[i]);
             meepleCountTextViews[i] = activity.findViewById(MEEPLE_COUNT_RESOURCES[i]);
         }
 
-
-
-        this.rotateResetButton = activity.findViewById(R.id.rotate);
-        this.confirmButton = activity.findViewById(R.id.confirm);
-        this.quitButton = activity.findViewById(R.id.quit);
-        this.tileImageView = activity.findViewById(R.id.inPlay);
-        // TODO: get surface view later
-
+        this.rotateResetButton = activity.findViewById(R.id.rotateResetButton);
+        this.confirmButton = activity.findViewById(R.id.confirmButton);
+        this.quitButton = activity.findViewById(R.id.quitButton);
+        this.tileImageView = activity.findViewById(R.id.currentTile);
+        this.boardSurfaceView = activity.findViewById(R.id.boardSurfaceView);
     }
 
     private void onClickRotateReset(View button){
