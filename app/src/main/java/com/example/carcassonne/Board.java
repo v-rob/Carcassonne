@@ -489,7 +489,7 @@ public class Board {
                 continue;
             }
 
-            for (int other_part : section.getParts()) {
+            for (int other_part : other_section.getParts()) {
                 total += countSectionMeeples(type, x + Tile.partXOffset(other_part),
                         y + Tile.partYOffset(other_part), Tile.flipPart(other_part),
                         visited);

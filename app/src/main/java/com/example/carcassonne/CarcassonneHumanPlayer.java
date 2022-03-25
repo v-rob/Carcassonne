@@ -7,7 +7,6 @@ import android.widget.TextView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.view.MotionEvent;
-//import board
 
 public class CarcassonneHumanPlayer extends GameHumanPlayer{
     private CarcassonneGameState gameState;

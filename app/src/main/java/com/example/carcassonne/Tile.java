@@ -1,5 +1,7 @@
 package com.example.carcassonne;
 
+import android.graphics.Bitmap;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -264,20 +266,21 @@ public class Tile {
         return toStr.toString();
     }
 
-    public Tile(char id, TileImageProvider imageProvider) {
+    public Tile(char id, BitmapProvider bitmapProvider) {
         this.id = id;
 
-        this.map = Util.deepCopyArray(imageProvider.getMapImage(id), Util::copyArray);
+        this.map = BitmapProvider.toArray(bitmapProvider.getTile(id).map.bitmap);
+        
         this.sections = new HashMap<>();
         this.hasPennant = false;
 
         this.meepleSection = NO_MEEPLE;
         this.owner = -1;
 
-        int[][] sectionImage = imageProvider.getSectionImage(id);
-        parseSectionPositions(sectionImage);
-        parseSectionConnections(sectionImage);
-        parseSectionSpecials(sectionImage);
+        Bitmap sectionBitmap = bitmapProvider.getTile(id).map.bitmap;
+        parseSectionPositions(sectionBitmap);
+        parseSectionConnections(sectionBitmap);
+        parseSectionSpecials(sectionBitmap);
 
         // Give the tile a random rotation.
         rotateBy((int)(Math.random() * 4));
@@ -310,10 +313,10 @@ public class Tile {
         return TYPE_NONE;
     }
 
-    private void parseSectionPositions(int[][] sectionImage) {
+    private void parseSectionPositions(Bitmap sectionBitmap) {
         for (int y = 1; y < SIZE - 1; y++) {
             for (int x = 1; x < SIZE - 1; x++) {
-                int color = sectionImage[y][x];
+                int color = sectionBitmap.getPixel(x, y);
                 if (color != NO_MEEPLE) {
                     // There should be no section with this color at this point
                     assert !this.sections.containsKey(color);
@@ -356,9 +359,9 @@ public class Tile {
             new SectionConn(true, 3, 0,         SIZE / 2),
     };
 
-    private void parseSectionConnections(int[][] sectionImage) {
+    private void parseSectionConnections(Bitmap sectionBitmap) {
         for (SectionConn sectionConn : PART_POSITIONS) {
-            int color = sectionImage[sectionConn.y][sectionConn.x];
+            int color = sectionBitmap.getPixel(sectionConn.x, sectionConn.y);
             if (color != NO_SECTION_COLOR) {
                 // Ensure we have the proper colors for the proper section type.
                 if (sectionConn.isRoad) {
@@ -369,7 +372,7 @@ public class Tile {
 
                 Section section = this.sections.get(color);
 
-                // There must be a section at this point; otherwise, the sectionImage
+                // There must be a section at this point; otherwise, the sectionBitmap
                 // is incorrect.
                 assert section != null;
 
@@ -381,8 +384,8 @@ public class Tile {
         }
     }
 
-    private void parseSectionSpecials(int[][] sectionImage) {
-        int specialColor = sectionImage[0][0];
+    private void parseSectionSpecials(Bitmap sectionBitmap) {
+        int specialColor = sectionBitmap.getPixel(0, 0);
         if (specialColor == PENNANT_COLOR) {
             this.hasPennant = true;
         } else {

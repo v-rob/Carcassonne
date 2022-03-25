@@ -11,6 +11,8 @@ import com.example.carcassonne.infoMsg.GameState;
  * Vincent Robinson
  */
 public class CarcassonneGameState extends GameState {
+    public static final int MAX_PLAYERS = 5;
+
     private int numPlayers;
 
     private int[] playerMeeples;
@@ -28,7 +30,7 @@ public class CarcassonneGameState extends GameState {
      *
      * @param numPlayers The number of players the game has.
      */
-    public CarcassonneGameState(int numPlayers, TileImageProvider imageProvider) {
+    public CarcassonneGameState(int numPlayers, BitmapProvider bitmapProvider) {
         this.numPlayers = numPlayers;
 
         this.playerMeeples = new int[numPlayers];
@@ -38,7 +40,7 @@ public class CarcassonneGameState extends GameState {
         this.currentTurn = 0;
         this.isPlacementStage = true;
 
-        this.deck = new Deck(imageProvider);
+        this.deck = new Deck(bitmapProvider);
         this.board = new Board(this.deck.drawStartingTile());
     }
 

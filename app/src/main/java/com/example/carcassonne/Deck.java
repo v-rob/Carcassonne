@@ -95,15 +95,15 @@ public class Deck {
      * Create a new deck by populating the master set from the image provider and then
      * making copies of the tiles and adding them to the list of tiles.
      *
-     * @param imageProvider The image provider containing all the tile images.
+     * @param bitmapProvider The image provider containing all the tile images.
      */
-    public Deck(TileImageProvider imageProvider) {
+    public Deck(BitmapProvider bitmapProvider) {
         this.masterTiles = new HashMap<>();
         this.tiles = new ArrayList<>();
 
         // Create the master list of tiles.
         for (char id = 'A'; id <= 'X'; id++) {
-            this.masterTiles.put(id, new Tile(id, imageProvider));
+            this.masterTiles.put(id, new Tile(id, bitmapProvider));
         }
 
         // Copy all the master tiles as many times as the tile appears according to
@@ -137,7 +137,7 @@ public class Deck {
         assert this.tiles.size() == 71;
 
         // The starting tile is always D, so create it separately.
-        this.startingTile = new Tile('D', imageProvider);
+        this.startingTile = new Tile('D', bitmapProvider);
     }
 
     /**

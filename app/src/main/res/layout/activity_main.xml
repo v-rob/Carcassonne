@@ -165,7 +165,7 @@
                     android:id="@+id/blueFollower"
                     android:layout_width="65dp"
                     android:layout_height="65dp"
-                    app:srcCompat="@drawable/blue_follower" />
+                    app:srcCompat="@drawable/meeple_blue" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -201,7 +201,7 @@
                     android:id="@+id/yellowFollower"
                     android:layout_width="65dp"
                     android:layout_height="65dp"
-                    app:srcCompat="@drawable/yellow_follower" />
+                    app:srcCompat="@drawable/meeple_yellow" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -237,7 +237,7 @@
                     android:id="@+id/greenFollower"
                     android:layout_width="65dp"
                     android:layout_height="65dp"
-                    app:srcCompat="@drawable/green_follower" />
+                    app:srcCompat="@drawable/meeple_green" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -273,7 +273,7 @@
                     android:id="@+id/redFollower"
                     android:layout_width="65dp"
                     android:layout_height="65dp"
-                    app:srcCompat="@drawable/red_follower" />
+                    app:srcCompat="@drawable/meeple_red" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -309,7 +309,7 @@
                     android:id="@+id/blackFollower"
                     android:layout_width="65dp"
                     android:layout_height="65dp"
-                    app:srcCompat="@drawable/black_follower" />
+                    app:srcCompat="@drawable/meeple_black" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
