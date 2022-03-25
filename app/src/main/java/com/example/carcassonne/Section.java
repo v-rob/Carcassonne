@@ -5,6 +5,7 @@ import java.util.HashSet;
 public class Section {
     private HashSet<Integer> parts;
 
+    // TODO: Can we just have type?
     private int color;
 
     private int meepleX;
@@ -42,28 +43,50 @@ public class Section {
         return this.meepleY;
     }
 
-    private void rotate() {
+    public void rotate() {
+        // Figure out how much each part needs to be rotated
         int type = getType();
 
         int add;
         int mod;
         if (type == Tile2.TYPE_ROAD) {
+            // There are four roads, and each side has only one road
             add = 1;
             mod = 4;
         } else if (type == Tile2.TYPE_FARM || type == Tile2.TYPE_CITY) {
+            // There are eight farms/cities, and each side has two roads
             add = 2;
             mod = 8;
         } else {
+            // Cloister sections don't need rotating
             return;
         }
 
-        // We have to create a new set and return it because we can't change set
-        // elements in place: they aren't positional.
-//        HashSet<Integer> rotated = new HashSet<>();
-//        for (int part : set) {
-//            rotated.add((part + add) % mod);
-//        }
-//        return rotated;
+        // Rotate each part in the set of parts
+        HashSet<Integer> rotated = new HashSet<>();
+        for (int part : this.parts) {
+            // Increase the part to the rightwards size and modulus to ensure it doesn't
+            // increase past the highest number, but instead wraps back around to 0.
+            rotated.add((part + add) % mod);
+        }
+        this.parts = rotated;
+
+        // Rotate the meeple positions
+        int temp = this.meepleX;
+        this.meepleX = Tile2.SIZE - this.meepleY;
+        this.meepleY = temp;
+    }
+
+    @Override
+    public String toString() {
+        ToStringer toStr = new ToStringer("Section");
+
+        toStr.add("parts", this.parts);
+        toStr.add("color", this.color);
+        toStr.add("meepleX", this.meepleX);
+        toStr.add("meepleY", this.meepleY);
+
+        return toStr.toString();
     }
 
     public Section(int color, int meepleX, int meepleY) {

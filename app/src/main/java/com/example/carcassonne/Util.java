@@ -79,6 +79,8 @@ public final class Util {
     private Util() {}
 
     /**
+     * TODO: Remove
+     *
      * Indents all lines except the first line in a string by adding four spaces
      * after every newline. This is especially useful for toString() methods that
      * want to indent member instance variables' toString() representations.
@@ -148,7 +150,7 @@ public final class Util {
      * @return Null if the parameter is null, or the copy of it otherwise.
      */
     public static <T> T copyOrNull(T value, Copier<T> copier) {
-        return (value == null) ? null :  copier.copy(value);
+        return (value == null) ? null : copier.copy(value);
     }
 
     /**
@@ -163,7 +165,7 @@ public final class Util {
      *         copy constructor will not be called on them.
      */
     public static <T> T[] deepCopyArray(T[] src, Copier<T> copier) {
-        T[] copy = Arrays.copyOf(src, src.length);
+        T[] copy = copyArray(src);
 
         for (int i = 0; i < copy.length; i++) {
             copy[i] = copyOrNull(src[i], copier);
@@ -184,14 +186,15 @@ public final class Util {
      *         copy constructor will not be called on them.
      */
     public static <T> T[][] deepCopyNested(T[][] src, Copier<T> copier) {
-        T[][] copy = Arrays.copyOf(src, src.length);
+        T[][] copy = copyArray(src);
         
         for (int i = 0; i < copy.length; i++) {
             if (copy[i] != null) {
                 copy[i] = deepCopyArray(copy[i], copier);
             }
         }
-        return src;
+
+        return copy;
     }
 
     /**
