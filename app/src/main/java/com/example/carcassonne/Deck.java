@@ -61,18 +61,12 @@ public class Deck {
      */
     @Override
     public String toString() {
-        String str = "Deck {\n" +
-                "    tiles = {";
+        ToStringer toStr = new ToStringer("Deck");
 
-        for (int i = 0; i < this.tiles.size(); i++) {
-            str += Util.indent(this.tiles.get(i).toString()) + "\n";
-        }
+        toStr.add("tiles", this.tiles);
+        toStr.add("startingTile", this.startingTile);
 
-        str += "}\n" +
-                "    startingTile = " +
-                Util.indent(this.startingTile.toString()) + "\n}";
-
-        return str;
+        return toStr.toString();
     }
 
     /**

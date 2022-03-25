@@ -8,6 +8,7 @@ public class Tile2 {
     public static final int SIZE = 292;
 
     private int[][] map;
+
     private HashMap<Integer, Section> sections;
     private boolean hasPennant;
 
@@ -22,7 +23,7 @@ public class Tile2 {
 
     private static final int NO_MEEPLE = 0xFFFFFFFF;
 
-    private static final int NO_CONN_COLOR = 0xFF000000;
+    private static final int NO_SECTION_COLOR = 0xFF000000;
     private static final int PENNANT_COLOR = 0xFFFF0000;
 
     /*
@@ -252,13 +253,67 @@ public class Tile2 {
         return toStr.toString();
     }
 
-    private static class PartPos {
+    public Tile2(int[][] map, int[][] sectionImage) {
+        this.map = Util.deepCopyArray(map, Util::copyArray);
+
+        this.sections = new HashMap<>();
+        this.hasPennant = false;
+
+        this.meepleSection = NO_MEEPLE;
+        this.owner = -1;
+
+        parseSectionPositions(sectionImage);
+        parseSectionConnections(sectionImage);
+        parseSectionSpecials(sectionImage);
+    }
+
+    public Tile2(Tile2 other) {
+        this.map = Util.deepCopyArray(other.map, Util::copyArray);
+
+        this.sections = Util.deepCopyMap(other.sections, HashMap::new, Section::new);
+        this.hasPennant = other.hasPennant;
+
+        this.owner = other.owner;
+        this.meepleSection = other.meepleSection;
+    }
+
+    private static int getTypeFromColor(int color) {
+        if (FARM_COLORS.contains(color)) {
+            return TYPE_FARM;
+        } else if (CITY_COLORS.contains(color)) {
+            return TYPE_CITY;
+        } else if (ROAD_COLORS.contains(color)) {
+            return TYPE_ROAD;
+        } else if (CLOISTER_COLORS.contains(color)) {
+            return TYPE_CLOISTER;
+        }
+
+        // If it's any other color, the images are invalid.
+        assert false;
+        return TYPE_NONE;
+    }
+
+    private void parseSectionPositions(int[][] sectionImage) {
+        for (int y = 1; y < SIZE - 1; y++) {
+            for (int x = 1; x < SIZE - 1; x++) {
+                int color = sectionImage[y][x];
+                if (color != NO_MEEPLE) {
+                    // There should be no section with this color at this point
+                    assert !this.sections.containsKey(color);
+
+                    this.sections.put(color, new Section(getTypeFromColor(color), x, y));
+                }
+            }
+        }
+    }
+
+    private static class SectionConn {
         public boolean isRoad;
         public int x;
         public int y;
         public int part;
 
-        public PartPos(boolean isRoad, int part, int x, int y) {
+        public SectionConn(boolean isRoad, int part, int x, int y) {
             this.isRoad = isRoad;
             this.x = x;
             this.y = y;
@@ -266,46 +321,30 @@ public class Tile2 {
         }
     }
 
-    private static final PartPos[] PART_POSITIONS = {
+    private static final SectionConn[] PART_POSITIONS = {
             // Farm/city parts
-            new PartPos(false, 0, SIZE / 4,     0),
-            new PartPos(false, 1, SIZE * 3 / 4, 0),
-            new PartPos(false, 2, SIZE - 1,     SIZE / 4),
-            new PartPos(false, 3, SIZE - 1,     SIZE * 3 / 4),
-            new PartPos(false, 4, SIZE / 4,     SIZE - 1),
-            new PartPos(false, 5, SIZE * 3 / 4, SIZE - 1),
-            new PartPos(false, 6, 0,             SIZE / 4),
-            new PartPos(false, 7, 0,             SIZE * 3 / 4),
+            new SectionConn(false, 0, SIZE / 4,     0),
+            new SectionConn(false, 1, SIZE * 3 / 4, 0),
+            new SectionConn(false, 2, SIZE - 1,     SIZE / 4),
+            new SectionConn(false, 3, SIZE - 1,     SIZE * 3 / 4),
+            new SectionConn(false, 4, SIZE / 4,     SIZE - 1),
+            new SectionConn(false, 5, SIZE * 3 / 4, SIZE - 1),
+            new SectionConn(false, 6, 0,             SIZE / 4),
+            new SectionConn(false, 7, 0,             SIZE * 3 / 4),
 
             // Road parts
-            new PartPos(true, 0, SIZE / 2, 0),
-            new PartPos(true, 1, SIZE - 1, SIZE / 2),
-            new PartPos(true, 2, SIZE / 2, SIZE - 1),
-            new PartPos(true, 3, 0,         SIZE / 2),
+            new SectionConn(true, 0, SIZE / 2, 0),
+            new SectionConn(true, 1, SIZE - 1, SIZE / 2),
+            new SectionConn(true, 2, SIZE / 2, SIZE - 1),
+            new SectionConn(true, 3, 0,         SIZE / 2),
     };
 
-    public Tile2(int[][] map, int[][] connImage) {
-        this.map = Util.deepCopyArray(map, Util::copyArray);
-        this.sections = new HashMap<>();
-        this.hasPennant = false;
-
-        this.meepleSection = NO_MEEPLE;
-        this.owner = -1;
-
-        for (int y = 1; y < SIZE - 1; y++) {
-            for (int x = 1; x < SIZE - 1; x++) {
-                int color = connImage[y][x];
-                if (color != NO_MEEPLE) {
-                    this.sections.put(color, new Section(color, x, y));
-                }
-            }
-        }
-
-        for (PartPos partPos : PART_POSITIONS) {
-            int color = connImage[partPos.y][partPos.x];
-            if (color != NO_CONN_COLOR) {
+    private void parseSectionConnections(int[][] sectionImage) {
+        for (SectionConn sectionConn : PART_POSITIONS) {
+            int color = sectionImage[sectionConn.y][sectionConn.x];
+            if (color != NO_SECTION_COLOR) {
                 // Ensure we have the proper colors for the proper section type.
-                if (partPos.isRoad) {
+                if (sectionConn.isRoad) {
                     assert ROAD_COLORS.contains(color);
                 } else {
                     assert FARM_COLORS.contains(color) || CITY_COLORS.contains(color);
@@ -313,32 +352,25 @@ public class Tile2 {
 
                 Section section = this.sections.get(color);
 
-                // There must be a section at this point; otherwise, the connImage
+                // There must be a section at this point; otherwise, the sectionImage
                 // is incorrect.
                 assert section != null;
 
-                section.addPart(partPos.part);
+                section.addPart(sectionConn.part);
             } else {
-                // Only roads may not have a connection; everything else must have one.
-                assert partPos.isRoad;
+                // Only roads may not have a section; everything else must have one.
+                assert sectionConn.isRoad;
             }
         }
+    }
 
-        int specialColor = connImage[0][0];
+    private void parseSectionSpecials(int[][] sectionImage) {
+        int specialColor = sectionImage[0][0];
         if (specialColor == PENNANT_COLOR) {
             this.hasPennant = true;
         } else {
             // It must be black if there is no special.
-            assert specialColor == NO_CONN_COLOR;
+            assert specialColor == NO_SECTION_COLOR;
         }
-    }
-
-    public Tile2(Tile2 other) {
-        this.map = Util.deepCopyArray(other.map, Util::copyArray);
-
-        this.sections = Util.deepCopyMap(other.sections, HashMap::new, Section::new);
-
-        this.meepleSection = other.meepleSection;
-        this.hasPennant = other.hasPennant;
     }
 }

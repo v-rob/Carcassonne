@@ -76,29 +76,18 @@ public class CarcassonneGameState extends GameState {
      */
     @Override
     public String toString() {
-        String str = "CarcassonneGameState {\n" +
-                "    playerMeeples = {";
+        ToStringer toStr = new ToStringer("CarcassonneGameState");
 
-        for (int i = 0; i < numPlayers; i++) {
-            str += this.playerMeeples[i] + " ";
-        }
-        str += "}\n" +
-                "    playerCompleteScores = {";
-        for (int i = 0; i < numPlayers; i++) {
-            str += this.playerCompleteScores[i] + " ";
-        }
-        str += "}\n" +
-                "    playerIncompleteScores = {";
-        for (int i = 0; i < numPlayers; i++) {
-            str += this.playerIncompleteScores[i] + " ";
-        }
-        str += "}\n" +
-                "    currentTurn = " + this.currentTurn + "\n" +
-                "    isPlacementStage = " + this.isPlacementStage + "\n" +
-                Util.indent(this.deck.toString()) + "\n" +
-                Util.indent(this.board.toString()) + "\n}";
+        toStr.add("numPlayers", this.numPlayers);
+        toStr.add("playerMeeples", this.playerMeeples);
+        toStr.add("playerCompleteScores", this.playerCompleteScores);
+        toStr.add("playerIncompleteScores", this.playerIncompleteScores);
+        toStr.add("currentTurn", this.currentTurn);
+        toStr.add("isPlacementStage", this.isPlacementStage);
+        toStr.add("deck", this.deck);
+        toStr.add("board", this.board);
 
-        return str;
+        return toStr.toString();
     }
 
     /**

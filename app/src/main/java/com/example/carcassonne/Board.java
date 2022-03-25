@@ -279,26 +279,26 @@ public class Board {
      */
     @Override
     public String toString() {
-        ToStringer stringer = new ToStringer("Board");
+        ToStringer toStr = new ToStringer("Board");
 
-        stringer.add("currentTile", this.currentTile);
-        stringer.add("currentTileX", this.currentTileX);
-        stringer.add("currentTileY", this.currentTileY);
+        toStr.add("currentTile", this.currentTile);
+        toStr.add("currentTileX", this.currentTileX);
+        toStr.add("currentTileY", this.currentTileY);
 
-        stringer.add("getWidth()", getWidth());
-        stringer.add("getHeight()", getHeight());
+        toStr.add("getWidth()", getWidth());
+        toStr.add("getHeight()", getHeight());
 
         for (int y = 0; y < getHeight(); y++) {
             for (int x = 0; x < getWidth(); x++) {
                 // Print the coordinates of each non-null tile on the board.
                 Tile tile = this.tiles[y][x];
                 if (tile != null) {
-                    stringer.add("tiles[" + y + "][" + x + "]", tile);
+                    toStr.add("tiles[" + y + "][" + x + "]", tile);
                 }
             }
         }
 
-        return stringer.toString();
+        return toStr.toString();
     }
 
     /**

@@ -5,8 +5,7 @@ import java.util.HashSet;
 public class Section {
     private HashSet<Integer> parts;
 
-    // TODO: Can we just have type?
-    private int color;
+    private int type;
 
     private int meepleX;
     private int meepleY;
@@ -20,19 +19,7 @@ public class Section {
     }
 
     public int getType() {
-        if (Tile2.FARM_COLORS.contains(this.color)) {
-            return Tile2.TYPE_FARM;
-        } else if (Tile2.CITY_COLORS.contains(this.color)) {
-            return Tile2.TYPE_CITY;
-        } else if (Tile2.ROAD_COLORS.contains(this.color)) {
-            return Tile2.TYPE_ROAD;
-        } else if (Tile2.CLOISTER_COLORS.contains(this.color)) {
-            return Tile2.TYPE_CLOISTER;
-        }
-
-        // Shouldn't happen; this means that there is an invalid color in one of the tiles.
-        assert false;
-        return Tile2.TYPE_NONE;
+        return this.type;
     }
 
     public int getMeepleX() {
@@ -44,34 +31,35 @@ public class Section {
     }
 
     public void rotate() {
-        // Figure out how much each part needs to be rotated
+        // Figure out how much each part needs to be rotated.
         int type = getType();
 
         int add;
         int mod;
         if (type == Tile2.TYPE_ROAD) {
-            // There are four roads, and each side has only one road
+            // There are four roads, and each side has only one road.
             add = 1;
             mod = 4;
         } else if (type == Tile2.TYPE_FARM || type == Tile2.TYPE_CITY) {
-            // There are eight farms/cities, and each side has two roads
+            // There are eight farms/cities, and each side has two roads.
             add = 2;
             mod = 8;
         } else {
-            // Cloister sections don't need rotating
+            // Cloister sections don't need rotating.
             return;
         }
 
-        // Rotate each part in the set of parts
+        // Rotate each part in the set of parts.
         HashSet<Integer> rotated = new HashSet<>();
         for (int part : this.parts) {
-            // Increase the part to the rightwards size and modulus to ensure it doesn't
-            // increase past the highest number, but instead wraps back around to 0.
+            // Increasing the parts rotates them clockwise on the tile. The modulus
+            // ensures that increasing it past the highest part number wraps it back
+            // around to zero again.
             rotated.add((part + add) % mod);
         }
         this.parts = rotated;
 
-        // Rotate the meeple positions
+        // Rotate the meeple positions.
         int temp = this.meepleX;
         this.meepleX = Tile2.SIZE - this.meepleY;
         this.meepleY = temp;
@@ -82,17 +70,17 @@ public class Section {
         ToStringer toStr = new ToStringer("Section");
 
         toStr.add("parts", this.parts);
-        toStr.add("color", this.color);
+        toStr.add("type", this.type);
         toStr.add("meepleX", this.meepleX);
         toStr.add("meepleY", this.meepleY);
 
         return toStr.toString();
     }
 
-    public Section(int color, int meepleX, int meepleY) {
+    public Section(int type, int meepleX, int meepleY) {
         this.parts = new HashSet<>();
 
-        this.color = color;
+        this.type = type;
 
         this.meepleX = meepleX;
         this.meepleY = meepleY;
@@ -101,7 +89,7 @@ public class Section {
     public Section(Section other) {
         this.parts = new HashSet<>(other.parts);
 
-        this.color = other.color;
+        this.type = other.type;
 
         this.meepleX = other.meepleX;
         this.meepleY = other.meepleY;
