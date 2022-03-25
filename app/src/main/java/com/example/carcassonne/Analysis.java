@@ -7,17 +7,17 @@ import java.util.HashSet;
 // TODO: Document
 // TODO: Make sure externally-facing functions return copies of sets/arrays
 public abstract class Analysis {
-    protected Board board;
-    protected Tile start;
+    protected BoardOLD board;
+    protected TileOLD start;
 
     public abstract boolean isMeepleValid();
 
     public abstract int getCompleteScore(int player);
     public abstract int getIncompleteScore(int player);
 
-    public abstract ArrayList<Tile> getCompletedMeeples();
+    public abstract ArrayList<TileOLD> getCompletedMeeples();
 
-    public Analysis(Board board) {
+    public Analysis(BoardOLD board) {
         this.board = board;
     }
 
@@ -31,10 +31,10 @@ public abstract class Analysis {
         }
     }
 
-    public static Scorers getScorers(ArrayList<Tile> meeples) {
+    public static Scorers getScorers(ArrayList<TileOLD> meeples) {
         HashMap<Integer, Integer> playerMeeples = new HashMap<>();
 
-        for (Tile tile : meeples) {
+        for (TileOLD tile : meeples) {
             int owner = tile.getOwner();
             playerMeeples.put(owner, getOrDefault(playerMeeples, owner, 0) + 1);
         }

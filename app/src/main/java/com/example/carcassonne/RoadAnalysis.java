@@ -7,9 +7,9 @@ public class RoadAnalysis extends Analysis {
     private static class RoadEnd {
         public int x;
         public int y;
-        public Tile tile;
+        public TileOLD tile;
 
-        public RoadEnd(int x, int y, Tile tile) {
+        public RoadEnd(int x, int y, TileOLD tile) {
             this.x = x;
             this.y = y;
             this.tile = tile;
@@ -19,7 +19,7 @@ public class RoadAnalysis extends Analysis {
     private static class SubRoad {
         public boolean complete;
         public int tileCount;
-        public ArrayList<Tile> meeples;
+        public ArrayList<TileOLD> meeples;
 
         public SubRoad() {
             this.complete = true;
@@ -29,10 +29,10 @@ public class RoadAnalysis extends Analysis {
     }
 
     private static class RoadPart {
-        public Tile tile;
+        public TileOLD tile;
         public int part;
 
-        public RoadPart(Tile tile, int part) {
+        public RoadPart(TileOLD tile, int part) {
             this.tile = tile;
             this.part = part;
         }
@@ -62,7 +62,7 @@ public class RoadAnalysis extends Analysis {
 
     @Override
     public boolean isMeepleValid() {
-        if (this.start.getMeepleType() != Tile.TYPE_ROAD) {
+        if (this.start.getMeepleType() != TileOLD.TYPE_ROAD) {
             return this.meepleCount == 0;
         }
         return this.meepleCount == 1;
@@ -79,8 +79,8 @@ public class RoadAnalysis extends Analysis {
     }
 
     @Override
-    public ArrayList<Tile> getCompletedMeeples() {
-        ArrayList<Tile> completed = new ArrayList<>();
+    public ArrayList<TileOLD> getCompletedMeeples() {
+        ArrayList<TileOLD> completed = new ArrayList<>();
 
         for (SubRoad subRoad : this.subRoads) {
             if (subRoad.complete) {
@@ -114,7 +114,7 @@ public class RoadAnalysis extends Analysis {
         }
     }
 
-    public RoadAnalysis(Board board) {
+    public RoadAnalysis(BoardOLD board) {
         super(board);
 
         this.visited = new HashSet<>();
@@ -139,8 +139,8 @@ public class RoadAnalysis extends Analysis {
         return totalScore;
     }
 
-    private void findRoadEnds(int x, int y, HashSet<Tile> visited) {
-        Tile tile = this.board.getTile(x, y);
+    private void findRoadEnds(int x, int y, HashSet<TileOLD> visited) {
+        TileOLD tile = this.board.getTile(x, y);
         if (tile == null || visited.contains(tile)) {
             return;
         }
@@ -155,13 +155,13 @@ public class RoadAnalysis extends Analysis {
         }
 
         for (int road : roads) {
-            findRoadEnds(x + Tile.roadPartXOffset(road),
-                    y + Tile.roadPartYOffset(road), visited);
+            findRoadEnds(x + TileOLD.roadPartXOffset(road),
+                    y + TileOLD.roadPartYOffset(road), visited);
         }
     }
 
     private void subRoadAnalysis(SubRoad subRoad, int x, int y, int part) {
-        Tile tile = this.board.getTile(x, y);
+        TileOLD tile = this.board.getTile(x, y);
         if (tile == null) {
             subRoad.complete = false;
             return;
@@ -181,7 +181,7 @@ public class RoadAnalysis extends Analysis {
         this.visited.add(roadPart);
 
         subRoad.tileCount++;
-        if (tile.getMeepleType() == Tile.TYPE_ROAD) {
+        if (tile.getMeepleType() == TileOLD.TYPE_ROAD) {
             // TODO: Thieves need to be on only one branch of the intersection.
             subRoad.meeples.add(tile);
             this.meepleCount++;
@@ -189,8 +189,8 @@ public class RoadAnalysis extends Analysis {
 
         if (roads.size() == 2) {
             for (int road : roads) {
-                subRoadAnalysis(subRoad, x + Tile.roadPartXOffset(road),
-                        y + Tile.roadPartYOffset(road), Tile.flipRoadPart(part));
+                subRoadAnalysis(subRoad, x + TileOLD.roadPartXOffset(road),
+                        y + TileOLD.roadPartYOffset(road), TileOLD.flipRoadPart(part));
             }
         }
     }

@@ -6,7 +6,7 @@ import java.util.HashSet;
 public class CloisterAnalysis extends Analysis {
     private int score;
 
-    private HashSet<Tile> visited;
+    private HashSet<TileOLD> visited;
 
     @Override
     public boolean isMeepleValid() {
@@ -24,8 +24,8 @@ public class CloisterAnalysis extends Analysis {
     }
 
     @Override
-    public ArrayList<Tile> getCompletedMeeples() {
-        ArrayList<Tile> completed = new ArrayList<>();
+    public ArrayList<TileOLD> getCompletedMeeples() {
+        ArrayList<TileOLD> completed = new ArrayList<>();
         if (this.score == 8) {
             completed.add(this.start);
         }
@@ -36,15 +36,15 @@ public class CloisterAnalysis extends Analysis {
         this.score = 0;
     }
 
-    public CloisterAnalysis(Board board) {
+    public CloisterAnalysis(BoardOLD board) {
         super(board);
         this.visited = new HashSet<>();
     }
 
     private void doAnalysis(int x, int y) {
-        Tile tile = this.board.getTile(x, y);
+        TileOLD tile = this.board.getTile(x, y);
         if (this.visited.contains(tile) ||
-                tile.getMeepleType() != Tile.TYPE_CLOISTER) {
+                tile.getMeepleType() != TileOLD.TYPE_CLOISTER) {
             return;
         }
 

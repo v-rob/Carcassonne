@@ -1,15 +1,26 @@
 package com.example.carcassonne;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
- * Represents a deck of Tiles that can be drawn from until empty. The Deck also
- * contains the special starting tile, which is drawn separately from the rest
- * of the tiles.
+ * Represents a deck of tiles. It contains three separate parts: First, it has a master
+ * set of tiles, which allows specific tiles to be created at will with createTile().
+ * Secondly, it has the actual list of tiles in the deck, which can be drawn from until
+ * empty and have random rotations. Thirdly, it has the special starting tile D that
+ * is drawn separately from the rest of the tiles in the deck.
  *
  * @author Vincent Robinson
  */
 public class Deck {
+    /**
+     * The "master list" of tiles, which is the list from which all other tiles are
+     * copied from with createTile(). This allows specific tiles to be created at will,
+     * especially for testing purposes, without requiring TileImageProvider to be kept
+     * around.
+     */
+    private HashMap<Character, Tile> masterTiles;
+
     /**
      * The array of tiles in the deck, not including the starting tile. When tiles
      * are drawn, a random tile is chosen from anywhere in the array, which then
@@ -55,6 +66,17 @@ public class Deck {
     }
 
     /**
+     * Create an entirely new tile of the specified ID as a copy from the master list.
+     * It comes with the tile's default rotation, not a random rotation.
+     *
+     * @param id The ID of the tile to create, from 'A' to 'X'.
+     * @return The newly created tile.
+     */
+    public Tile createTile(char id) {
+        return new Tile(this.masterTiles.get(id));
+    }
+
+    /**
      * Converts the deck to a string representation showing all tiles in the deck.
      *
      * @return The string representation of the deck and all its tiles.
@@ -70,10 +92,52 @@ public class Deck {
     }
 
     /**
-     * Creates a new deck with all the default tiles in it.
+     * Create a new deck by populating the master set from the image provider and then
+     * making copies of the tiles and adding them to the list of tiles.
+     *
+     * @param imageProvider The image provider containing all the tile images.
      */
-    public Deck() {
-        populateTiles();
+    public Deck(TileImageProvider imageProvider) {
+        this.masterTiles = new HashMap<>();
+        this.tiles = new ArrayList<>();
+
+        // Create the master list of tiles.
+        for (char id = 'A'; id <= 'X'; id++) {
+            this.masterTiles.put(id, new Tile(id, imageProvider));
+        }
+
+        // Copy all the master tiles as many times as the tile appears according to
+        // the manual.
+        addTiles('A', 2);
+        addTiles('B', 4);
+        addTiles('C', 1);
+        addTiles('D', 3); // One less than the manual states since D is the starting tile.
+        addTiles('E', 5);
+        addTiles('F', 2);
+        addTiles('G', 1);
+        addTiles('H', 3);
+        addTiles('I', 2);
+        addTiles('J', 3);
+        addTiles('K', 3);
+        addTiles('L', 3);
+        addTiles('M', 2);
+        addTiles('N', 3);
+        addTiles('O', 4);
+        addTiles('P', 3);
+        addTiles('Q', 1);
+        addTiles('R', 3);
+        addTiles('S', 2);
+        addTiles('T', 1);
+        addTiles('U', 8);
+        addTiles('V', 9);
+        addTiles('W', 4);
+        addTiles('X', 1);
+
+        // There must be 71 tiles, not including the starting tile.
+        assert this.tiles.size() == 71;
+
+        // The starting tile is always D, so create it separately.
+        this.startingTile = new Tile('D', imageProvider);
     }
 
     /**
@@ -82,271 +146,23 @@ public class Deck {
      * @param other The deck to make a deep copy of.
      */
     public Deck(Deck other) {
+        this.masterTiles = Util.deepCopyMap(other.masterTiles, HashMap::new, Tile::new);
         this.tiles = Util.deepCopyCol(other.tiles, ArrayList::new, Tile::new);
         this.startingTile = Util.copyOrNull(other.startingTile, Tile::new);
     }
 
     /**
-     * Adds multiple copies of a tile to the deck during populateTiles().
+     * Create a specified number of tiles of a specific ID from the master list and add
+     * them to the list of tiles, all with random rotations.
      *
-     * @param id           The character id of the tile.
-     * @param num          The number of times to add this tile.
-     * @param farmSections The parts of the tile that comprise each farm section.
-     * @param citySections The parts of the tile that comprise each city section.
-     * @param roads        The road parts for each road exiting the tile.
-     * @param hasPennant   Whether or not the tile has a pennant for the city.
-     * @param hasCloister  Whether or not the tile has a cloister.
+     * @param id  The ID of the tiles to create.
+     * @param num The number of tiles to create.
      */
-    private void addTiles(char id, int num, int[][] farmSections,
-                          int[][] citySections, int[] roads, boolean hasPennant,
-                          boolean hasCloister) {
+    private void addTiles(char id, int num) {
         for (int i = 0; i < num; i++) {
-            this.tiles.add(new Tile(id, farmSections, citySections, roads,
-                    hasPennant, hasCloister));
+            Tile created = createTile(id);
+            created.rotateRandomly();
+            this.tiles.add(created);
         }
-    }
-
-
-    /**
-     * Adds multiple copies of a tile that has both pennant and non-pennant varieties
-     * to the deck during populateTiles().
-     *
-     * @param normalId     The character id of the tile variant without a pennant.
-     * @param normalNum    The number of times to add the tile variant without a pennant.
-     * @param pennantId    The character id of the tile variant with a pennant.
-     * @param pennantNum   The number of times to add the tile variant with a pennant.
-     * @param farmSections The parts of the tile that comprise each farm section.
-     * @param citySections The parts of the tile that comprise each city section.
-     * @param roads        The road parts for each road exiting the tile.
-     */
-    private void addPennantTiles(char normalId, int normalNum, char pennantId,
-                                 int pennantNum, int[][] farmSections,
-                                 int[][] citySections, int[] roads) {
-        // No pennant tiles have monasteries, so we can conveniently leave that as false.
-        addTiles(normalId, normalNum,
-                farmSections, citySections, roads, false, false);
-        addTiles(pennantId, pennantNum,
-                farmSections, citySections, roads, true, false);
-    }
-
-    /**
-     * During construction, populates the deck with the default set of 72 tiles
-     * in Carcassonne.
-     */
-    private void populateTiles() {
-        // Set a capacity of the number of tiles the deck will have. This is 71
-        // instead of 72 because the starting tile is not stored in the ArrayList.
-        this.tiles = new ArrayList<>(71);
-
-        // These are helpful constants for tiles that have simple layouts that are
-        // shared with many other tiles.
-        final int[][] ALL_SECTIONS = new int[][]{{0, 1, 2, 3, 4, 5, 6, 7}};
-        final int[][] NO_SECTIONS = new int[][]{{}};
-        final int[] NO_ROADS = new int[]{};
-
-        addTiles('a', 2,
-                ALL_SECTIONS,
-                NO_SECTIONS,
-                new int[]{2},
-                false,
-                true
-        );
-
-        addTiles('b', 4,
-                ALL_SECTIONS,
-                NO_SECTIONS,
-                NO_ROADS,
-                false,
-                true
-        );
-
-        addTiles('c', 1,
-                NO_SECTIONS,
-                ALL_SECTIONS,
-                NO_ROADS,
-                true,
-                false
-        );
-
-        addTiles('d', 4,
-                new int[][]{
-                        {1, 4},
-                        {0, 5, 6, 7}
-                },
-                new int[][]{{2, 3}},
-                new int[]{0, 2},
-                false,
-                false
-        );
-
-        // The starting tile is special: it's always tile D, so we remove one of the
-        // just created ones from the ArrayList and set it as the starting tile.
-        this.startingTile = this.tiles.remove(this.tiles.size() - 1);
-
-        addTiles('e', 5,
-                new int[][]{{2, 3, 4, 5, 6, 7}},
-                new int[][]{{0, 1}},
-                NO_ROADS,
-                false,
-                false
-        );
-
-        addTiles('f', 2,
-                new int[][]{
-                        {0, 1},
-                        {4, 5}
-                },
-                new int[][]{{2, 3, 6, 7}},
-                NO_ROADS,
-                true,
-                false
-        );
-
-        addTiles('g', 1,
-                new int[][]{
-                        {2, 3},
-                        {6, 7}
-                },
-                new int[][]{{0, 1, 4, 5}},
-                NO_ROADS,
-                false,
-                false
-        );
-
-        addTiles('h', 3,
-                new int[][]{{0, 1, 4, 5}},
-                new int[][]{
-                        {2, 3},
-                        {6, 7}
-                },
-                NO_ROADS,
-                false,
-                false
-        );
-
-        addTiles('i', 2,
-                new int[][]{{0, 1, 6, 7}},
-                new int[][]{
-                        {2, 3},
-                        {4, 5},
-                },
-                NO_ROADS,
-                false,
-                false
-        );
-
-        addTiles('j', 3,
-                new int[][]{
-                        {2, 5, 6, 7},
-                        {3, 4}
-                },
-                new int[][]{{0, 1}},
-                new int[]{1, 2},
-                false,
-                false
-        );
-
-        addTiles('k', 3,
-                new int[][]{
-                        {1, 4, 5, 6},
-                        {7, 0}
-                },
-                new int[][]{{2, 3}},
-                new int[]{0, 3},
-                false,
-                false
-        );
-
-        addTiles('l', 3,
-                new int[][]{
-                        {1, 4},
-                        {5, 6},
-                        {7, 0}
-                },
-                new int[][]{{2, 3}},
-                new int[]{0, 2, 3},
-                false,
-                false
-        );
-
-        addPennantTiles('m', 2, 'n', 3,
-                new int[][]{{2, 3, 4, 5}},
-                new int[][]{{6, 7, 0, 1}},
-                NO_ROADS
-        );
-
-        addPennantTiles('o', 2, 'p', 3,
-                new int[][]{
-                        {2, 5},
-                        {3, 4}
-                },
-                new int[][]{{6, 7, 0, 1}},
-                new int[]{1, 2}
-        );
-
-        addPennantTiles('q', 1, 'r', 3,
-                new int[][]{{4, 5}},
-                new int[][]{{6, 7, 0, 1, 2, 3}},
-                NO_ROADS
-        );
-
-        addPennantTiles('s', 2, 't', 1,
-                new int[][]{
-                        {4},
-                        {5}
-                },
-                new int[][]{{6, 7, 0, 1, 2, 3}},
-                new int[]{2}
-        );
-
-        addTiles('u', 8,
-                new int[][]{
-                        {1, 2, 3, 4},
-                        {5, 6, 7, 0},
-                },
-                NO_SECTIONS,
-                new int[]{0, 2},
-                false,
-                false
-        );
-
-        addTiles('v', 9,
-                new int[][]{
-                        {7, 0, 1, 2, 3, 4},
-                        {5, 6}
-                },
-                NO_SECTIONS,
-                new int[]{2, 3},
-                false,
-                false
-        );
-
-        addTiles('w', 4,
-                new int[][]{
-                        {7, 0, 1, 2},
-                        {3, 4},
-                        {5, 6}
-                },
-                NO_SECTIONS,
-                new int[]{1, 2, 3},
-                false,
-                false
-        );
-
-        addTiles('x', 1,
-                new int[][]{
-                        {1, 2},
-                        {3, 4},
-                        {5, 6},
-                        {7, 0}
-                },
-                NO_SECTIONS,
-                new int[]{0, 1, 2, 3},
-                false,
-                false
-        );
-
-        // Basic check to ensure we have the right number of tiles.
-        assert this.tiles.size() == 71;
     }
 }

@@ -17,20 +17,20 @@ import java.util.HashSet;
  *
  * @author Vincent Robinson
  */
-public class Board {
+public class BoardOLD {
     /**
      * The array of tiles in the board, including the empty border around the board. If
      * there is no tile at some position, that tile is null. The tile currently being
      * placed is not stored in this array, but rather* stored as a separate instance
      * variable.
      */
-    private Tile[][] tiles;
+    private TileOLD[][] tiles;
 
     /**
      * The tile currently being placed, or null if none. The current tile should never
      * overlap other tiles.
      */
-    private Tile currentTile;
+    private TileOLD currentTile;
     /**
      * The X position of the current tile in the tiles array. If the current tile has not
      * yet been placed down or if there is no current tile, it contains -1.
@@ -68,7 +68,7 @@ public class Board {
      * @return The tile if there is one, or null if there is no tile or the specified
      *         position is out of bounds.
      */
-    public Tile getTile(int x, int y) {
+    public TileOLD getTile(int x, int y) {
         if (x == this.currentTileX && y == this.currentTileY) {
             return this.currentTile;
         }
@@ -83,7 +83,7 @@ public class Board {
      * @return The tile if there is one, or null if there is no tile or the specified
      *         position is out of bounds.
      */
-    public Tile getConfirmedTile(int x, int y) {
+    public TileOLD getConfirmedTile(int x, int y) {
         if (outOfBounds(x, y)) {
             return null;
         }
@@ -95,7 +95,7 @@ public class Board {
      *
      * @return The tile currently being placed.
      */
-    public Tile getCurrentTile() {
+    public TileOLD getCurrentTile() {
         return this.currentTile;
     }
 
@@ -125,7 +125,7 @@ public class Board {
      *
      * @param tile The tile to set as the current tile.
      */
-    public void setCurrentTile(Tile tile) {
+    public void setCurrentTile(TileOLD tile) {
         this.currentTile = tile;
         resetCurrentTilePosition();
     }
@@ -179,8 +179,8 @@ public class Board {
 
         // Resize the tile array if necessary
         if (incX || incY) {
-            Tile[][] copy = new Tile[getHeight() + (incY ? 1 : 0)]
-                    [getWidth() + (incX ? 1 : 0)];
+            TileOLD[][] copy = new TileOLD[getHeight() + (incY ? 1 : 0)]
+                                     [getWidth() + (incX ? 1 : 0)];
 
             for (int y = 0; y < getHeight(); y++) {
                 for (int x = 0; x < getWidth(); x++) {
@@ -212,7 +212,7 @@ public class Board {
 
         // Check all possible surrounding positions for validity in clockwise order
         // starting from the top
-        Board.AdjacentValidation adjacent = new Board.AdjacentValidation();
+        AdjacentValidation adjacent = new AdjacentValidation();
 
         // Refer to the documentation for Tile for the meaning of these magical
         // constants.
@@ -238,15 +238,15 @@ public class Board {
         // the meeple placement code.
         assert isCurrentTilePlacementValid();
 
-        int type = this.currentTile.getMeepleSection().getType();
+        int type = this.currentTile.getMeepleType();
 
-        if (type == Tile.TYPE_NONE || type == Tile.TYPE_CLOISTER) {
+        if (type == TileOLD.TYPE_NONE || type == TileOLD.TYPE_CLOISTER) {
             // If there's no meeple or it's a monk, the placement is always valid.
             // It should be impossible for a monk to ever be placed on a tile without
             // a cloister.
             return true;
         }
-        else if (type == Tile.TYPE_ROAD) {
+        else if (type == TileOLD.TYPE_ROAD) {
             // If there's only one road meeple anywhere along this road, it must be
             // the one on this tile.
             return 1 == countRoadMeeples(this.currentTileX, this.currentTileY,
@@ -258,10 +258,10 @@ public class Board {
 
         // Make one shared visited set across all calls to ensure everything is counted
         // exactly once.
-        HashSet<Section> visited = new HashSet<>();
+        HashSet<HashSet<Integer>> visited = new HashSet<>();
 
         int total = 0;
-        for (int part : this.currentTile.getMeepleSection().getParts()) {
+        for (int part : this.currentTile.getMeepleSection()) {
             total += countSectionMeeples(type, this.currentTileX, this.currentTileY,
                     part, visited);
         }
@@ -291,7 +291,7 @@ public class Board {
         for (int y = 0; y < getHeight(); y++) {
             for (int x = 0; x < getWidth(); x++) {
                 // Print the coordinates of each non-null tile on the board.
-                Tile tile = this.tiles[y][x];
+                TileOLD tile = this.tiles[y][x];
                 if (tile != null) {
                     toStr.add("tiles[" + y + "][" + x + "]", tile);
                 }
@@ -307,8 +307,8 @@ public class Board {
      * @param startingTile The tile to place in the middle of the board. It should
      *                     be retrieved with Deck.drawStartingTile().
      */
-    public Board(Tile startingTile) {
-        this.tiles = new Tile[3][3];
+    public BoardOLD(TileOLD startingTile) {
+        this.tiles = new TileOLD[3][3];
         this.tiles[1][1] = startingTile;
 
         this.currentTile = null;
@@ -320,10 +320,10 @@ public class Board {
      *
      * @param other The board to make a deep copy of.
      */
-    public Board(Board other) {
-        this.tiles = Util.deepCopyNested(other.tiles, Tile::new);
+    public BoardOLD(BoardOLD other) {
+        this.tiles = Util.deepCopyNested(other.tiles, TileOLD::new);
 
-        this.currentTile = Util.copyOrNull(other.currentTile, Tile::new);
+        this.currentTile = Util.copyOrNull(other.currentTile, TileOLD::new);
         this.currentTileX = other.currentTileX;
         this.currentTileY = other.currentTileY;
     }
@@ -375,9 +375,9 @@ public class Board {
      * @param roadPart   The road part on the current tile to validate with the adjacent
      *                   tile's road part on the opposite side.
      */
-    private void isAdjacentValid(Board.AdjacentValidation adjacent, int xOffset, int yOffset,
+    private void isAdjacentValid(AdjacentValidation adjacent, int xOffset, int yOffset,
                                  int firstPart, int secondPart, int roadPart) {
-        Tile tile = getConfirmedTile(this.currentTileX + xOffset,
+        TileOLD tile = getConfirmedTile(this.currentTileX + xOffset,
                 this.currentTileY + yOffset);
         if (tile == null) {
             // There's no tile: nothing has changed.
@@ -389,14 +389,14 @@ public class Board {
 
         // Check whether the types of sections match up, i.e. farm to farm and
         // city to city.
-        adjacent.isValid &= this.currentTile.getSection(firstPart).getType() ==
-                tile.getSection(Tile.flipPart(firstPart)).getType();
-        adjacent.isValid &= this.currentTile.getSection(secondPart).getType() ==
-                tile.getSection(Tile.flipPart(secondPart)).getType();
+        adjacent.isValid &= this.currentTile.getSectionType(firstPart) ==
+                tile.getSectionType(TileOLD.flipPart(firstPart));
+        adjacent.isValid &= this.currentTile.getSectionType(secondPart) ==
+                tile.getSectionType(TileOLD.flipPart(secondPart));
 
         // Check whether the roads match up.
-        adjacent.isValid &= this.currentTile.getRoadSection(roadPart).getType() ==
-                tile.getRoadSection(Tile.flipRoadPart(roadPart)).getType();
+        adjacent.isValid &= this.currentTile.hasRoad(roadPart) ==
+                tile.hasRoad(TileOLD.flipRoadPart(roadPart));
     }
 
     /**
@@ -411,8 +411,8 @@ public class Board {
      *                an infinite recursion loop.
      * @return The number of meeples anywhere on the road.
      */
-    private int countRoadMeeples(int x, int y, HashSet<Tile> visited) {
-        Tile tile = getTile(x, y);
+    private int countRoadMeeples(int x, int y, HashSet<TileOLD> visited) {
+        TileOLD tile = getTile(x, y);
 
         // Ignore non-existent tiles and don't count tiles we've already searched
         // through so that we don't run into infinite recursion.
@@ -424,21 +424,15 @@ public class Board {
         int total = 0;
 
         // Add the meeple from the current tile if it's a road meeple
-        if (tile.getMeepleSection().getType() == Tile.TYPE_ROAD) {
+        if (tile.getMeepleType() == TileOLD.TYPE_ROAD) {
             total++;
         }
 
         // Run this same function on all adjacent tiles connected to this tile
         // via roads.
-        for (Section section : tile.getSections()) {
-            if (section.getType() != Tile.TYPE_ROAD) {
-                continue;
-            }
-
-            for (int other_road : section.getParts()) {
-                total += countRoadMeeples(x + Tile.roadPartXOffset(other_road),
-                        y + Tile.roadPartYOffset(other_road), visited);
-            }
+        for (int other_road : tile.getRoads()) {
+            total += countRoadMeeples(x + TileOLD.roadPartXOffset(other_road),
+                    y + TileOLD.roadPartYOffset(other_road), visited);
         }
 
         return total;
@@ -460,14 +454,14 @@ public class Board {
      *         it.
      */
     private int countSectionMeeples(int type, int x, int y, int part,
-                                    HashSet<Section> visited) {
-        Tile tile = getTile(x, y);
+                                    HashSet<HashSet<Integer>> visited) {
+        TileOLD tile = getTile(x, y);
         if (tile == null) {
             // Ignore non-existent tiles
             return 0;
         }
 
-        Section section = tile.getSection(part);
+        HashSet<Integer> section = tile.getSectionFromPart(part);
 
         // Don't count tiles we've already searched through so that we don't run
         // into infinite recursion.
@@ -484,16 +478,10 @@ public class Board {
         }
 
         // Run this same function on all adjacent tiles connected to this section.
-        for (Section other_section : tile.getSections()) {
-            if (section.isFarmOrCity()) {
-                continue;
-            }
-
-            for (int other_part : section.getParts()) {
-                total += countSectionMeeples(type, x + Tile.partXOffset(other_part),
-                        y + Tile.partYOffset(other_part), Tile.flipPart(other_part),
-                        visited);
-            }
+        for (int other_part : section) {
+            total += countSectionMeeples(type, x + TileOLD.partXOffset(other_part),
+                    y + TileOLD.partYOffset(other_part), TileOLD.flipPart(other_part),
+                    visited);
         }
 
         return total;

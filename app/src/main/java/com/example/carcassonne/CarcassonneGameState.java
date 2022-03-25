@@ -28,7 +28,7 @@ public class CarcassonneGameState extends GameState {
      *
      * @param numPlayers The number of players the game has.
      */
-    public CarcassonneGameState(int numPlayers) {
+    public CarcassonneGameState(int numPlayers, TileImageProvider imageProvider) {
         this.numPlayers = numPlayers;
 
         this.playerMeeples = new int[numPlayers];
@@ -38,7 +38,7 @@ public class CarcassonneGameState extends GameState {
         this.currentTurn = 0;
         this.isPlacementStage = true;
 
-        this.deck = new Deck();
+        this.deck = new Deck(imageProvider);
         this.board = new Board(this.deck.drawStartingTile());
     }
 
@@ -58,6 +58,8 @@ public class CarcassonneGameState extends GameState {
      * @param other The game state to make a deep copy of.
      */
     public CarcassonneGameState(CarcassonneGameState other) {
+        this.numPlayers = other.numPlayers;
+
         this.playerMeeples = Util.copyArray(other.playerMeeples);
         this.playerCompleteScores = Util.copyArray(other.playerCompleteScores);
         this.playerIncompleteScores = Util.copyArray(other.playerIncompleteScores);

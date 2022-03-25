@@ -3,12 +3,20 @@ package com.example.carcassonne;
 import java.util.HashSet;
 
 public class Section {
-    private HashSet<Integer> parts;
-
     private int type;
+
+    private HashSet<Integer> parts;
 
     private int meepleX;
     private int meepleY;
+
+    public int getType() {
+        return this.type;
+    }
+
+    public boolean isFarmOrCity() {
+        return this.type == Tile.TYPE_FARM || this.type == Tile.TYPE_CITY;
+    }
 
     public HashSet<Integer> getParts() {
         return this.parts;
@@ -16,10 +24,6 @@ public class Section {
 
     public void addPart(int part) {
         this.parts.add(part);
-    }
-
-    public int getType() {
-        return this.type;
     }
 
     public int getMeepleX() {
@@ -36,11 +40,11 @@ public class Section {
 
         int add;
         int mod;
-        if (type == Tile2.TYPE_ROAD) {
+        if (type == Tile.TYPE_ROAD) {
             // There are four roads, and each side has only one road.
             add = 1;
             mod = 4;
-        } else if (type == Tile2.TYPE_FARM || type == Tile2.TYPE_CITY) {
+        } else if (type == Tile.TYPE_FARM || type == Tile.TYPE_CITY) {
             // There are eight farms/cities, and each side has two roads.
             add = 2;
             mod = 8;
@@ -61,7 +65,7 @@ public class Section {
 
         // Rotate the meeple positions.
         int temp = this.meepleX;
-        this.meepleX = Tile2.SIZE - this.meepleY;
+        this.meepleX = Tile.SIZE - this.meepleY;
         this.meepleY = temp;
     }
 
@@ -78,18 +82,18 @@ public class Section {
     }
 
     public Section(int type, int meepleX, int meepleY) {
-        this.parts = new HashSet<>();
-
         this.type = type;
+
+        this.parts = new HashSet<>();
 
         this.meepleX = meepleX;
         this.meepleY = meepleY;
     }
 
     public Section(Section other) {
-        this.parts = new HashSet<>(other.parts);
-
         this.type = other.type;
+
+        this.parts = new HashSet<>(other.parts);
 
         this.meepleX = other.meepleX;
         this.meepleY = other.meepleY;

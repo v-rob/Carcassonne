@@ -6,7 +6,7 @@ import android.view.SurfaceView;
 import android.graphics.Canvas;
 
 public class BoardSurfaceView extends SurfaceView{
-    private Board board;
+    private BoardOLD board;
     private int scrollX;
     private int scrollY;
     private double Scale;

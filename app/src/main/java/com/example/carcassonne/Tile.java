@@ -1,198 +1,51 @@
 package com.example.carcassonne;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 
-/**
- * Represents a single Carcassonne tile. Carcassonne's main complexity lies in
- * how things connect: for instance, farmland connects to farmland on different
- * tiles, but sometimes doesn't connect to farmland on the same tile due to a city
- * or road in between.
- *
- * The way Tile objects represent this is via "sections". All farmland that is
- * connected on one side of a road or city is put in its own section, and
- * likewise for cities.
- *
- * Sections are grouped together by the smallest unit of measure, a "part" of
- * the tile. Observe the following diagram and the eighths numbered 0-7: these
- * are the parts of every tile.
- *
- *               0
- *       +---------------+
- *       |\   0  |  1   /|
- *       |  \    |    /  |
- *       |  7 \  |  / 2  |
- *       |      \|/      |
- *     3 |-------+-------| 1
- *       |      /|\      |
- *       |  6 /  |  \ 3  |
- *       |  /    |    \  |
- *       |/   5  |  4   \|
- *       +---------------+
- *               2
- *
- * Any tile can be split into these eight parts, and these parts can then be
- * placed into sections. Finally, note the outer numbers 0-3 in the diagram:
- * these indicate whether there is a road in that direction.
- *
- * An example is likely the best way to explain this. Consider tile D:
- *
- *               0
- *       +---------------+
- *       |    0  |  1   /|
- *       |       |    /. |
- *       |  7    |  / 2 .|
- *       |       |  |. . |
- *     3 |       |  | . .| 1
- *       |       |  |. . |
- *       |  6    |  \ 3 .|
- *       |       |    \. |
- *       |    5  |  4   \|
- *       +---------------+
- *               2
- *
- * There is a city on the right and a vertical road through the middle. Note
- * that the part and road numbers have been left in the diagram. There are three
- * sections:
- *
- * - 2, 3:       These parts comprise the only city section.
- * - 1, 4:       This is one of the sections of farmland. It does not connect
- *               to the rest of the farmland because there is a road in between.
- * - 5, 6, 7, 8: This is the other section of farmland.
- *
- * Secondly, this tile will include the road numbers 0 and 2 because roads exit
- * in those two directions.
- *
- * Sections will vary from tile to tile: some may have as many as four farmland
- * sections, and others may have zero city or farmland sections. However, every
- * part must always be part of some section.
- *
- * Sections are stored as nested arrays of integers: the outermost array is the
- * array of sections, while the inner array is the array of part numbers. For
- * the previous example, this is the array structure for the farmland:
- *
- *     int[][] farmSections = {
- *         {1, 4},
- *         {5, 6, 7, 8}
- *     };
- *
- * And the city section:
- *
- *     int[][] citySections = {
- *         {2, 3}
- *     };
- *
- * Roads are simply stored as an array of road parts. So, for tile D, this is:
- *
- *     int[] roads = {0, 2};
- *
- * A final note on sections: rotating a tile causes all the part and road numbers
- * to be rotated with it. In other words, a right rotation would cause tile D's
- * city to become 4 and 5 instead of the normal 2 and 3.
- *
- * Meeple placement on tiles is represented as two integers: the type of the meeple
- * (which is one of the `TYPE_` constants) and the section number, if placed on
- * something that is divided into sections. For instance, a meeple placed on the
- * second farm section has a `meepleType` of `MEEPLE_FARMER` and a `meepleSection`
- * of 1. Finally, there is a field for determining which player placed the tile
- * (and therefore the color of the meeple).
- *
- * Tiles have two additional boolean fields: hasPennant states whether the city
- * in the tile has a pennant. Tiles with two cities never have pennants, so this
- * this does not have to be accounted for. Secondly, hasCloister states whether
- * the tile is a cloister or not.
- *
- * Tiles are used in HashSets; however, equals() and hashCode() are deliberately
- * not implemented. This is because identical tiles are distinct: there can be two
- * tile D's with the same rotation and meeples on the same map, but they are
- * distinct for every purpose. Care must therefore be taken to not mix Tiles and
- * their deep copies.
- *
- * All externally-facing functions that return sets make a copy of the set so
- * callers can't inadvertently make changed to the original.
- *
- * @author Vincent Robinson
- */
 public class Tile {
-    /**
-     * The ID of the tile, which is a letter between 'a' and 'x' that corresponds to
-     * the "tile_<id>.png" file of this tile.
-     */
-    private char id;
+    public static final int SIZE = 292;
 
-    /**
-     * The parts of the tile that comprise each section of each farm in this tile. See
-     * the main comment for Tile for more information.
-     */
-    private HashSet<Integer>[] farmSections;
-    /**
-     * The parts of the tile that comprise each section of each city in this tile. See
-     * the main comment for Tile for more information.
-     */
-    private HashSet<Integer>[] citySections;
+    char id;
 
-    /**
-     * The road parts that indicate which edge of the tile has a road in that direction.
-     * See the main comment for Tile for more information.
-     */
-    private HashSet<Integer> roads;
+    private int[][] map;
 
-    /**
-     * Indicates whether the city on this tile has a pennant or not. Always false for
-     * tiles with zero or two cities.
-     */
+    private HashMap<Integer, Section> sections;
     private boolean hasPennant;
-    /**
-     * Indicates whether this tile has a cloister on it. No tiles have both cities and
-     * cloisters.
-     */
-    private boolean hasCloister;
 
-    // Constants used for the type of meeple on the board as well as getting the
-    // section type of a tile part:
-    /**
-     * Indicates that there is no meeple on the board.
-     */
+    private int meepleSection;
+    private int owner;
+
     public static final int TYPE_NONE = 0;
-    /**
-     * Used for two things:
-     * - `meepleType`: Indicates that the meeple is a farmer and placed on one of
-     *   the farm sections.
-     * - getSectionType(): Indicates that the section is a farm section.
-     */
     public static final int TYPE_FARM = 1;
-    /**
-     * Used for two things:
-     * - `meepleType`: Indicates that the meeple is a knight and placed on one of
-     *   the city sections.
-     * - getSectionType(): Indicates that the section is a city section.
-     */
     public static final int TYPE_CITY = 2;
-    /**
-     * Indicates that the meeple is a thief and placed on a road on this tile.
-     */
     public static final int TYPE_ROAD = 3;
-    /**
-     * Indicates that the meeple is a monk and placed on the monastery on this tile.
-     */
     public static final int TYPE_CLOISTER = 4;
 
-    /**
-     * The type of the meeple on the tile. One of the `TYPE_` constants. If `TYPE_NONE`,
-     * then there is no meeple anywhere on the tile.
-     */
-    private int meepleType;
+    private static final int NO_MEEPLE = 0xFFFFFFFF;
 
-    /**
-     * If `meepleType` is one of `TYPE_FARM` or `TYPE_CITY`, this is the section index
-     * that the meeple is in. The value is -1 otherwise.
-     */
-    private int meepleSection;
+    private static final int NO_SECTION_COLOR = 0xFF000000;
+    private static final int PENNANT_COLOR = 0xFFFF0000;
 
-    /**
-     * The player index of the person who placed the tile. If there is no owner, contains
-     * -1. This is important for determining the owner of the meeple on the tile.
+    /*
+     * External Citation
+     * Date: 17 March 2022
+     * Problem: Wanted a way to create a HashSet without calling add() a bunch of
+     *          times on it.
+     * Resource:
+     *     https://docs.oracle.com/javase/7/docs/api/java/util/Arrays.html
+     * Solution: Used Arrays.asList() and called the HashSet copy constructor on it.
      */
-    private int owner;
+    public static final HashSet<Integer> FARM_COLORS = new HashSet<>(Arrays.asList(
+            0xFF00FF00, 0xFF00BF00, 0xFF007F00, 0xFF003F00));
+    public static final HashSet<Integer> CITY_COLORS = new HashSet<>(Arrays.asList(
+            0xFFFF0000, 0xFFBF0000));
+    public static final HashSet<Integer> ROAD_COLORS = new HashSet<>(Arrays.asList(
+            0xFF0000FF, 0xFF0000BF, 0xFF00007F, 0xFF00003F));
+    public static final HashSet<Integer> CLOISTER_COLORS = new HashSet<>(Arrays.asList(
+            0xFFFF00FF));
 
     /**
      * Returns the part number on the opposite side of the tile. For instance, the
@@ -301,107 +154,45 @@ public class Tile {
         return 0;
     }
 
-    /**
-     * Gets the section type for the specified part, which is either `TYPE_FARM` or
-     * `TYPE_CITY`.
-     *
-     * @param part The part to get the section type of.
-     * @return Either `TYPE_FARM` or `TYPE_CITY`, depending on the part and tile.
-     */
-    public int getSectionType(int part) {
-        if (getGenericSectionFromPart(this.citySections, part) != null) {
-            return TYPE_CITY;
+    int getId() {
+        return this.id;
+    }
+
+    public Collection<Section> getSections() {
+        return this.sections.values();
+    }
+
+    public Section getSection(int part) {
+        for (Section section : this.sections.values()) {
+            if (section.isFarmOrCity() && section.getParts().contains(part)) {
+                return section;
+            }
         }
-        return TYPE_FARM;
+
+        // There should always be a section for each part
+        assert false;
+        return null;
     }
 
-    /**
-     * Returns whether there is a road leading down the specified road part.
-     *
-     * @param part The road part to query the existence of a road for.
-     * @return True if there is a road in that direction, false otherwise.
-     */
-    public boolean hasRoad(int part) {
-        return this.roads.contains(part);
-    }
-
-    /**
-     * Returns the set of parts in a section given a single part number in that
-     * section. It works for both city and farm sections.
-     *
-     * @param part The part number to get the section for.
-     * @return The entire set of parts in the part's section.
-     */
-    public HashSet<Integer> getSectionFromPart(int part) {
-        HashSet<Integer> section = getGenericSectionFromPart(this.farmSections, part);
-        if (section == null) {
-            // We didn't find a farm, so find the city section that must then exist.
-            section = getGenericSectionFromPart(this.citySections, part);
-        }
-        return new HashSet<>(section);
-    }
-
-    /**
-     * Gets the set of all road parts that correspond to actual roads in this tile.
-     *
-     * @return The set of all roads.
-     */
-    public HashSet<Integer> getRoads() {
-        return new HashSet<>(this.roads);
-    }
-
-    /**
-     * Queries whether the city in this tile has a pennant. Tiles with zero or two
-     * cities will always return false.
-     *
-     * @return True if there is a pennant, false otherwise.
-     */
-    public boolean hasPennant() {
-        return this.hasPennant;
-    }
-
-    /**
-     * Queries whether this tile contains a cloister. Tiles will never have both
-     * cloisters and cities.
-     *
-     * @return True if there is a cloister, false otherwise.
-     */
-    public boolean hasCloister() {
-        return this.hasCloister;
-    }
-
-    /**
-     * Returns the type of the meeple on this tile, which is one of the `TILE_`
-     * constants. If `TILE_NONE`, there is no meeple on the tile.
-     *
-     * @return The type of the meeple on the tile.
-     */
-    public int getMeepleType() {
-        return this.meepleType;
-    }
-
-    /**
-     * Gets the set of parts in the section that the meeple is in. If there is no
-     * meeple or the meeple is not in a city or farm, returns null.
-     *
-     * @return The set of parts in the meeple's section, or null if not applicable.
-     */
-    public HashSet<Integer> getMeepleSection() {
-        if (this.meepleType == TYPE_CITY) {
-            return new HashSet<>(this.citySections[this.meepleSection]);
-        }
-        else if (this.meepleType == TYPE_FARM) {
-            return new HashSet<>(this.farmSections[this.meepleSection]);
+    public Section getRoadSection(int part) {
+        for (Section section : this.sections.values()) {
+            if (section.getType() == TYPE_ROAD && section.getParts().contains(part)) {
+                return section;
+            }
         }
         return null;
     }
 
-    /**
-     * Removes the meeple from this tile, if there is one.
-     */
+    public void setMeeple(int x, int y) {
+        this.meepleSection = this.map[y][x];
+    }
+
     public void removeMeeple() {
-        this.meepleType = TYPE_NONE;
-        this.meepleSection = -1;
+        this.meepleSection = NO_MEEPLE;
+    }
+
+    public Section getMeepleSection() {
+        return this.sections.get(this.meepleSection);
     }
 
     /**
@@ -426,216 +217,177 @@ public class Tile {
         this.owner = owner;
     }
 
-    /**
-     * Rotates the tile 90 degrees clockwise. All sections and roads are rotated
-     * with it.
-     */
     public void rotate() {
-        rotateSections(this.farmSections);
-        rotateSections(this.citySections);
+        int[][] rotatedMap = new int[SIZE][SIZE];
+        for (int x = 0; x < SIZE; x++) {
+            for (int y = 0; y < SIZE; y++) {
+                rotatedMap[x][SIZE - y] = this.map[y][x];
+            }
+        }
+        this.map = rotatedMap;
 
-        this.roads = rotateSet(this.roads, 1, 4);
+        for (Section section : this.sections.values()) {
+            section.rotate();
+        }
     }
 
-    /**
-     * Converts the tile to a string representation showing all instance variables.
-     *
-     * @return The string representation of the tile.
-     */
-    @Override
-    public String toString() {
-        return "Tile {\n" +
-                "    id = " + this.id + "\n" +
-                "    farmSections = " + sectionsToString(this.farmSections) + "\n" +
-                "    citySections = " + sectionsToString(this.citySections) + "\n" +
-                "    roads = " + setToString(this.roads) + "\n" +
-                "    hasPennant = " + this.hasPennant + "\n" +
-                "    hasCloister = " + this.hasCloister + "\n}";
-    }
-
-    /**
-     * Creates a new Tile. Generally, only Deck needs to create Tiles, as everything
-     * else will get its tiles from Deck. Arrays are used in the constructor while
-     * sets are used Tile itself for ease of construction.
-     *
-     * By default, each tile will have a random rotation, no meeple, and a player
-     * index of -1.
-     *
-     * @param id           The character id of the tile.
-     * @param farmSections The parts of the tile that comprise each farm section.
-     * @param citySections The parts of the tile that comprise each city section.
-     * @param roads        The road parts for each road exiting the tile.
-     * @param hasPennant   Whether or not the tile has a pennant for the city.
-     * @param hasCloister  Whether or not the tile has a cloister.
-     */
-    public Tile(char id, int[][] farmSections, int[][] citySections,
-                int[] roads, boolean hasPennant, boolean hasCloister) {
-        this.id = id;
-
-        // Copy all arrays into sets.
-        this.farmSections = sectionsFromIntArray(farmSections);
-        this.citySections = sectionsFromIntArray(citySections);
-
-        this.roads = setFromIntArray(roads);
-
-        // Give the tile a random rotation since tiles will be in no particular
-        // rotation when drawing a tile from the deck in real Carcassonne.
-        int by = (int)(Math.random() * 4);
+    public void rotateBy(int by) {
         for (int i = 0; i < by; i++) {
             rotate();
         }
+    }
 
-        this.hasPennant = hasPennant;
-        this.hasCloister = hasCloister;
-
-        // Tiles start out with no meeple.
-        this.meepleType = TYPE_NONE;
-        this.meepleSection = -1;
-        this.owner = -1;
+    public void rotateRandomly() {
+        rotateBy((int)(Math.random() * 4));
     }
 
     /**
-     * Creates a new tile that is a deep copy of the tile and all its instance
-     * variables.
+     * Queries whether the city in this tile has a pennant. Tiles with zero or two
+     * cities will always return false.
      *
-     * @param other The tile to make a copy of.
+     * @return True if there is a pennant, false otherwise.
      */
+    public boolean hasPennant() {
+        return this.hasPennant;
+    }
+
+    @Override
+    public String toString() {
+        ToStringer toStr = new ToStringer("Tile");
+
+        toStr.add("map", this.map);
+        toStr.add("sections", this.sections);
+        toStr.add("hasPennant", this.hasPennant);
+        toStr.add("meepleSection", this.meepleSection);
+        toStr.add("owner", this.owner);
+
+        return toStr.toString();
+    }
+
+    public Tile(char id, TileImageProvider imageProvider) {
+        this.id = id;
+
+        this.map = Util.deepCopyArray(imageProvider.getMapImage(id), Util::copyArray);
+        this.sections = new HashMap<>();
+        this.hasPennant = false;
+
+        this.meepleSection = NO_MEEPLE;
+        this.owner = -1;
+
+        int[][] sectionImage = imageProvider.getSectionImage(id);
+        parseSectionPositions(sectionImage);
+        parseSectionConnections(sectionImage);
+        parseSectionSpecials(sectionImage);
+
+        // Give the tile a random rotation.
+        rotateBy((int)(Math.random() * 4));
+    }
+
     public Tile(Tile other) {
         this.id = other.id;
 
-        this.farmSections = copySections(other.farmSections);
-        this.citySections = copySections(other.citySections);
-
-        this.roads = new HashSet<>(other.roads);
-
+        this.map = Util.deepCopyArray(other.map, Util::copyArray);
+        this.sections = Util.deepCopyMap(other.sections, HashMap::new, Section::new);
         this.hasPennant = other.hasPennant;
-        this.hasCloister = other.hasCloister;
+
+        this.owner = other.owner;
+        this.meepleSection = other.meepleSection;
     }
 
-    /**
-     * Searches through an array of sections and returns the section that contains
-     * the specified part number, or null if no such part number exists in any of
-     * the sections.
-     *
-     * @param sections The array of sections to search through.
-     * @param part     The part number found in one of the sections.
-     * @return The set of part in the section if found, or null otherwise.
-     */
-    private static HashSet<Integer> getGenericSectionFromPart(
-            HashSet<Integer>[] sections, int part) {
-        for (int i = 0; i < sections.length; i++) {
-            if (sections[i].contains(part)) {
-                return sections[i];
+    private static int getTypeFromColor(int color) {
+        if (FARM_COLORS.contains(color)) {
+            return TYPE_FARM;
+        } else if (CITY_COLORS.contains(color)) {
+            return TYPE_CITY;
+        } else if (ROAD_COLORS.contains(color)) {
+            return TYPE_ROAD;
+        } else if (CLOISTER_COLORS.contains(color)) {
+            return TYPE_CLOISTER;
+        }
+
+        // If it's any other color, the images are invalid.
+        assert false;
+        return TYPE_NONE;
+    }
+
+    private void parseSectionPositions(int[][] sectionImage) {
+        for (int y = 1; y < SIZE - 1; y++) {
+            for (int x = 1; x < SIZE - 1; x++) {
+                int color = sectionImage[y][x];
+                if (color != NO_MEEPLE) {
+                    // There should be no section with this color at this point
+                    assert !this.sections.containsKey(color);
+
+                    this.sections.put(color, new Section(getTypeFromColor(color), x, y));
+                }
             }
         }
-        return null;
     }
 
-    /**
-     * Rotates an array of sections 90 degrees clockwise in place.
-     *
-     * @param sections The sections to rotate.
-     */
-    private static void rotateSections(HashSet<Integer>[] sections) {
-        for (int i = 0; i < sections.length; i++) {
-            sections[i] = rotateSet(sections[i], 2, 8);
+    private static class SectionConn {
+        public boolean isRoad;
+        public int x;
+        public int y;
+        public int part;
+
+        public SectionConn(boolean isRoad, int part, int x, int y) {
+            this.isRoad = isRoad;
+            this.x = x;
+            this.y = y;
+            this.part = part;
         }
     }
 
-    /**
-     * Rotates a set of parts (either road or normal parts) 90 degrees clockwise by
-     * increasing each number by a fixed amount and then moduloing by the total number
-     * of parts to ensure all parts wrap around.
-     *
-     * @param set The set of parts to rotate.
-     * @param add The amount to increase each number by. For normal parts, this should
-     *            be two because there are two parts per side. For road parts, this
-     *            should be one.
-     * @param mod The total number of parts.
-     * @return The rotated set.
-     */
-    private static HashSet<Integer> rotateSet(HashSet<Integer> set, int add, int mod) {
-        // We have to create a new set and return it because we can't change set
-        // elements in place: they aren't positional.
-        HashSet<Integer> rotated = new HashSet<>();
-        for (int part : set) {
-            rotated.add((part + add) % mod);
+    private static final SectionConn[] PART_POSITIONS = {
+            // Farm/city parts
+            new SectionConn(false, 0, SIZE / 4,     0),
+            new SectionConn(false, 1, SIZE * 3 / 4, 0),
+            new SectionConn(false, 2, SIZE - 1,     SIZE / 4),
+            new SectionConn(false, 3, SIZE - 1,     SIZE * 3 / 4),
+            new SectionConn(false, 4, SIZE / 4,     SIZE - 1),
+            new SectionConn(false, 5, SIZE * 3 / 4, SIZE - 1),
+            new SectionConn(false, 6, 0,             SIZE / 4),
+            new SectionConn(false, 7, 0,             SIZE * 3 / 4),
+
+            // Road parts
+            new SectionConn(true, 0, SIZE / 2, 0),
+            new SectionConn(true, 1, SIZE - 1, SIZE / 2),
+            new SectionConn(true, 2, SIZE / 2, SIZE - 1),
+            new SectionConn(true, 3, 0,         SIZE / 2),
+    };
+
+    private void parseSectionConnections(int[][] sectionImage) {
+        for (SectionConn sectionConn : PART_POSITIONS) {
+            int color = sectionImage[sectionConn.y][sectionConn.x];
+            if (color != NO_SECTION_COLOR) {
+                // Ensure we have the proper colors for the proper section type.
+                if (sectionConn.isRoad) {
+                    assert ROAD_COLORS.contains(color);
+                } else {
+                    assert FARM_COLORS.contains(color) || CITY_COLORS.contains(color);
+                }
+
+                Section section = this.sections.get(color);
+
+                // There must be a section at this point; otherwise, the sectionImage
+                // is incorrect.
+                assert section != null;
+
+                section.addPart(sectionConn.part);
+            } else {
+                // Only roads may not have a section; everything else must have one.
+                assert sectionConn.isRoad;
+            }
         }
-        return rotated;
     }
 
-    /**
-     * Creates a HashSet of integers out of an array of integers.
-     *
-     * @param array The array of integers to create the set from.
-     * @return The set created from the array.
-     */
-    private static HashSet<Integer> setFromIntArray(int[] array) {
-        HashSet<Integer> set = new HashSet<>();
-        for (int i = 0; i < array.length; i++) {
-            set.add(array[i]);
+    private void parseSectionSpecials(int[][] sectionImage) {
+        int specialColor = sectionImage[0][0];
+        if (specialColor == PENNANT_COLOR) {
+            this.hasPennant = true;
+        } else {
+            // It must be black if there is no special.
+            assert specialColor == NO_SECTION_COLOR;
         }
-        return set;
     }
-
-    /**
-     * Creates an array of HashSets of integers out of a double array of integers.
-     *
-     * @param array The double array of integers to create the array of sets from.
-     * @return The array of sets created from the double array.
-     */
-    private static HashSet<Integer>[] sectionsFromIntArray(int[][] array) {
-        HashSet<Integer>[] sections = new HashSet[array.length];
-        for (int i = 0; i < array.length; i++) {
-            sections[i] = setFromIntArray(array[i]);
-        }
-        return sections;
-    }
-
-    /**
-     * Makes a deep copy of an array of HashSets of integers.
-     *
-     * @param sections The array of sets to make a deep copy of.
-     * @return The deep copy of the array of sets.
-     */
-    private static HashSet<Integer>[] copySections(HashSet<Integer>[] sections) {
-        HashSet<Integer>[] copy = new HashSet[sections.length];
-        for (int i = 0; i < sections.length; i++) {
-            copy[i] = new HashSet<>(sections[i]);
-        }
-        return copy;
-    }
-
-    /**
-     * Converts a set of integers to a string representation containing each integer.
-     *
-     * @param array The set to convert to a string.
-     * @return The string representation of the set.
-     */
-    public static String setToString(HashSet<Integer> array) {
-        String str = "{";
-
-        for (int part : array) {
-            str += part + " ";
-        }
-
-        return str.substring(0, str.length() - 1) + "}";
-    }
-
-    /**
-     * Converts an array of sets of integers to a string representation containing
-     * every set and every integer in each set.
-     *
-     * @param array The array of sets to convert to a string.
-     * @return The string representation of the array of sets.
-     */
-    public static String sectionsToString(HashSet<Integer>[] array) {
-        String str = "{\n";
-
-        for (int i = 0; i < array.length; i++) {
-            str += "    " + setToString(array[i]) + "\n";
-        }
-
-        return str + "}";
-    }
-};
+}

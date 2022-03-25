@@ -13,8 +13,8 @@ public class BoardUnitTest {
     /** Tests the default constructor for Board and ensures that it behaves as expected. */
     @Test
     public void testConstructor() {
-        Tile startingTile = new Deck().drawStartingTile();
-        Board board = new Board(startingTile);
+        TileOLD startingTile = new DeckOLD().drawStartingTile();
+        BoardOLD board = new BoardOLD(startingTile);
 
         // The board should be 3x3.
         assertSame(3, board.getWidth());
@@ -46,18 +46,18 @@ public class BoardUnitTest {
      */
     @Test
     public void testCopyConstructor() {
-        Deck deck = new Deck();
-        Tile startingTile = deck.drawStartingTile();
-        Tile drawn = deck.drawTile();
+        DeckOLD deck = new DeckOLD();
+        TileOLD startingTile = deck.drawStartingTile();
+        TileOLD drawn = deck.drawTile();
 
         // Create a board and give it a current tile.
-        Board orig = new Board(startingTile);
+        BoardOLD orig = new BoardOLD(startingTile);
         orig.setCurrentTile(drawn);
         orig.setCurrentTilePosition(1, 2);
 
         // Copy the board and ensure that everything is the same, but all references
         // have changed.
-        Board copy = new Board(orig);
+        BoardOLD copy = new BoardOLD(orig);
 
         // Width and height should be identical.
         assertSame(3, copy.getWidth());
@@ -95,11 +95,11 @@ public class BoardUnitTest {
      */
     @Test
     public void testCurrentTile() {
-        Deck deck = new Deck();
-        Board board = new Board(deck.drawStartingTile());
+        DeckOLD deck = new DeckOLD();
+        BoardOLD board = new BoardOLD(deck.drawStartingTile());
 
         // Set the current tile. It should be set, but the position invalid at (-1, -1).
-        Tile drawn = deck.drawTile();
+        TileOLD drawn = deck.drawTile();
         board.setCurrentTile(drawn);
 
         assertSame(drawn, board.getCurrentTile());

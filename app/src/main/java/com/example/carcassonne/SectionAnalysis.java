@@ -8,7 +8,7 @@ public class SectionAnalysis extends Analysis {
     private int pennantCount;
     private boolean complete;
 
-    private ArrayList<Tile> meeples;
+    private ArrayList<TileOLD> meeples;
 
     private HashSet<HashSet<Integer>> visited;
 
@@ -32,7 +32,7 @@ public class SectionAnalysis extends Analysis {
     }
 
     @Override
-    public ArrayList<Tile> getCompletedMeeples() {
+    public ArrayList<TileOLD> getCompletedMeeples() {
         if (this.complete) {
             return new ArrayList<>(this.meeples);
         }
@@ -52,7 +52,7 @@ public class SectionAnalysis extends Analysis {
         this.meeples = new ArrayList<>();
     }
 
-    public SectionAnalysis(Board board) {
+    public SectionAnalysis(BoardOLD board) {
         super(board);
 
         // For each analysis object, tiles are not checked twice even across
@@ -70,7 +70,7 @@ public class SectionAnalysis extends Analysis {
             return 0;
         }
 
-        if (type == Tile.TYPE_CITY) {
+        if (type == TileOLD.TYPE_CITY) {
             // If this is a city, add the pennants to the score. If the city is
             // complete, the multiplier will cause us to score twice the amount.
             return (scorers.score + this.pennantCount) * multiplier;
@@ -79,7 +79,7 @@ public class SectionAnalysis extends Analysis {
     }
 
     private void doAnalysis(int x, int y, int part) {
-        Tile tile = this.board.getTile(x, y);
+        TileOLD tile = this.board.getTile(x, y);
 
         if (tile == null) {
             this.complete = false;
@@ -101,8 +101,8 @@ public class SectionAnalysis extends Analysis {
         }
 
         for (int other_part : section) {
-            doAnalysis(x + Tile.partXOffset(other_part),
-                    y + Tile.partYOffset(other_part), other_part);
+            doAnalysis(x + TileOLD.partXOffset(other_part),
+                    y + TileOLD.partYOffset(other_part), other_part);
         }
     }
 }
