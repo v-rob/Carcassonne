@@ -12,7 +12,13 @@
         <entry key="..\:/Users/Vincent Robinson/AndroidStudioProjects/Carcassonne/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.2607361963190184" />
         <entry key="..\:/Users/Vincent Robinson/AndroidStudioProjects/Carcassonne/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.2607361963190184" />
         <entry key="..\:/Users/cheyw/AndroidStudioProjects/Carcassonne/app/src/main/res/layout/activity_main.xml" value="0.22" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.19357452392578128" />
+        <entry key="app/src/main/res/layout/game_config_main.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/game_config_tabhost.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/game_local_tab.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/game_no_gui.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/game_player_list_row.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/game_remote_tab.xml" value="0.1" />
       </map>
     </option>
   </component>
