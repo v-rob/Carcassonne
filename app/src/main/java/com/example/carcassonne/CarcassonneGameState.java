@@ -104,6 +104,15 @@ public class CarcassonneGameState extends GameState {
     }
 
     /**
+     * Returns whether the game is currently in the tile or meeple placement stage
+     *
+     * @return True if in tile placement, false if in meeple placement.
+     */
+    public boolean isPlacementStage() {
+        return this.isPlacementStage;
+    }
+
+    /**
      * All actions follow a similar format, first checking if it is the turn
      * of the player taking that action.
      *

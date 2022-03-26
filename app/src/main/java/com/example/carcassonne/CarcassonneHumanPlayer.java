@@ -34,15 +34,12 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer{
 
     @Override
     public View getTopView() {
-        return null;
+        return activity.findViewById(R.id.topView);
     }
 
     @Override
     public void receiveInfo(GameInfo info) {
        CarcassonneGameState gameState = (CarcassonneGameState)info;
-
-
-
     }
 
     private static final int[] PLAYER_NAME_RESOURCES = {
@@ -90,19 +87,40 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer{
         this.quitButton = activity.findViewById(R.id.quitButton);
         this.tileImageView = activity.findViewById(R.id.currentTile);
         this.boardSurfaceView = activity.findViewById(R.id.boardSurfaceView);
+
+        this.rotateResetButton.setOnClickListener(this::onClickRotateReset);
+        this.confirmButton.setOnClickListener(this::onClickConfirm);
+        this.quitButton.setOnClickListener(this::onClickQuit);
+        this.tileImageView.setOnTouchListener(this::onTouchTileImage);
+        this.boardSurfaceView.setOnTouchListener(this::onTouchBoardSurfaceView);
     }
 
     private void onClickRotateReset(View button){
-
+        if (this.gameState.isPlacementStage()) {
+            game.sendAction(new CarcassonneRotateTileAction(this));
+        } else {
+            game.sendAction(new CarcassonneResetTurnAction(this));
+        }
     }
+
     private void onClickConfirm(View button){
-
+        if (this.gameState.isPlacementStage()) {
+            game.sendAction(new CarcassonneConfirmTileAction(this));
+        } else {
+            game.sendAction(new CarcassonneConfirmMeepleAction(this));
+        }
     }
-    private void onClickQuit(View button){
 
+    private void onClickQuit(View button){
+            game.sendAction(new CarcassonneQuitGameAction(this));
     }
 
     private boolean onTouchTileImage(View view, MotionEvent event){
+        // TODO: Make sure units are correct.
+        if (!this.gameState.isPlacementStage()) {
+            game.sendAction(new CarcassonnePlaceMeepleAction(this,
+                    (int) event.getX(), (int) event.getY()));
+        }
         return false;
     }
 
