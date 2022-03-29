@@ -22,14 +22,19 @@ import android.view.MotionEvent;
 
 public class CarcassonneHumanPlayer extends GameHumanPlayer {
     private CarcassonneGameState gameState;
+
     private BitmapProvider bitmapProvider;
+
     private GameMainActivity activity;
+
     private TextView[] playerNameTextViews;
     private TextView[] scoreTextViews;
     private TextView[] meepleCountTextViews;
+
     private Button rotateResetButton;
     private Button confirmButton;
     private Button quitButton;
+
     private ImageView currentTileImageView;
     private BoardSurfaceView boardSurfaceView;
 
@@ -50,8 +55,24 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         // Hand the latest GameState to the BoardSurfaceView
         this.boardSurfaceView.setGameState(this.gameState);
 
-        // TODO: Stuff here...
-        // TODO: Update GUI
+        for (int i = 0; i < this.gameState.getNumPlayers(); i++) {
+            this.scoreTextViews[i].setText("" + this.allPlayerNames[i]);
+            this.meepleCountTextViews[i].setText("" + this.gameState.getPlayerMeeples(i));
+            this.scoreTextViews[i].setText("" + this.gameState.getPlayerCompleteScore(i) +
+                    " | " + this.gameState.getPlayerIncompleteScore(i));
+        }
+
+        if (this.gameState.isPlacementStage()) {
+            this.rotateResetButton.setText("Rotate");
+        } else {
+            this.rotateResetButton.setText("Reset");
+        }
+
+        Tile currentTile = this.gameState.getBoard().getCurrentTile();
+        if (currentTile != null) {
+            this.currentTileImageView.setImageResource(
+                    this.bitmapProvider.getTile(currentTile.getId()).tile.resource);
+        }
 
         // Invalidate the BoardSurfaceView so it shows the new stuff.
         this.boardSurfaceView.invalidate();
@@ -91,7 +112,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         scoreTextViews = new TextView[playerNum];
         meepleCountTextViews = new TextView[playerNum];
 
-        for (int i = 0; i < playerNum; i++) {
+        for (int i = 0; i < CarcassonneGameState.MAX_PLAYERS; i++) {
             playerNameTextViews[i] = activity.findViewById(PLAYER_NAME_RESOURCES[i]);
             scoreTextViews[i] = activity.findViewById(PLAYER_SCORE_RESOURCES[i]);
             meepleCountTextViews[i] = activity.findViewById(MEEPLE_COUNT_RESOURCES[i]);

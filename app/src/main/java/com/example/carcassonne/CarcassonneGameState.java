@@ -15,6 +15,7 @@ import com.example.carcassonne.infoMsg.GameState;
  */
 public class CarcassonneGameState extends GameState {
     public static final int MAX_PLAYERS = 5;
+    public static final int STARTING_MEEPLES = 7;
 
     private int numPlayers;
 
@@ -22,7 +23,7 @@ public class CarcassonneGameState extends GameState {
     private int[] playerCompleteScores;
     private int[] playerIncompleteScores;
 
-    private int currentTurn;
+    private int currentPlayer;
     private boolean isPlacementStage;
 
     private Deck deck;
@@ -37,10 +38,14 @@ public class CarcassonneGameState extends GameState {
         this.numPlayers = numPlayers;
 
         this.playerMeeples = new int[numPlayers];
+        for (int i = 0; i < this.playerMeeples.length; i++) {
+            this.playerMeeples[i] = STARTING_MEEPLES;
+        }
+
         this.playerCompleteScores = new int[numPlayers];
         this.playerIncompleteScores = new int[numPlayers];
 
-        this.currentTurn = 0;
+        this.currentPlayer = 0;
         this.isPlacementStage = true;
 
         this.deck = new Deck(bitmapProvider);
@@ -69,7 +74,7 @@ public class CarcassonneGameState extends GameState {
         this.playerCompleteScores = Util.copyArray(other.playerCompleteScores);
         this.playerIncompleteScores = Util.copyArray(other.playerIncompleteScores);
 
-        this.currentTurn = other.currentTurn;
+        this.currentPlayer = other.currentPlayer;
         this.isPlacementStage = other.isPlacementStage;
 
         this.deck = new Deck(other.deck);
@@ -89,7 +94,7 @@ public class CarcassonneGameState extends GameState {
         toStr.add("playerMeeples", this.playerMeeples);
         toStr.add("playerCompleteScores", this.playerCompleteScores);
         toStr.add("playerIncompleteScores", this.playerIncompleteScores);
-        toStr.add("currentTurn", this.currentTurn);
+        toStr.add("currentTurn", this.currentPlayer);
         toStr.add("isPlacementStage", this.isPlacementStage);
         toStr.add("deck", this.deck);
         toStr.add("board", this.board);
@@ -97,13 +102,28 @@ public class CarcassonneGameState extends GameState {
         return toStr.toString();
     }
 
-    /**
-     * Returns the Board object used by this game state.
-     *
-     * @return The board.
-     */
-    public Board getBoard() {
-        return this.board;
+    public int getNumPlayers() {
+        return this.numPlayers;
+    }
+
+    public int getPlayerMeeples(int player) {
+        return this.playerMeeples[player];
+    }
+
+    public int getPlayerCompleteScore(int player) {
+        return this.playerCompleteScores[player];
+    }
+
+    public int getPlayerIncompleteScore(int player) {
+        return this.playerIncompleteScores[player];
+    }
+
+    public int getPlayerScore(int player) {
+        return this.getPlayerCompleteScore(player) + this.getPlayerIncompleteScore(player);
+    }
+
+    public int getCurrentPlayer() {
+        return this.currentPlayer;
     }
 
     /**
@@ -116,14 +136,50 @@ public class CarcassonneGameState extends GameState {
     }
 
     /**
+     * Returns the Board object used by this game state.
+     *
+     * @return The board.
+     */
+    public Board getBoard() {
+        return this.board;
+    }
+
+    /**
+     * Returns the Deck object used by this game state.
+     *
+     * @return The deck.
+     */
+    public Deck getDeck(){
+        return this.deck;
+    }
+
+    /**
+     * Determine whether or not to quit the game
+     *
+     * @return true if the game was quit and false otherwise
+     */
+    public boolean quitGame() {
+        /*
+         * External Citation
+         * Date: 28 March 2022
+         * Problem: Didn't know how to EXIT_ON_CLOSE from outside main activity, and JFrame
+         * Resource:
+         *     https://www.codegrepper.com/code-examples/java/quit+android+app+programmatically
+         * Solution: We found a method call that uses the action to close the app that
+         *     we decided to implement
+         */
+        android.os.Process.killProcess(android.os.Process.myPid());
+        return true;
+    }
+
+    /**
      * All actions follow a similar format, first checking if it is the turn
      * of the player taking that action.
      *
-     * @param p the index of the player
      * @return true if player places a tile and false otherwise
      */
-    public boolean placeTile(int p, int x, int y) {
-        if (isPlacementStage && p == currentTurn) {
+    public boolean placeTile(int x, int y) {
+        if (isPlacementStage) {
             this.board.setCurrentTilePosition(x,y);
             return true;
         }
@@ -131,68 +187,12 @@ public class CarcassonneGameState extends GameState {
     }
 
     /**
-     * Determine whether or not to quit the game
-     *
-     * @param p the index of the player
-     * @return true if the game was quit and false otherwise
-     */
-    
-    /*
-     * External Citation
-     * Date: 28 March 2022
-     * Problem: Didn't know how to EXIT_ON_CLOSE from outside main activity, and JFrame
-     * Resource:
-     *     https://www.codegrepper.com/code-examples/java/quit+android+app+programmatically
-     * Solution: We found a method call that uses the action to close the app that
-     *     we decided to implement
-     */
-
-    public boolean quitGame(int p) {
-        if (p == currentTurn) {
-            android.os.Process.killProcess(android.os.Process.myPid());
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Determine whether or not the user wants to reset their turn to move the tile again
-     *
-     * @param p the index of the player
-     * @return true if player resets on current turn and false otherwise
-     */
-    public boolean resetTurn(int p) {
-        if (p == currentTurn) {
-            this.board.getCurrentTile().removeMeeple();
-            this.isPlacementStage = true;
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Determine if the player wants to place a Meeple on the tile that was just placed
-     *
-     * @param p index of the player
-     * @return true if Meeple is placed and false otherwise
-     */
-    public boolean placeMeeple(int p, int x, int y) {
-        if (!isPlacementStage && p == currentTurn && this.playerMeeples[p] > 0) {
-            this.board.getCurrentTile().setMeeple(x, y);
-            return true;
-        }
-        return false;
-    }
-
-
-    /**
      * Determine if the player wants to rotate the current tile
      *
-     * @param p index of the player
      * @return true if the tile is rotated and false otherwise
      */
-    public boolean rotateTile(int p) {
-        if (isPlacementStage && p == currentTurn) {
+    public boolean rotateTile() {
+        if (isPlacementStage) {
             this.board.getCurrentTile().rotate();
             return true;
         }
@@ -202,12 +202,35 @@ public class CarcassonneGameState extends GameState {
     /**
      * Determine if the player confirmed where they wanted to place the tile
      *
-     * @param p index of the player
      * @return if the player confirmed the tile and if the tile placement is legal. False otherwise
      */
-    public boolean confirmTile(int p) {
-        if (isPlacementStage && p == currentTurn && board.isCurrentTilePlacementValid()) {
-            this.board.confirmCurrentTile();
+    public boolean confirmTile() {
+        if (isPlacementStage && board.isCurrentTilePlacementValid()) {
+            this.isPlacementStage = false;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Determine whether or not the user wants to reset their turn to move the tile again
+     *
+     * @return true if player resets on current turn and false otherwise
+     */
+    public boolean resetTurn() {
+        this.board.getCurrentTile().removeMeeple();
+        this.isPlacementStage = true;
+        return true;
+    }
+
+    /**
+     * Determine if the player wants to place a Meeple on the tile that was just placed
+     *
+     * @return true if Meeple is placed and false otherwise
+     */
+    public boolean placeMeeple(int x, int y) {
+        if (!isPlacementStage && this.playerMeeples[this.currentPlayer] > 0) {
+            this.board.getCurrentTile().setMeeple(x, y);
             return true;
         }
         return false;
@@ -220,23 +243,23 @@ public class CarcassonneGameState extends GameState {
      * @param p index of the player
      * @return true if the player placed a Meeple and if the placement is valid. False otherwise.
      */
-    public boolean confirmMeeple(int p) {
-        if (!isPlacementStage && p == currentTurn && board.isCurrentMeeplePlacementValid()) {
-            currentTurn = (currentTurn + 1) % this.numPlayers;
+    public boolean confirmMeeple() {
+        if (!isPlacementStage && board.isCurrentMeeplePlacementValid()) {
+            this.board.confirmCurrentTile();
 
             if(this.board.getCurrentTile().getMeepleSection() != null) {
-                this.playerMeeples[p]--;
+                this.playerMeeples[this.currentPlayer]--;
             }
 
-            if(!this.deck.isEmpty()){
+            this.isPlacementStage = true;
+
+            if (!this.deck.isEmpty()) {
                 this.board.setCurrentTile(this.deck.drawTile());
             }
+
+            currentPlayer = (currentPlayer + 1) % this.numPlayers;
             return true;
         }
         return false;
-    }
-
-    public Deck getDeck(){
-        return this.deck;
     }
 }

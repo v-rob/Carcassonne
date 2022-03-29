@@ -35,12 +35,11 @@ public class CarcassonneMainActivity extends GameMainActivity {
      modified it for Carcassonne
      */
 
-    public CarcassonneMainActivity() {
-        this.bitmapProvider = new BitmapProvider(getResources());
-    }
-
     @Override
     public GameConfig createDefaultConfig() {
+        // Create the bitmap provider that everyone will use
+        this.bitmapProvider = new BitmapProvider(getResources());
+
         // Define the allowed player types
         ArrayList<GamePlayerType> playerTypes = new ArrayList<>();
 
@@ -67,6 +66,6 @@ public class CarcassonneMainActivity extends GameMainActivity {
 
     @Override
     public LocalGame createLocalGame() {
-        return new CarcassonneLocalGame();
+        return new CarcassonneLocalGame(this.bitmapProvider);
     }
 }
