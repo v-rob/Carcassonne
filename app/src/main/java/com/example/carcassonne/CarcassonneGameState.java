@@ -122,8 +122,9 @@ public class CarcassonneGameState extends GameState {
      * @param p the index of the player
      * @return true if player places a tile and false otherwise
      */
-    public boolean placeTile(int p) {
+    public boolean placeTile(int p, int x, int y) {
         if (isPlacementStage && p == currentTurn) {
+            this.board.setCurrentTilePosition(x,y);
             return true;
         }
         return false;
@@ -135,8 +136,20 @@ public class CarcassonneGameState extends GameState {
      * @param p the index of the player
      * @return true if the game was quit and false otherwise
      */
+    
+    /*
+     * External Citation
+     * Date: 28 March 2022
+     * Problem: Didn't know how to EXIT_ON_CLOSE from outside main activity, and JFrame
+     * Resource:
+     *     https://www.codegrepper.com/code-examples/java/quit+android+app+programmatically
+     * Solution: We found a method call that uses the action to close the app that
+     *     we decided to implement
+     */
+
     public boolean quitGame(int p) {
         if (p == currentTurn) {
+            android.os.Process.killProcess(android.os.Process.myPid());
             return true;
         }
         return false;
@@ -150,6 +163,8 @@ public class CarcassonneGameState extends GameState {
      */
     public boolean resetTurn(int p) {
         if (p == currentTurn) {
+            this.board.getCurrentTile().removeMeeple();
+            this.isPlacementStage = true;
             return true;
         }
         return false;
@@ -161,8 +176,9 @@ public class CarcassonneGameState extends GameState {
      * @param p index of the player
      * @return true if Meeple is placed and false otherwise
      */
-    public boolean placeMeeple(int p) {
-        if (!isPlacementStage && p == currentTurn) {
+    public boolean placeMeeple(int p, int x, int y) {
+        if (!isPlacementStage && p == currentTurn && this.playerMeeples[p] > 0) {
+            this.board.getCurrentTile().setMeeple(x, y);
             return true;
         }
         return false;
@@ -177,6 +193,7 @@ public class CarcassonneGameState extends GameState {
      */
     public boolean rotateTile(int p) {
         if (isPlacementStage && p == currentTurn) {
+            this.board.getCurrentTile().rotate();
             return true;
         }
         return false;
@@ -190,6 +207,7 @@ public class CarcassonneGameState extends GameState {
      */
     public boolean confirmTile(int p) {
         if (isPlacementStage && p == currentTurn && board.isCurrentTilePlacementValid()) {
+            this.board.confirmCurrentTile();
             return true;
         }
         return false;
@@ -205,6 +223,14 @@ public class CarcassonneGameState extends GameState {
     public boolean confirmMeeple(int p) {
         if (!isPlacementStage && p == currentTurn && board.isCurrentMeeplePlacementValid()) {
             currentTurn = (currentTurn + 1) % this.numPlayers;
+
+            if(this.board.getCurrentTile().getMeepleSection() != null) {
+                this.playerMeeples[p]--;
+            }
+
+            if(!this.deck.isEmpty()){
+                this.board.setCurrentTile(this.deck.drawTile());
+            }
             return true;
         }
         return false;
