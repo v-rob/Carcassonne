@@ -3,6 +3,8 @@ package com.example.carcassonne;
 import com.example.carcassonne.actionMsg.GameAction;
 
 public class CarcassonneLocalGame extends LocalGame{
+    private CarcassonneGameState gameState;
+
     @Override
     protected void sendUpdatedStateTo(GamePlayer player) {
 
