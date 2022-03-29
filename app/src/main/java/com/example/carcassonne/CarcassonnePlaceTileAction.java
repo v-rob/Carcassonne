@@ -6,7 +6,7 @@ import com.example.carcassonne.actionMsg.GameAction;
  * Represents the place tile action a player can take in Carcassonne.
  * Uses x,y to represent desired position.
  *
- * @author Cheyanne
+ * @author Cheyanne Yim
  */
 
 public class CarcassonnePlaceTileAction extends GameAction {

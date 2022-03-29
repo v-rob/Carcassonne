@@ -5,7 +5,7 @@ import com.example.carcassonne.actionMsg.GameAction;
 /**
  * Creates action that allows player to quit the game.
  *
- * @author Cheyanne
+ * @author Cheyanne Yim
  */
 
 public class CarcassonneQuitGameAction extends GameAction {

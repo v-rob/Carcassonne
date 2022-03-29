@@ -6,7 +6,7 @@ import com.example.carcassonne.actionMsg.GameAction;
  * This class represents the action of placing a Meeple in Carcassonne.
  * Uses the x,y positions to place the meeple in the correct spot on the tile.
  *
- * @author Cheyanne
+ * @author Cheyanne Yim
  */
 
 public class CarcassonnePlaceMeepleAction extends GameAction {

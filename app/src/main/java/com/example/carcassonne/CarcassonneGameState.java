@@ -7,8 +7,11 @@ import com.example.carcassonne.infoMsg.GameState;
  * that displays all the information of the current state of the game to help
  * the human user or the computer player to make decisions
  *
- * @author DJ Backus, Sophie Arcangel, Alex Martinez-Lopez, Cheyanne Yim,
- * Vincent Robinson
+ * @author DJ Backus
+ * @author Sophie Arcangel
+ * @author Alex Martinez-Lopez
+ * @author Cheyanne Yim,
+ * @author Vincent Robinson
  */
 public class CarcassonneGameState extends GameState {
     public static final int MAX_PLAYERS = 5;
