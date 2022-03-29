@@ -37,6 +37,7 @@ public class CarcassonneMainActivity extends GameMainActivity {
                 return new CarcassonneHumanPlayer(name, bitmapProvider);
             }
         });
+
         playerTypes.add(new GamePlayerType("Dumb Computer Player") {
             public GamePlayer createPlayer(String name) {
                 return new CarcassonneComputerPlayer(name, false);

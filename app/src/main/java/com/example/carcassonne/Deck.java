@@ -166,7 +166,4 @@ public class Deck {
         }
     }
 
-    public ArrayList<Tile> getTiles() {
-        return tiles;
-    }
 }
