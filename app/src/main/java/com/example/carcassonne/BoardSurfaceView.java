@@ -9,6 +9,16 @@ import android.view.SurfaceView;
 import android.graphics.Canvas;
 import android.view.View;
 
+/**
+ * Controls the surface view that holds the game board/tiles
+ *
+ * @author Cheyanne Yim
+ * @author Vincent Robinson
+ * @author Alex Martinez-Lopez
+ * @author DJ Backus
+ * @author Sophie Arcangel
+ */
+
 public class BoardSurfaceView extends SurfaceView {
     private CarcassonneGameState gameState;
     private BitmapProvider bitmapProvider;

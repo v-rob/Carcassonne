@@ -9,6 +9,17 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.view.MotionEvent;
 
+/**
+ * Describes the human player for Carcassonne.
+ * Sets up GUI and listeners
+ *
+ * @author Cheyanne Yim
+ * @author Sophie Arcangel
+ * @author Vincent Robinson
+ * @author Alex Martinez-Lopez
+ * @author DJ Backus
+ */
+
 public class CarcassonneHumanPlayer extends GameHumanPlayer {
     private CarcassonneGameState gameState;
     private BitmapProvider bitmapProvider;

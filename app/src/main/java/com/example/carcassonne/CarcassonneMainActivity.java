@@ -4,6 +4,18 @@ import com.example.carcassonne.config.GameConfig;
 import com.example.carcassonne.config.GamePlayerType;
 import java.util.ArrayList;
 
+
+/**
+ * Creates the Carcassonne game to be played.
+ * Includes the configuration of the game.
+ *
+ *
+ * @author DJ Backus
+ * @author Vincent Robinson
+ * @author Alex Martinex-Lopez
+ * @author Cheyanne Yim
+ * @author Sophie Arcangel
+ */
 public class CarcassonneMainActivity extends GameMainActivity {
     /**
      * The bitmap provider that provides bitmaps to every part of the game that requires
