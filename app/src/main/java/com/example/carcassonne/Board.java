@@ -163,7 +163,7 @@ public class Board {
      */
     public void confirmCurrentTile() {
         // Ensure the tile is valid so we don't run into bugs later.
-        assert isCurrentTilePlacementValid() && isCurrentMeeplePlacementValid();
+        assert isCurrentPlacementValid();
 
         // Insert the current tile into the array and reset the current tile
         this.tiles[this.currentTileY][this.currentTileX] = this.currentTile;
@@ -269,6 +269,15 @@ public class Board {
         // If there's only one city/farm meeple in any of the connected sections, it
         // must be the one on this tile.
         return total == 1;
+    }
+
+    /**
+     * Convenience function to check if both tile and meeple placements are valid.
+     *
+     * @return True if everything is valid, false otherwise.
+     */
+    public boolean isCurrentPlacementValid() {
+        return isCurrentTilePlacementValid() && isCurrentMeeplePlacementValid();
     }
 
     /**

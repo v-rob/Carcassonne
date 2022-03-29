@@ -19,7 +19,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
     private Button rotateResetButton;
     private Button confirmButton;
     private Button quitButton;
-    private ImageView tileImageView;
+    private ImageView currentTileImageView;
     private BoardSurfaceView boardSurfaceView;
 
     /**
@@ -43,6 +43,11 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
 
         // Hand the latest GameState to the BoardSurfaceView
         this.boardSurfaceView.setGameState(this.gameState);
+
+        // TODO: Stuff here...
+
+        // Invalidate the BoardSurfaceView so it shows the new stuff.
+        this.boardSurfaceView.invalidate();
     }
 
     private static final int[] PLAYER_NAME_RESOURCES = {
@@ -88,13 +93,13 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         this.rotateResetButton = activity.findViewById(R.id.rotateResetButton);
         this.confirmButton = activity.findViewById(R.id.confirmButton);
         this.quitButton = activity.findViewById(R.id.quitButton);
-        this.tileImageView = activity.findViewById(R.id.currentTile);
+        this.currentTileImageView = activity.findViewById(R.id.currentTile);
         this.boardSurfaceView = activity.findViewById(R.id.boardSurfaceView);
 
         this.rotateResetButton.setOnClickListener(this::onClickRotateReset);
         this.confirmButton.setOnClickListener(this::onClickConfirm);
         this.quitButton.setOnClickListener(this::onClickQuit);
-        this.tileImageView.setOnTouchListener(this::onTouchTileImage);
+        this.currentTileImageView.setOnTouchListener(this::onTouchTileImage);
         this.boardSurfaceView.setOnTouchListener(this.boardSurfaceView::onTouch);
 
         // Hand the BitmapProvider to the BoardSurfaceView now that we have it.
@@ -122,10 +127,12 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
     }
 
     private boolean onTouchTileImage(View view, MotionEvent event) {
-        // TODO: Make sure units are correct.
         if (!this.gameState.isPlacementStage()) {
-            game.sendAction(new CarcassonnePlaceMeepleAction(this,
-                    (int) event.getX(), (int) event.getY()));
+            // Convert the scaled display pixels of the ImageView to pixels on an actual tile.
+            int x = (int)(event.getX() / this.currentTileImageView.getWidth() * Tile.SIZE);
+            int y = (int)(event.getY() / this.currentTileImageView.getHeight() * Tile.SIZE);
+
+            game.sendAction(new CarcassonnePlaceMeepleAction(this, x, y));
         }
         return false;
     }
