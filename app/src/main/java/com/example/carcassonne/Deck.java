@@ -165,4 +165,8 @@ public class Deck {
             this.tiles.add(created);
         }
     }
+
+    public ArrayList<Tile> getTiles() {
+        return tiles;
+    }
 }
