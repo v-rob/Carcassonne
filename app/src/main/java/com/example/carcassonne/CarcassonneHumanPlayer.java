@@ -70,8 +70,10 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
 
         if (this.gameState.isPlacementStage()) {
             this.rotateResetButton.setText("Rotate");
+            this.confirmButton.setText("✓ Tile");
         } else {
             this.rotateResetButton.setText("Reset");
+            this.confirmButton.setText("✓ Meeple");
         }
 
         Tile currentTile = this.gameState.getBoard().getCurrentTile();
@@ -137,7 +139,6 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         this.confirmButton.setOnClickListener(this::onClickConfirm);
         this.quitButton.setOnClickListener(this::onClickQuit);
         this.currentTileImageView.setOnTouchListener(this::onTouchTileImage);
-        // TODO: Send actions for board touch
         this.boardSurfaceView.setOnTouchListener(this::onTouchBoardSurfaceView);
 
         // Hand the BitmapProvider to the BoardSurfaceView now that we have it.

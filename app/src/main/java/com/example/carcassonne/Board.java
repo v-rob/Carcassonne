@@ -238,11 +238,7 @@ public class Board {
         // the meeple placement code.
         assert isCurrentTilePlacementValid();
 
-        if (!this.currentTile.hasMeeple()) {
-            return true;
-        }
-
-        int type = this.currentTile.getMeepleSection().getType();
+        int type = this.currentTile.getMeepleType();
 
         if (type == Tile.TYPE_NONE || type == Tile.TYPE_CLOISTER) {
             // If there's no meeple or it's a monk, the placement is always valid.
@@ -437,7 +433,7 @@ public class Board {
         int total = 0;
 
         // Add the meeple from the current tile if it's a road meeple
-        if (tile.getMeepleSection().getType() == Tile.TYPE_ROAD) {
+        if (tile.getMeepleType() == Tile.TYPE_ROAD) {
             total++;
         }
 

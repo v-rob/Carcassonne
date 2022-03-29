@@ -56,8 +56,8 @@ public class BoardSurfaceView extends SurfaceView {
                 if (!this.moved) {
                     // Return the position the player tapped at.
                     return new Point(
-                            (int)((x - this.scrollX) / (Tile.SIZE * SCALE)),
-                            (int)((y - this.scrollY) / (Tile.SIZE * SCALE))
+                            (int)((x + this.scrollX) / (Tile.SIZE * SCALE)),
+                            (int)((y + this.scrollY) / (Tile.SIZE * SCALE))
                     );
                 }
 
@@ -168,8 +168,8 @@ public class BoardSurfaceView extends SurfaceView {
                         float width = meepleBitmap.getWidth();
                         float height = meepleBitmap.getHeight();
                         canvas.drawBitmap(meepleBitmap, null, makeRect(
-                                width / 2,
-                                height / 2,
+                                x * Tile.SIZE + meepleSection.getMeepleX() - width / 2,
+                                y * Tile.SIZE + meepleSection.getMeepleY() - height / 2,
                                 width,
                                 height
                         ), null);

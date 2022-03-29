@@ -45,13 +45,11 @@ public class CarcassonneGameState extends GameState {
         this.playerCompleteScores = new int[numPlayers];
         this.playerIncompleteScores = new int[numPlayers];
 
-        this.currentPlayer = 0;
-
         this.deck = new Deck(bitmapProvider);
         this.board = new Board(this.deck.drawStartingTile());
 
         // Finish setting things up by starting a new turn.
-        newTurn();
+        newTurn(0);
     }
 
     /*
@@ -155,11 +153,14 @@ public class CarcassonneGameState extends GameState {
         return this.deck;
     }
 
-    public void newTurn() {
+    public void newTurn(int newPlayer) {
+        this.currentPlayer = newPlayer;
+
         this.isPlacementStage = true;
 
+        // TODO: Check if there are no places the tile can be placed
         if (!this.deck.isEmpty()) {
-            this.board.setCurrentTile(this.deck.drawTile());
+            this.board.setCurrentTile(this.deck.drawTile(this.currentPlayer));
         }
     }
 
@@ -250,20 +251,19 @@ public class CarcassonneGameState extends GameState {
      * Determine if the current player confirmed if they wanted to place a Meeple on the
      * tile and where the player wanted to place
      *
-     * @param p index of the player
      * @return true if the player placed a Meeple and if the placement is valid. False otherwise.
      */
     public boolean confirmMeeple() {
         if (!isPlacementStage && board.isCurrentMeeplePlacementValid()) {
-            this.board.confirmCurrentTile();
-
-            if(this.board.getCurrentTile().hasMeeple()) {
+            // Before we confirm and the current tile becomes null, subtract the meeple
+            // if the player placed one.
+            if (this.board.getCurrentTile().hasMeeple()) {
                 this.playerMeeples[this.currentPlayer]--;
             }
 
-            newTurn();
+            this.board.confirmCurrentTile();
 
-            currentPlayer = (currentPlayer + 1) % this.numPlayers;
+            newTurn((currentPlayer + 1) % this.numPlayers);
 
             return true;
         }

@@ -38,10 +38,13 @@ public class Deck {
      * Draws a tile from the deck at random. Once drawn, the tile is removed from the
      * deck entirely.
      *
+     * @param owner The index of the player that drew this tile
      * @return The tile drawn from the deck.
      */
-    public Tile drawTile() {
-        return this.tiles.remove((int)(Math.random() * this.tiles.size()));
+    public Tile drawTile(int owner) {
+        Tile tile = this.tiles.remove((int)(Math.random() * this.tiles.size()));
+        tile.setOwner(owner);
+        return tile;
     }
 
     /**
@@ -161,7 +164,7 @@ public class Deck {
     private void addTiles(char id, int num) {
         for (int i = 0; i < num; i++) {
             Tile created = createTile(id);
-            created.rotateRandomly();
+            // TODO created.rotateRandomly();
             this.tiles.add(created);
         }
     }

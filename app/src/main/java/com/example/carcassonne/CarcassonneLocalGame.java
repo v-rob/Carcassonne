@@ -67,6 +67,8 @@ public class CarcassonneLocalGame extends LocalGame {
             return this.gameState.rotateTile();
         } else if (action instanceof CarcassonneConfirmTileAction) {
             return this.gameState.confirmTile();
+        } else if (action instanceof CarcassonneResetTurnAction) {
+            return this.gameState.resetTurn();
         } else if (action instanceof CarcassonnePlaceMeepleAction) {
             CarcassonnePlaceMeepleAction placeMeepleAction = (CarcassonnePlaceMeepleAction)action;
             return this.gameState.placeMeeple(placeMeepleAction.getX(), placeMeepleAction.getY());

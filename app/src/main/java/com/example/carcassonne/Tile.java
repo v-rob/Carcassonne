@@ -199,6 +199,14 @@ public class Tile {
         return this.sections.get(this.meepleSection);
     }
 
+    public int getMeepleType() {
+        Section meepleSection = getMeepleSection();
+        if (meepleSection == null) {
+            return TYPE_NONE;
+        }
+        return meepleSection.getType();
+    }
+
     public boolean hasMeeple() {
         return this.meepleSection != NO_MEEPLE;
     }
@@ -295,9 +303,6 @@ public class Tile {
         parseSectionPositions(sectionBitmap);
         parseSectionConnections(sectionBitmap);
         parseSectionSpecials(sectionBitmap);
-
-        // Give the tile a random rotation.
-        rotateBy((int)(Math.random() * 4));
     }
 
     public Tile(Tile other) {
