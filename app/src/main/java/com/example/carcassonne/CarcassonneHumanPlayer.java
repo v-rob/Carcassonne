@@ -50,15 +50,20 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
 
     @Override
     public void receiveInfo(GameInfo info) {
+        if (!(info instanceof CarcassonneGameState)) {
+            flash(0xFFBF0000, 100);
+            return;
+        }
+
         this.gameState = (CarcassonneGameState)info;
 
         // Hand the latest GameState to the BoardSurfaceView
         this.boardSurfaceView.setGameState(this.gameState);
 
         for (int i = 0; i < this.gameState.getNumPlayers(); i++) {
-            this.scoreTextViews[i].setText("" + this.allPlayerNames[i]);
-            this.meepleCountTextViews[i].setText("" + this.gameState.getPlayerMeeples(i));
-            this.scoreTextViews[i].setText("" + this.gameState.getPlayerCompleteScore(i) +
+            this.playerNameTextViews[i].setText(this.allPlayerNames[i]);
+            this.meepleCountTextViews[i].setText("Meeples: " + this.gameState.getPlayerMeeples(i));
+            this.scoreTextViews[i].setText("Score: " + this.gameState.getPlayerCompleteScore(i) +
                     " | " + this.gameState.getPlayerIncompleteScore(i));
         }
 
@@ -72,6 +77,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         if (currentTile != null) {
             this.currentTileImageView.setImageResource(
                     this.bitmapProvider.getTile(currentTile.getId()).tile.resource);
+            this.currentTileImageView.setRotation(currentTile.getRotation());
         }
 
         // Invalidate the BoardSurfaceView so it shows the new stuff.
@@ -108,9 +114,11 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
 
         activity.setContentView(R.layout.activity_main);
 
-        playerNameTextViews = new TextView[playerNum];
-        scoreTextViews = new TextView[playerNum];
-        meepleCountTextViews = new TextView[playerNum];
+        playerNameTextViews = new TextView[CarcassonneGameState.MAX_PLAYERS];
+        scoreTextViews = new TextView[CarcassonneGameState.MAX_PLAYERS];
+        meepleCountTextViews = new TextView[CarcassonneGameState.MAX_PLAYERS];
+
+        // TODO: Hide players that aren't playing
 
         for (int i = 0; i < CarcassonneGameState.MAX_PLAYERS; i++) {
             playerNameTextViews[i] = activity.findViewById(PLAYER_NAME_RESOURCES[i]);
@@ -128,6 +136,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         this.confirmButton.setOnClickListener(this::onClickConfirm);
         this.quitButton.setOnClickListener(this::onClickQuit);
         this.currentTileImageView.setOnTouchListener(this::onTouchTileImage);
+        // TODO: Send actions for board touch
         this.boardSurfaceView.setOnTouchListener(this.boardSurfaceView::onTouch);
 
         // Hand the BitmapProvider to the BoardSurfaceView now that we have it.

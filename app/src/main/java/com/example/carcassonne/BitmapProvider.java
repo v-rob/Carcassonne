@@ -6,6 +6,16 @@ import android.graphics.BitmapFactory;
 
 import java.util.HashMap;
 
+/*
+ * External Citation
+ * Date: 28 March 2022
+ * Problem: Bitmap.getPixel() was returning wacky results.
+ * Resource:
+ *     https://stackoverflow.com/questions/17800208/bitmap-is-returning-strange-color-values
+ * Solution: Stinkin' Android auto-scales bitmaps unless they're in the drawable-nodpi folder.
+ *           So, move all the image resources there.
+ */
+
 public class BitmapProvider {
     public class BitmapData {
         public int resource;

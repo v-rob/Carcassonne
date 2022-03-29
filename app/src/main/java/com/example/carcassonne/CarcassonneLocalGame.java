@@ -8,7 +8,8 @@ public class CarcassonneLocalGame extends LocalGame {
     private CarcassonneGameState gameState;
 
     public CarcassonneLocalGame(BitmapProvider bitmapProvider) {
-        this.gameState = new CarcassonneGameState(this.players.length, bitmapProvider);
+        // TODO: THIS IS GARBAGE! Make it take any number of players
+        this.gameState = new CarcassonneGameState(2, bitmapProvider);
     }
 
     @Override
@@ -58,25 +59,19 @@ public class CarcassonneLocalGame extends LocalGame {
     @Override
     protected boolean makeMove(GameAction action) {
         if (action instanceof CarcassonneQuitGameAction) {
-            this.gameState.quitGame();
-            return true;
+            return this.gameState.quitGame();
         } else if (action instanceof CarcassonnePlaceTileAction) {
             CarcassonnePlaceTileAction placeTileAction = (CarcassonnePlaceTileAction)action;
-            this.gameState.placeTile(placeTileAction.getX(), placeTileAction.getY());
-            return true;
+            return this.gameState.placeTile(placeTileAction.getX(), placeTileAction.getY());
         } else if (action instanceof CarcassonneRotateTileAction) {
-            this.gameState.rotateTile();
-            return true;
+            return this.gameState.rotateTile();
         } else if (action instanceof CarcassonneConfirmTileAction) {
-            this.gameState.confirmTile();
-            return true;
+            return this.gameState.confirmTile();
         } else if (action instanceof CarcassonnePlaceMeepleAction) {
-            CarcassonnePlaceTileAction placeMeepleAction = (CarcassonnePlaceTileAction)action;
-            this.gameState.placeMeeple(placeMeepleAction.getX(), placeMeepleAction.getY());
-            return true;
+            CarcassonnePlaceMeepleAction placeMeepleAction = (CarcassonnePlaceMeepleAction)action;
+            return this.gameState.placeMeeple(placeMeepleAction.getX(), placeMeepleAction.getY());
         } else if (action instanceof CarcassonneConfirmMeepleAction) {
-            this.gameState.confirmMeeple();
-            return true;
+            return this.gameState.confirmMeeple();
         }
 
         return false;

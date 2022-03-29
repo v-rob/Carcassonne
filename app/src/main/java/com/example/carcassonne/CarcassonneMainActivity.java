@@ -26,13 +26,13 @@ public class CarcassonneMainActivity extends GameMainActivity {
 
     private static final int PORT_NUMBER = 2278;
 
-    /**
-     External Citation
-     Date: 25 March 2022
-     Problem: Didn't know how to implement the main activity method
-     Resource: https://github.com/cs301up/PigGameStarter
-     Solution: We copied the code from Pig's main activity and
-     modified it for Carcassonne
+    /*
+     * External Citation
+     * Date: 25 March 2022
+     * Problem: Didn't know how to implement the main activity.
+     * Resource:
+     *     https://github.com/cs301up/PigGameStarter
+     * Solution: Copied the code from Pig's main activity and modified it for Carcassonne
      */
 
     @Override
@@ -56,7 +56,8 @@ public class CarcassonneMainActivity extends GameMainActivity {
         });
 
         // Create a game configuration class for Carcassonne
-        GameConfig defaultConfig = new GameConfig(playerTypes, 1, 2, "Carcassonne", PORT_NUMBER);
+        GameConfig defaultConfig = new GameConfig(playerTypes, 1,
+                CarcassonneGameState.MAX_PLAYERS, "Carcassonne", PORT_NUMBER);
         defaultConfig.addPlayer("Human", 0);
         defaultConfig.addPlayer("Computer", 1);
         defaultConfig.setRemoteData("Remote Human Player", "", 0);

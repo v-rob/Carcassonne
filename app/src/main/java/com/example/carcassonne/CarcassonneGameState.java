@@ -46,10 +46,12 @@ public class CarcassonneGameState extends GameState {
         this.playerIncompleteScores = new int[numPlayers];
 
         this.currentPlayer = 0;
-        this.isPlacementStage = true;
 
         this.deck = new Deck(bitmapProvider);
         this.board = new Board(this.deck.drawStartingTile());
+
+        // Finish setting things up by starting a new turn.
+        newTurn();
     }
 
     /*
@@ -153,6 +155,14 @@ public class CarcassonneGameState extends GameState {
         return this.deck;
     }
 
+    public void newTurn() {
+        this.isPlacementStage = true;
+
+        if (!this.deck.isEmpty()) {
+            this.board.setCurrentTile(this.deck.drawTile());
+        }
+    }
+
     /**
      * Determine whether or not to quit the game
      *
@@ -251,13 +261,10 @@ public class CarcassonneGameState extends GameState {
                 this.playerMeeples[this.currentPlayer]--;
             }
 
-            this.isPlacementStage = true;
-
-            if (!this.deck.isEmpty()) {
-                this.board.setCurrentTile(this.deck.drawTile());
-            }
+            newTurn();
 
             currentPlayer = (currentPlayer + 1) % this.numPlayers;
+
             return true;
         }
         return false;

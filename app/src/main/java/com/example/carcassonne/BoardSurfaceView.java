@@ -33,6 +33,8 @@ public class BoardSurfaceView extends SurfaceView {
 
     public BoardSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        setWillNotDraw(false);
+        setBackgroundColor(0xFFFFFFFF);
         resetPrevTouch();
     }
 
@@ -108,6 +110,7 @@ public class BoardSurfaceView extends SurfaceView {
                         Tile.SIZE
                 );
 
+                // TODO: Draw rotated
                 canvas.drawBitmap(tileBitmap, null, tileRect, null);
 
                 if (tile != null) {

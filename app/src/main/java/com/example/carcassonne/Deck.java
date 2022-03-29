@@ -122,7 +122,7 @@ public class Deck {
         addTiles('L', 3);
         addTiles('M', 2);
         addTiles('N', 3);
-        addTiles('O', 4);
+        addTiles('O', 2);
         addTiles('P', 3);
         addTiles('Q', 1);
         addTiles('R', 3);

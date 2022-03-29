@@ -20,6 +20,8 @@ public class Tile {
     private int meepleSection;
     private int owner;
 
+    private int rotation;
+
     public static final int TYPE_NONE = 0;
     public static final int TYPE_FARM = 1;
     public static final int TYPE_CITY = 2;
@@ -219,11 +221,17 @@ public class Tile {
         this.owner = owner;
     }
 
+    public int getRotation() {
+        return this.rotation;
+    }
+
     public void rotate() {
+        this.rotation = (this.rotation + 90) % 360;
+
         int[][] rotatedMap = new int[SIZE][SIZE];
         for (int x = 0; x < SIZE; x++) {
             for (int y = 0; y < SIZE; y++) {
-                rotatedMap[x][SIZE - y] = this.map[y][x];
+                rotatedMap[x][SIZE - y - 1] = this.map[y][x];
             }
         }
         this.map = rotatedMap;
@@ -277,7 +285,9 @@ public class Tile {
         this.meepleSection = NO_MEEPLE;
         this.owner = -1;
 
-        Bitmap sectionBitmap = bitmapProvider.getTile(id).map.bitmap;
+        this.rotation = 0;
+
+        Bitmap sectionBitmap = bitmapProvider.getTile(id).section.bitmap;
         parseSectionPositions(sectionBitmap);
         parseSectionConnections(sectionBitmap);
         parseSectionSpecials(sectionBitmap);
@@ -293,8 +303,10 @@ public class Tile {
         this.sections = Util.deepCopyMap(other.sections, HashMap::new, Section::new);
         this.hasPennant = other.hasPennant;
 
-        this.owner = other.owner;
         this.meepleSection = other.meepleSection;
+        this.owner = other.owner;
+
+        this.rotation = other.rotation;
     }
 
     private static int getTypeFromColor(int color) {
@@ -314,8 +326,8 @@ public class Tile {
     }
 
     private void parseSectionPositions(Bitmap sectionBitmap) {
-        for (int y = 1; y < SIZE - 1; y++) {
-            for (int x = 1; x < SIZE - 1; x++) {
+        for (int y = 10; y < SIZE - 1; y++) {
+            for (int x = 10; x < SIZE - 1; x++) {
                 int color = sectionBitmap.getPixel(x, y);
                 if (color != NO_MEEPLE) {
                     // There should be no section with this color at this point
