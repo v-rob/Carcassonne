@@ -2,12 +2,12 @@ package com.example.carcassonne;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.graphics.Canvas;
-import android.view.View;
 
 /**
  * Controls the surface view that holds the game board/tiles
@@ -23,6 +23,7 @@ public class BoardSurfaceView extends SurfaceView {
     private CarcassonneGameState gameState;
     private BitmapProvider bitmapProvider;
 
+    private boolean moved;
     private float prevTouchX;
     private float prevTouchY;
 
@@ -38,7 +39,7 @@ public class BoardSurfaceView extends SurfaceView {
         resetPrevTouch();
     }
 
-    public boolean onTouch(View view, MotionEvent event) {
+    public Point onTouch(MotionEvent event) {
         /*
          * External Citation
          * Date: 28 March 2022
@@ -47,19 +48,47 @@ public class BoardSurfaceView extends SurfaceView {
          *     https://developer.android.com/reference/android/view/MotionEvent#getActionMasked()
          * Solution: Used getActionMasked() and looked at the action constants in MotionEvent.
          */
-        int action = event.getActionMasked();
+        float x = event.getX();
+        float y = event.getY();
 
-        if (action == MotionEvent.ACTION_UP) {
-            resetPrevTouch();
-        } else if (action == MotionEvent.ACTION_MOVE) {
-            this.scrollX += event.getX() - this.prevTouchX;
-            this.scrollY += event.getY() - this.prevTouchY;
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_UP:
+                if (!this.moved) {
+                    // Return the position the player tapped at.
+                    return new Point(
+                            (int)((x - this.scrollX) / (Tile.SIZE * SCALE)),
+                            (int)((y - this.scrollY) / (Tile.SIZE * SCALE))
+                    );
+                }
+
+                resetPrevTouch();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                float deltaX = x - this.prevTouchX;
+                float deltaY = y - this.prevTouchY;
+
+                // If the user moved only a slight bit after ACTION_DOWN, they're probably
+                // still tapping rather than scrolling.
+                if (!this.moved && Math.abs(deltaX) < 10.0f && Math.abs(deltaY) < 10.0f) {
+                    break;
+                }
+
+                // Otherwise, scroll it.
+                this.moved = true;
+                this.scrollX -= deltaX;
+                this.scrollY -= deltaY;
+
+                // Fallthrough
+            case MotionEvent.ACTION_DOWN:
+                this.prevTouchX = x;
+                this.prevTouchY = y;
+                break;
         }
 
-        this.prevTouchX = event.getX();
-        this.prevTouchY = event.getY();
+        this.invalidate();
 
-        return false;
+        // It was scrolled and not tapped.
+        return null;
     }
 
     public void setBitmapProvider(BitmapProvider bitmapProvider) {
@@ -151,6 +180,7 @@ public class BoardSurfaceView extends SurfaceView {
     }
 
     private void resetPrevTouch() {
+        this.moved = false;
         this.prevTouchX = this.prevTouchY = -1.0f;
     }
 

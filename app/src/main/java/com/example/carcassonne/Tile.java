@@ -199,6 +199,10 @@ public class Tile {
         return this.sections.get(this.meepleSection);
     }
 
+    public boolean hasMeeple() {
+        return this.meepleSection != NO_MEEPLE;
+    }
+
     /**
      * Queries the index of the player that placed this tile, and therefore the owner
      * of any meeples on the tile as well. If there is no owner (i.e. it was freshly

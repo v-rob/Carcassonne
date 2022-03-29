@@ -1,5 +1,6 @@
 package com.example.carcassonne;
 
+import android.graphics.Point;
 import android.view.View;
 
 import com.example.carcassonne.infoMsg.GameInfo;
@@ -137,7 +138,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         this.quitButton.setOnClickListener(this::onClickQuit);
         this.currentTileImageView.setOnTouchListener(this::onTouchTileImage);
         // TODO: Send actions for board touch
-        this.boardSurfaceView.setOnTouchListener(this.boardSurfaceView::onTouch);
+        this.boardSurfaceView.setOnTouchListener(this::onTouchBoardSurfaceView);
 
         // Hand the BitmapProvider to the BoardSurfaceView now that we have it.
         this.boardSurfaceView.setBitmapProvider(this.bitmapProvider);
@@ -145,22 +146,22 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
 
     private void onClickRotateReset(View button) {
         if (this.gameState.isPlacementStage()) {
-            game.sendAction(new CarcassonneRotateTileAction(this));
+            this.game.sendAction(new CarcassonneRotateTileAction(this));
         } else {
-            game.sendAction(new CarcassonneResetTurnAction(this));
+            this.game.sendAction(new CarcassonneResetTurnAction(this));
         }
     }
 
     private void onClickConfirm(View button) {
         if (this.gameState.isPlacementStage()) {
-            game.sendAction(new CarcassonneConfirmTileAction(this));
+            this.game.sendAction(new CarcassonneConfirmTileAction(this));
         } else {
-            game.sendAction(new CarcassonneConfirmMeepleAction(this));
+            this.game.sendAction(new CarcassonneConfirmMeepleAction(this));
         }
     }
 
     private void onClickQuit(View button) {
-        game.sendAction(new CarcassonneQuitGameAction(this));
+        this.game.sendAction(new CarcassonneQuitGameAction(this));
     }
 
     private boolean onTouchTileImage(View view, MotionEvent event) {
@@ -169,8 +170,22 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
             int x = (int)(event.getX() / this.currentTileImageView.getWidth() * Tile.SIZE);
             int y = (int)(event.getY() / this.currentTileImageView.getHeight() * Tile.SIZE);
 
-            game.sendAction(new CarcassonnePlaceMeepleAction(this, x, y));
+            this.game.sendAction(new CarcassonnePlaceMeepleAction(this, x, y));
         }
-        return false;
+        return true;
+    }
+
+    private boolean onTouchBoardSurfaceView(View view, MotionEvent event) {
+        // Pass this event to the board's onTouch() method
+        Point point = this.boardSurfaceView.onTouch(event);
+
+        // If the board reports that it was pressed and not scrolled, send an action
+        if (point != null) {
+            this.game.sendAction(new CarcassonnePlaceTileAction(this, point.x, point.y));
+        }
+        
+        // For unknown reasons, ACTION_MOVE and ACTION_UP don't register unless you
+        // return true.
+        return true;
     }
 }

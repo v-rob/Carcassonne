@@ -257,7 +257,7 @@ public class CarcassonneGameState extends GameState {
         if (!isPlacementStage && board.isCurrentMeeplePlacementValid()) {
             this.board.confirmCurrentTile();
 
-            if(this.board.getCurrentTile().getMeepleSection() != null) {
+            if(this.board.getCurrentTile().hasMeeple()) {
                 this.playerMeeples[this.currentPlayer]--;
             }
 

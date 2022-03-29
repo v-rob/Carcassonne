@@ -238,6 +238,10 @@ public class Board {
         // the meeple placement code.
         assert isCurrentTilePlacementValid();
 
+        if (!this.currentTile.hasMeeple()) {
+            return true;
+        }
+
         int type = this.currentTile.getMeepleSection().getType();
 
         if (type == Tile.TYPE_NONE || type == Tile.TYPE_CLOISTER) {
@@ -404,8 +408,8 @@ public class Board {
                 tile.getSection(Tile.flipPart(secondPart)).getType();
 
         // Check whether the roads match up.
-        adjacent.isValid &= this.currentTile.getRoadSection(roadPart).getType() ==
-                tile.getRoadSection(Tile.flipRoadPart(roadPart)).getType();
+        adjacent.isValid &= (this.currentTile.getRoadSection(roadPart) == null) ==
+                (tile.getRoadSection(Tile.flipRoadPart(roadPart)) == null);
     }
 
     /**
