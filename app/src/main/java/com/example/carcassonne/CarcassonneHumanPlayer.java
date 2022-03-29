@@ -22,11 +22,6 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
     private ImageView currentTileImageView;
     private BoardSurfaceView boardSurfaceView;
 
-    /**
-     * constructor
-     *
-     * @param name the name of the player
-     */
     public CarcassonneHumanPlayer(String name, BitmapProvider bitmapProvider) {
         super(name);
         this.bitmapProvider = bitmapProvider;
@@ -45,6 +40,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         this.boardSurfaceView.setGameState(this.gameState);
 
         // TODO: Stuff here...
+        // TODO: Update GUI
 
         // Invalidate the BoardSurfaceView so it shows the new stuff.
         this.boardSurfaceView.invalidate();

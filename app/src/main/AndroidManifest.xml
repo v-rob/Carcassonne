@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Carcassonne">
         <activity
-            android:name=".MainActivity"
+            android:name=".CarcassonneMainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
