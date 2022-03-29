@@ -3,13 +3,15 @@ package com.example.carcassonne;
 import android.view.View;
 
 import com.example.carcassonne.infoMsg.GameInfo;
+
 import android.widget.TextView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.view.MotionEvent;
 
-public class CarcassonneHumanPlayer extends GameHumanPlayer{
+public class CarcassonneHumanPlayer extends GameHumanPlayer {
     private CarcassonneGameState gameState;
+    private BitmapProvider bitmapProvider;
     private GameMainActivity activity;
     private TextView[] playerNameTextViews;
     private TextView[] scoreTextViews;
@@ -20,16 +22,14 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer{
     private ImageView tileImageView;
     private BoardSurfaceView boardSurfaceView;
 
-
-
-
     /**
      * constructor
      *
      * @param name the name of the player
      */
-    public CarcassonneHumanPlayer(String name) {
+    public CarcassonneHumanPlayer(String name, BitmapProvider bitmapProvider) {
         super(name);
+        this.bitmapProvider = bitmapProvider;
     }
 
     @Override
@@ -39,7 +39,10 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer{
 
     @Override
     public void receiveInfo(GameInfo info) {
-       CarcassonneGameState gameState = (CarcassonneGameState)info;
+        this.gameState = (CarcassonneGameState)info;
+
+        // Hand the latest GameState to the BoardSurfaceView
+        this.boardSurfaceView.setGameState(this.gameState);
     }
 
     private static final int[] PLAYER_NAME_RESOURCES = {
@@ -49,7 +52,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer{
             R.id.redPlayerName,
             R.id.blackPlayerName
     };
-    
+
     private static final int[] PLAYER_SCORE_RESOURCES = {
             R.id.blueScore,
             R.id.yellowScore,
@@ -57,7 +60,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer{
             R.id.redScore,
             R.id.blackScore
     };
-    
+
     private static final int[] MEEPLE_COUNT_RESOURCES = {
             R.id.blueMeepleCount,
             R.id.yellowMeepleCount,
@@ -65,7 +68,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer{
             R.id.redMeepleCount,
             R.id.blackMeepleCount
     };
-    
+
     @Override
     public void setAsGui(GameMainActivity activity) {
         this.activity = activity;
@@ -92,10 +95,13 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer{
         this.confirmButton.setOnClickListener(this::onClickConfirm);
         this.quitButton.setOnClickListener(this::onClickQuit);
         this.tileImageView.setOnTouchListener(this::onTouchTileImage);
-        this.boardSurfaceView.setOnTouchListener(this::onTouchBoardSurfaceView);
+        this.boardSurfaceView.setOnTouchListener(this.boardSurfaceView::onTouch);
+
+        // Hand the BitmapProvider to the BoardSurfaceView now that we have it.
+        this.boardSurfaceView.setBitmapProvider(this.bitmapProvider);
     }
 
-    private void onClickRotateReset(View button){
+    private void onClickRotateReset(View button) {
         if (this.gameState.isPlacementStage()) {
             game.sendAction(new CarcassonneRotateTileAction(this));
         } else {
@@ -103,7 +109,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer{
         }
     }
 
-    private void onClickConfirm(View button){
+    private void onClickConfirm(View button) {
         if (this.gameState.isPlacementStage()) {
             game.sendAction(new CarcassonneConfirmTileAction(this));
         } else {
@@ -111,11 +117,11 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer{
         }
     }
 
-    private void onClickQuit(View button){
-            game.sendAction(new CarcassonneQuitGameAction(this));
+    private void onClickQuit(View button) {
+        game.sendAction(new CarcassonneQuitGameAction(this));
     }
 
-    private boolean onTouchTileImage(View view, MotionEvent event){
+    private boolean onTouchTileImage(View view, MotionEvent event) {
         // TODO: Make sure units are correct.
         if (!this.gameState.isPlacementStage()) {
             game.sendAction(new CarcassonnePlaceMeepleAction(this,
@@ -123,9 +129,4 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer{
         }
         return false;
     }
-
-    private boolean onTouchBoardSurfaceView(View view, MotionEvent event){
-        return false;
-    }
-
 }

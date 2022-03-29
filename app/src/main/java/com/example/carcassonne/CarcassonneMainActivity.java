@@ -1,11 +1,16 @@
 package com.example.carcassonne;
 
 import com.example.carcassonne.config.GameConfig;
-
-import java.util.ArrayList;
 import com.example.carcassonne.config.GamePlayerType;
+import java.util.ArrayList;
 
-public class CarassonneMainActivity extends GameMainActivity{
+public class CarcassonneMainActivity extends GameMainActivity {
+    /**
+     * The bitmap provider that provides bitmaps to every part of the game, namely
+     * to Tile through Deck, CarcassonneGameState, and CarcassonneLocalGame, and to
+     * BoardSurfaceView through CarcassonneHumanPlayer.
+     */
+    private BitmapProvider bitmapProvider = new BitmapProvider(getResources());
 
     private static final int PORT_NUMBER = 2278;
 
@@ -19,12 +24,14 @@ public class CarassonneMainActivity extends GameMainActivity{
         // Pig has two player types:  human and computer
         playerTypes.add(new GamePlayerType("Local Human Player") {
             public GamePlayer createPlayer(String name) {
-                return new CarcassonneHumanPlayer(name);
-            }});
+                return new CarcassonneHumanPlayer(name, bitmapProvider);
+            }
+        });
         playerTypes.add(new GamePlayerType("Computer Player") {
             public GamePlayer createPlayer(String name) {
-                return new CarcassonneComputerPlayer(name,false);
-            }});
+                return new CarcassonneComputerPlayer(name, false);
+            }
+        });
 
         // Create a game configuration class for Pig:
         GameConfig defaultConfig = new GameConfig(playerTypes, 1, 2, "Carcassonne", PORT_NUMBER);
