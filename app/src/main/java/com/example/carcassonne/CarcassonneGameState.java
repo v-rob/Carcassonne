@@ -206,4 +206,8 @@ public class CarcassonneGameState extends GameState {
         }
         return false;
     }
+
+    public Deck getDeck(){
+        return this.deck;
+    }
 }

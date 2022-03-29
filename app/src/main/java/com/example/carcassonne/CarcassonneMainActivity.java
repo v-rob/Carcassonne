@@ -14,7 +14,14 @@ public class CarcassonneMainActivity extends GameMainActivity {
 
     private static final int PORT_NUMBER = 2278;
 
-    //TODO: Comments to give Pig Credit Mar 25
+    /**
+     External Citation
+     Date: 25 March 2022
+     Problem: Didn't know how to implement the main activity method
+     Resource: https://github.com/cs301up/PigGameStarter
+     Solution: We copied the code from Pig's main activity and
+     modified it for Carcassonne
+     */
 
     public CarcassonneMainActivity() {
         this.bitmapProvider = new BitmapProvider(getResources());
