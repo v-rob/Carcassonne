@@ -34,7 +34,7 @@ public class CarcassonneGameState extends GameState {
      *
      * @param numPlayers The number of players the game has.
      */
-    public CarcassonneGameState(int numPlayers, BitmapProvider bitmapProvider) {
+    public CarcassonneGameState(int numPlayers) {
         this.numPlayers = numPlayers;
 
         this.playerMeeples = new int[numPlayers];
@@ -45,7 +45,7 @@ public class CarcassonneGameState extends GameState {
         this.playerCompleteScores = new int[numPlayers];
         this.playerIncompleteScores = new int[numPlayers];
 
-        this.deck = new Deck(bitmapProvider);
+        this.deck = new Deck();
         this.board = new Board(this.deck.drawStartingTile());
 
         // Finish setting things up by starting a new turn.

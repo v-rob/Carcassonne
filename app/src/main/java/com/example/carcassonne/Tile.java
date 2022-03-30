@@ -1,6 +1,7 @@
 package com.example.carcassonne;
 
 import android.graphics.Bitmap;
+import android.graphics.Point;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,8 +12,6 @@ public class Tile {
     public static final int SIZE = 292;
 
     char id;
-
-    private int[][] map;
 
     private HashMap<Integer, Section> sections;
     private boolean hasPennant;
@@ -158,6 +157,22 @@ public class Tile {
         return 0;
     }
 
+    public static Point rotatePointCW(int x, int y, int by) {
+        Point point = new Point(x, y);
+
+        for (int i = 0; i < by; i += 90) {
+            int temp = point.x;
+            point.x = SIZE - point.y;
+            point.y = temp;
+        }
+
+        return point;
+    }
+
+    public static Point rotatePointCCW(int x, int y, int by) {
+        return rotatePointCW(x, y, 360 - by);
+    }
+
     public char getId() {
         return this.id;
     }
@@ -188,7 +203,9 @@ public class Tile {
     }
 
     public void setMeeple(int x, int y) {
-        this.meepleSection = this.map[y][x];
+        // We don't need to rotate the positions because the tile is rotated
+        BitmapProvider bitmapProvider = CarcassonneMainActivity.getBitmapProvider();
+        this.meepleSection = bitmapProvider.getTile(this.id).map.bitmap.getPixel(x, y);
     }
 
     public void removeMeeple() {
@@ -237,30 +254,23 @@ public class Tile {
         return this.rotation;
     }
 
+    public void setRotation(int rotation) {
+        while (this.rotation != rotation) {
+            rotate();
+        }
+    }
+
     public void rotate() {
         this.rotation = (this.rotation + 90) % 360;
-
-        int[][] rotatedMap = new int[SIZE][SIZE];
-        for (int x = 0; x < SIZE; x++) {
-            for (int y = 0; y < SIZE; y++) {
-                rotatedMap[x][SIZE - y - 1] = this.map[y][x];
-            }
-        }
-        this.map = rotatedMap;
 
         for (Section section : this.sections.values()) {
             section.rotate();
         }
     }
 
-    public void rotateBy(int by) {
-        for (int i = 0; i < by; i++) {
-            rotate();
-        }
-    }
-
     public void rotateRandomly() {
-        rotateBy((int)(Math.random() * 4));
+        // Rotate to some multiple of 90 between 0 and 270
+        setRotation((int)(Math.random() * 4) * 90);
     }
 
     /**
@@ -277,7 +287,6 @@ public class Tile {
     public String toString() {
         ToStringer toStr = new ToStringer("Tile");
 
-        toStr.add("map", this.map);
         toStr.add("sections", this.sections);
         toStr.add("hasPennant", this.hasPennant);
         toStr.add("meepleSection", this.meepleSection);
@@ -286,10 +295,8 @@ public class Tile {
         return toStr.toString();
     }
 
-    public Tile(char id, BitmapProvider bitmapProvider) {
+    public Tile(char id) {
         this.id = id;
-
-        this.map = BitmapProvider.toArray(bitmapProvider.getTile(id).map.bitmap);
         
         this.sections = new HashMap<>();
         this.hasPennant = false;
@@ -299,7 +306,7 @@ public class Tile {
 
         this.rotation = 0;
 
-        Bitmap sectionBitmap = bitmapProvider.getTile(id).section.bitmap;
+        Bitmap sectionBitmap = CarcassonneMainActivity.getBitmapProvider().getTile(id).section.bitmap;
         parseSectionPositions(sectionBitmap);
         parseSectionConnections(sectionBitmap);
         parseSectionSpecials(sectionBitmap);
@@ -308,7 +315,6 @@ public class Tile {
     public Tile(Tile other) {
         this.id = other.id;
 
-        this.map = Util.deepCopyArray(other.map, Util::copyArray);
         this.sections = Util.deepCopyMap(other.sections, HashMap::new, Section::new);
         this.hasPennant = other.hasPennant;
 

@@ -22,7 +22,7 @@ public class CarcassonneMainActivity extends GameMainActivity {
      * them, namely to Tile through Deck, CarcassonneGameState, and CarcassonneLocalGame,
      * and to BoardSurfaceView through CarcassonneHumanPlayer.
      */
-    private BitmapProvider bitmapProvider;
+    private static BitmapProvider bitmapProvider;
 
     private static final int PORT_NUMBER = 2278;
 
@@ -38,14 +38,14 @@ public class CarcassonneMainActivity extends GameMainActivity {
     @Override
     public GameConfig createDefaultConfig() {
         // Create the bitmap provider that everyone will use
-        this.bitmapProvider = new BitmapProvider(getResources());
+        bitmapProvider = new BitmapProvider(getResources());
 
         // Define the allowed player types
         ArrayList<GamePlayerType> playerTypes = new ArrayList<>();
 
         playerTypes.add(new GamePlayerType("Local Human Player") {
             public GamePlayer createPlayer(String name) {
-                return new CarcassonneHumanPlayer(name, bitmapProvider);
+                return new CarcassonneHumanPlayer(name);
             }
         });
 
@@ -67,6 +67,10 @@ public class CarcassonneMainActivity extends GameMainActivity {
 
     @Override
     public LocalGame createLocalGame() {
-        return new CarcassonneLocalGame(this.bitmapProvider);
+        return new CarcassonneLocalGame();
+    }
+
+    public static BitmapProvider getBitmapProvider() {
+        return bitmapProvider;
     }
 }

@@ -2,6 +2,7 @@ package com.example.carcassonne;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.RectF;
 import android.util.AttributeSet;
@@ -10,35 +11,73 @@ import android.view.SurfaceView;
 import android.graphics.Canvas;
 
 /**
- * Controls the surface view that holds the game board/tiles
+ * Draws the entire main game board containing the tiles, and also includes information
+ * about the scrolling of the board.
  *
- * @author Cheyanne Yim
- * @author Vincent Robinson
- * @author Alex Martinez-Lopez
- * @author DJ Backus
- * @author Sophie Arcangel
+ * @author Vincent Robinson, Sophie Arcangel
  */
-
 public class BoardSurfaceView extends SurfaceView {
+    /**
+     * A reference to the game state with the board being drawn. It gets set with
+     * setGameState() every time CarcassonneHumanPlayer receives an updated game
+     * state. It is null when BoardSurfaceView is first constructed.
+     */
     private CarcassonneGameState gameState;
-    private BitmapProvider bitmapProvider;
 
+    /** Number of pixels a touch event may move before it registers as scrolling. */
+    private static final float SCROLL_THRESHOLD = 10.0f;
+
+    /**
+     * Whether the board has been scrolled since the user last started touching the
+     * screen. If the touch has moved more than SCROLL_THRESHOLD pixels, this is set
+     * to true. This is used to determine whether or not to register a touch event
+     * as intended to scroll or place a tile.
+     */
     private boolean moved;
+
+    /** The previous X position of the last touch event, used to calculate movement. */
     private float prevTouchX;
+    /** The previous Y position of the last touch event, used to calculate movement. */
     private float prevTouchY;
 
+    /** The current X scroll of the board, measured in pixels towards the right. */
     private float scrollX;
+    /** The current Y scroll of the board, measured in pixels towards the bottom. */
     private float scrollY;
 
-    private static final float SCALE = 1.0f;
-
+    /**
+     * Constructs a new BoardSurfaceView from the XML. It sets it as drawable and gives
+     * it a white background color. It will have no game state.
+     *
+     * @param context Unused.
+     * @param attrs   Unused.
+     */
     public BoardSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
+
         setWillNotDraw(false);
         setBackgroundColor(0xFFFFFFFF);
-        resetPrevTouch();
     }
 
+    /**
+     * Sets the game state to be used in all drawing. Should be called every time
+     * CarcassonneHumanPlayer receives a new game state.
+     *
+     * @param gameState The game state to use in drawing.
+     */
+    public void setGameState(CarcassonneGameState gameState) {
+        this.gameState = gameState;
+    }
+
+    /**
+     * Helper method for the OnTouchListener registered in CarcassonneHumanPlayer that,
+     * given the MotionEvent, scrolls the board and, if the user touched the board with
+     * intent to place a tile, returns the position that the tile is to be placed at.
+     *
+     * @param event The MotionEvent received by the calling OnTouchListener.
+     * @return The position to place the current tile, or null if the user did not intend
+     *         to place any such tile.
+     */
     public Point onTouch(MotionEvent event) {
         /*
          * External Citation
@@ -51,35 +90,60 @@ public class BoardSurfaceView extends SurfaceView {
         float x = event.getX();
         float y = event.getY();
 
+        // TODO: Don't allow scrolling out of bounds
+        // TODO: Center scrolling initially
+        // TODO: Don't jerk when adding to left/top
+
         switch (event.getAction()) {
             case MotionEvent.ACTION_UP:
-                if (!this.moved) {
-                    // Return the position the player tapped at.
-                    return new Point(
-                            (int)((x + this.scrollX) / (Tile.SIZE * SCALE)),
-                            (int)((y + this.scrollY) / (Tile.SIZE * SCALE))
+                // The point to return, if any.
+                Point point = null;
+
+                float posX = x - this.scrollX;
+                float posY = y - this.scrollY;
+
+                // Return the position the player tapped at if it's in bounds. Also ensure
+                // that the position is non-negative since floor division will round -1 to
+                // 0 and register it as a valid position, which is wrong.
+                if (!this.moved && posX >= 0 && posY >= 0) {
+                    // Convert from screen coordinates to tile positions.
+                    point = new Point(
+                            (int)(posX / Tile.SIZE),
+                            (int)(posY / Tile.SIZE)
                     );
+
+                    // Ensure the position just calculated is in bounds for the board; otherwise,
+                    // still return null.
+                    Board board = this.gameState.getBoard();
+                    if (point.x < 0 || point.x >= board.getWidth() ||
+                            point.y < 0 || point.y >= board.getHeight()) {
+                        point = null;
+                    }
                 }
 
-                resetPrevTouch();
-                break;
+                // Reset the moved state to prepare for the next ACTION_DOWN.
+                this.moved = false;
+
+                return point;
             case MotionEvent.ACTION_MOVE:
                 float deltaX = x - this.prevTouchX;
                 float deltaY = y - this.prevTouchY;
 
                 // If the user moved only a slight bit after ACTION_DOWN, they're probably
-                // still tapping rather than scrolling.
-                if (!this.moved && Math.abs(deltaX) < 10.0f && Math.abs(deltaY) < 10.0f) {
+                // still tapping rather than scrolling. Don't change the previous position.
+                if (!this.moved && Math.abs(deltaX) < SCROLL_THRESHOLD &&
+                        Math.abs(deltaY) < SCROLL_THRESHOLD) {
                     break;
                 }
 
-                // Otherwise, scroll it.
+                // Otherwise, register as moving and scroll the board.
                 this.moved = true;
-                this.scrollX -= deltaX;
-                this.scrollY -= deltaY;
+                this.scrollX += deltaX;
+                this.scrollY += deltaY;
 
                 // Fallthrough
             case MotionEvent.ACTION_DOWN:
+                // Set the last position to the current one.
                 this.prevTouchX = x;
                 this.prevTouchY = y;
                 break;
@@ -87,26 +151,25 @@ public class BoardSurfaceView extends SurfaceView {
 
         this.invalidate();
 
-        // It was scrolled and not tapped.
+        // It was not tapped, so return null.
         return null;
     }
 
-    public void setBitmapProvider(BitmapProvider bitmapProvider) {
-        this.bitmapProvider = bitmapProvider;
-    }
-
-    public void setGameState(CarcassonneGameState gameState) {
-        this.gameState = gameState;
-    }
-
+    /**
+     * Draws everything on the board: tiles, empty tile positions, tile borders, and meeples.
+     *
+     * @param canvas The canvas to draw with.
+     */
     public void onDraw(Canvas canvas) {
-        // We can't draw unless we've received parameters from CarcassonneHumanPlayer
-        if (this.gameState == null || this.bitmapProvider == null) {
+        // We can't draw unless we've received the game state from CarcassonneHumanPlayer
+        if (this.gameState == null) {
             return;
         }
 
         Board board = this.gameState.getBoard();
+        BitmapProvider bitmapProvider = CarcassonneMainActivity.getBitmapProvider();
 
+        // Draw all the tiles on the board, including empty tiles.
         for (int x = 0; x < board.getWidth(); x++) {
             for (int y = 0; y < board.getHeight(); y++) {
                 Tile tile = board.getTile(x, y);
@@ -115,84 +178,110 @@ public class BoardSurfaceView extends SurfaceView {
                 if (tile == null) {
                     // Empty tiles have their own special empty bitmap, which forms a grid
                     // and shows where the valid positions are.
-                    tileBitmap = this.bitmapProvider.getEmptyTile().bitmap;
+                    tileBitmap = bitmapProvider.getEmptyTile().bitmap;
                 } else {
-                    // Otherwise, get the proper tile and bitmap.
-                    tileBitmap = this.bitmapProvider.getTile(tile.getId()).tile.bitmap;
+                    // Otherwise, get the proper tile bitmap.
+                    tileBitmap = bitmapProvider.getTile(tile.getId()).tile.bitmap;
                 }
 
                 /*
                  * External Citation
                  * Date: 25 March 2022
-                 * Problem: Needed to know how to do a scaled draw of a bitmap to a Canvas
+                 * Problem: Needed to know how to do a rotated draw of a bitmap.
                  * Resource:
+                 *     https://developer.android.com/reference/android/graphics/Matrix
+                 *         and
                  *     https://developer.android.com/reference/android/graphics/Canvas#drawBitmap(
-                 *     android.graphics.Bitmap,%20android.graphics.Rect,%20android.graphics.RectF,
-                 *     %20android.graphics.Paint)
-                 * Solution: Used this overload of drawBitmap() with null for src and paint.
+                 *     android.graphics.Bitmap,%20android.graphics.Matrix,%20android.graphics.Paint)
+                 * Solution: Used this overload of drawBitmap() with a transformation matrix.
                  */
 
-                RectF tileRect = makeRect(
-                        x * Tile.SIZE,
-                        y * Tile.SIZE,
-                        Tile.SIZE,
-                        Tile.SIZE
-                );
-
-                // TODO: Draw rotated
-                canvas.drawBitmap(tileBitmap, null, tileRect, null);
+                /* Create a transformation matrix. We use the post() methods rather than the
+                 * set() methods so earlier changes don't get overwritten. Order matters:
+                 * rotate around the center of the tile, then move the tile. Doing it out of
+                 * order will apply the transformations out of order and give incorrect results.
+                 */
+                Matrix matrix = new Matrix();
 
                 if (tile != null) {
-                    // If this is the current tile, draw a border around to indicate if it's valid
-                    // or not. The rectangle for borders is identical to the tile rectangle.
-                    if (x == board.getCurrentTileX() && y == board.getCurrentTileY()) {
-                        Bitmap border = board.isCurrentPlacementValid() ?
-                                this.bitmapProvider.getValidBorder().bitmap :
-                                this.bitmapProvider.getInvalidBorder().bitmap;
-                        canvas.drawBitmap(border, null, tileRect, null);
-                    }
-
-                    // If there's a meeple on the tile, draw it centered at the X and Y position
-                    // of its section.
-                    Section meepleSection = tile.getMeepleSection();
-                    if (meepleSection != null) {
-                        // Choose the color of the meeple from the owner of the tile.
-                        BitmapProvider.MeepleBitmapData bitmapData =
-                                this.bitmapProvider.getMeeple(tile.getOwner());
-
-                        // Farmers have their own special bitmaps, so select this.
-                        Bitmap meepleBitmap = meepleSection.getType() == Tile.TYPE_FARM ?
-                                bitmapData.farmer.bitmap :
-                                bitmapData.meeple.bitmap;
-
-                        float width = meepleBitmap.getWidth();
-                        float height = meepleBitmap.getHeight();
-                        canvas.drawBitmap(meepleBitmap, null, makeRect(
-                                x * Tile.SIZE + meepleSection.getMeepleX() - width / 2,
-                                y * Tile.SIZE + meepleSection.getMeepleY() - height / 2,
-                                width,
-                                height
-                        ), null);
-                    }
+                    matrix.postRotate(tile.getRotation(), (float)Tile.SIZE / 2, (float)Tile.SIZE / 2);
                 }
+                matrix.postTranslate(x * Tile.SIZE + this.scrollX, y * Tile.SIZE + this.scrollY);
+
+                // Draw the bitmap with the above matrix.
+                canvas.drawBitmap(tileBitmap, matrix, null);
+            }
+        }
+
+        // If the current tile has been placed on the board, draw the valid/invalid
+        // border around it.
+        if (board.getCurrentTileX() != -1) {
+            Bitmap border = board.isCurrentPlacementValid() ?
+                    bitmapProvider.getValidBorder().bitmap :
+                    bitmapProvider.getInvalidBorder().bitmap;
+
+            canvas.drawBitmap(border, null, makeRect(
+                    board.getCurrentTileX() * Tile.SIZE,
+                    board.getCurrentTileY() * Tile.SIZE,
+                    Tile.SIZE,
+                    Tile.SIZE
+            ), null);
+        }
+
+        // Draw all the meeples _after_ the tiles so tiles never overlap meeples.
+        for (int x = 0; x < board.getWidth(); x++) {
+            for (int y = 0; y < board.getHeight(); y++) {
+                Tile tile = board.getTile(x, y);
+                if (tile == null) {
+                    continue;
+                }
+
+                Section meepleSection = tile.getMeepleSection();
+                if (meepleSection == null) {
+                    continue;
+                }
+
+                // Choose the color of the meeple from the owner of the tile.
+                BitmapProvider.MeepleBitmapData bitmapData =
+                        bitmapProvider.getMeeple(tile.getOwner());
+
+                // Farmers have their own special bitmaps, so select the correct one.
+                Bitmap meepleBitmap = meepleSection.getType() == Tile.TYPE_FARM ?
+                        bitmapData.farmer.bitmap :
+                        bitmapData.meeple.bitmap;
+
+                // Draw the meeple centered at the meeple position for the section it's in.
+                float width = meepleBitmap.getWidth();
+                float height = meepleBitmap.getHeight();
+                canvas.drawBitmap(meepleBitmap, null, makeRect(
+                        x * Tile.SIZE + meepleSection.getMeepleX() - width / 2,
+                        y * Tile.SIZE + meepleSection.getMeepleY() - height / 2,
+                        width,
+                        height
+                ), null);
             }
         }
     }
 
-    private void resetPrevTouch() {
-        this.moved = false;
-        this.prevTouchX = this.prevTouchY = -1.0f;
-    }
-
+    /**
+     * Creates a new RectF for drawing some Bitmap given a position and size and applies
+     * scrolling.
+     *
+     * @param x      The left side of the rectangle.
+     * @param y      The top of the rectangle.
+     * @param width  The width of the rectangle.
+     * @param height The height of the rectangle
+     * @return The rect to be used for drawing.
+     */
     private RectF makeRect(float x, float y, float width, float height) {
         RectF rect = new RectF();
 
         // Apply scrolling to positions (which is subtracted to move towards the left/top)
         // and multiply to apply the scaling factor.
-        rect.left = (x - this.scrollX) * SCALE;
-        rect.top = (y - this.scrollY) * SCALE;
-        rect.right = rect.left + (width * SCALE);
-        rect.bottom = rect.top + (height * SCALE);
+        rect.left = x + this.scrollX;
+        rect.top = y + this.scrollY;
+        rect.right = rect.left + width;
+        rect.bottom = rect.top + height;
 
         return rect;
     }

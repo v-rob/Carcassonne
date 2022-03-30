@@ -131,15 +131,17 @@ public class Board {
     }
 
     /**
-     * Sets the tile currently being placed to a new position. It is an error if the
-     * position is already occupied.
+     * Sets the tile currently being placed to a new position. If the position is
+     * already occupied, nothing changes.
      *
      * @param x The X position to give the tile.
      * @param y The Y position to give the tile.
      */
     public void setCurrentTilePosition(int x, int y) {
-        // Ensure this position is not already taken so we don't run into bugs later.
-        assert getConfirmedTile(x, y) == null;
+        // Ensure this position is not already taken.
+        if (getConfirmedTile(x, y) != null) {
+            return;
+        }
 
         this.currentTileX = x;
         this.currentTileY = y;
@@ -165,17 +167,15 @@ public class Board {
         // Ensure the tile is valid so we don't run into bugs later.
         assert isCurrentPlacementValid();
 
-        // Insert the current tile into the array and reset the current tile
+        // Insert the current tile into the array.
         this.tiles[this.currentTileY][this.currentTileX] = this.currentTile;
-        this.currentTile = null;
-        resetCurrentTilePosition();
 
         // Booleans for checking if the tile was placed in the empty border
         boolean incLeft = this.currentTileX == 0;
         boolean incTop  = this.currentTileY == 0;
 
         boolean incX = incLeft || this.currentTileX == getWidth() - 1;
-        boolean incY = incTop  || this.currentTileX == getWidth() - 1;
+        boolean incY = incTop  || this.currentTileY == getHeight() - 1;
 
         // Resize the tile array if necessary
         if (incX || incY) {
@@ -193,6 +193,10 @@ public class Board {
             // Replace the original tile array with the copy.
             this.tiles = copy;
         }
+
+        // Reset the current tile to null and no position.
+        this.currentTile = null;
+        resetCurrentTilePosition();
     }
 
     /**

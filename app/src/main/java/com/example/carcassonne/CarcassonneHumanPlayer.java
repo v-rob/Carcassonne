@@ -24,8 +24,6 @@ import android.view.MotionEvent;
 public class CarcassonneHumanPlayer extends GameHumanPlayer {
     private CarcassonneGameState gameState;
 
-    private BitmapProvider bitmapProvider;
-
     private GameMainActivity activity;
 
     private TextView[] playerNameTextViews;
@@ -39,9 +37,8 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
     private ImageView currentTileImageView;
     private BoardSurfaceView boardSurfaceView;
 
-    public CarcassonneHumanPlayer(String name, BitmapProvider bitmapProvider) {
+    public CarcassonneHumanPlayer(String name) {
         super(name);
-        this.bitmapProvider = bitmapProvider;
     }
 
     @Override
@@ -78,8 +75,11 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
 
         Tile currentTile = this.gameState.getBoard().getCurrentTile();
         if (currentTile != null) {
+            BitmapProvider bitmapProvider = CarcassonneMainActivity.getBitmapProvider();
             this.currentTileImageView.setImageResource(
-                    this.bitmapProvider.getTile(currentTile.getId()).tile.resource);
+                    bitmapProvider.getTile(currentTile.getId()).tile.resource);
+
+            // TODO: Also draw meeples on current tile
             this.currentTileImageView.setRotation(currentTile.getRotation());
         }
 
@@ -140,9 +140,6 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         this.quitButton.setOnClickListener(this::onClickQuit);
         this.currentTileImageView.setOnTouchListener(this::onTouchTileImage);
         this.boardSurfaceView.setOnTouchListener(this::onTouchBoardSurfaceView);
-
-        // Hand the BitmapProvider to the BoardSurfaceView now that we have it.
-        this.boardSurfaceView.setBitmapProvider(this.bitmapProvider);
     }
 
     private void onClickRotateReset(View button) {
@@ -167,7 +164,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
 
     private boolean onTouchTileImage(View view, MotionEvent event) {
         if (!this.gameState.isPlacementStage()) {
-            // Convert the scaled display pixels of the ImageView to pixels on an actual tile.
+            // Convert the scaled display pixels of the ImageView to pixels on a tile bitmap.
             int x = (int)(event.getX() / this.currentTileImageView.getWidth() * Tile.SIZE);
             int y = (int)(event.getY() / this.currentTileImageView.getHeight() * Tile.SIZE);
 

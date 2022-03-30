@@ -7,9 +7,9 @@ import java.util.ArrayList;
 public class CarcassonneLocalGame extends LocalGame {
     private CarcassonneGameState gameState;
 
-    public CarcassonneLocalGame(BitmapProvider bitmapProvider) {
+    public CarcassonneLocalGame() {
         // TODO: THIS IS GARBAGE! Make it take any number of players
-        this.gameState = new CarcassonneGameState(2, bitmapProvider);
+        this.gameState = new CarcassonneGameState(2);
     }
 
     @Override

@@ -182,7 +182,6 @@ public class RoadAnalysis extends Analysis {
 
         subRoad.tileCount++;
         if (tile.getMeepleType() == TileOLD.TYPE_ROAD) {
-            // TODO: Thieves need to be on only one branch of the intersection.
             subRoad.meeples.add(tile);
             this.meepleCount++;
         }

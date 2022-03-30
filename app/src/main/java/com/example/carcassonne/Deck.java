@@ -4,23 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Represents a deck of tiles. It contains three separate parts: First, it has a master
- * set of tiles, which allows specific tiles to be created at will with createTile().
- * Secondly, it has the actual list of tiles in the deck, which can be drawn from until
- * empty and have random rotations. Thirdly, it has the special starting tile D that
- * is drawn separately from the rest of the tiles in the deck.
+ * Represents a deck of tiles. It contains the list of tiles in the deck, which can
+ * be drawn from until empty and have random rotations. There is a special starting
+ * tile, which is always tile D, that is drawn separately from the rest of the tiles
+ * in the deck.
  *
  * @author Vincent Robinson
  */
 public class Deck {
-    /**
-     * The "master list" of tiles, which is the list from which all other tiles are
-     * copied from with createTile(). This allows specific tiles to be created at will,
-     * especially for testing purposes, without requiring TileImageProvider to be kept
-     * around.
-     */
-    private HashMap<Character, Tile> masterTiles;
-
     /**
      * The array of tiles in the deck, not including the starting tile. When tiles
      * are drawn, a random tile is chosen from anywhere in the array, which then
@@ -69,17 +60,6 @@ public class Deck {
     }
 
     /**
-     * Create an entirely new tile of the specified ID as a copy from the master list.
-     * It comes with the tile's default rotation, not a random rotation.
-     *
-     * @param id The ID of the tile to create, from 'A' to 'X'.
-     * @return The newly created tile.
-     */
-    public Tile createTile(char id) {
-        return new Tile(this.masterTiles.get(id));
-    }
-
-    /**
      * Converts the deck to a string representation showing all tiles in the deck.
      *
      * @return The string representation of the deck and all its tiles.
@@ -95,19 +75,10 @@ public class Deck {
     }
 
     /**
-     * Create a new deck by populating the master set from the image provider and then
-     * making copies of the tiles and adding them to the list of tiles.
-     *
-     * @param bitmapProvider The image provider containing all the tile images.
+     * Create a new deck by populating the deck with the proper number of each tile.
      */
-    public Deck(BitmapProvider bitmapProvider) {
-        this.masterTiles = new HashMap<>();
+    public Deck() {
         this.tiles = new ArrayList<>();
-
-        // Create the master list of tiles.
-        for (char id = 'A'; id <= 'X'; id++) {
-            this.masterTiles.put(id, new Tile(id, bitmapProvider));
-        }
 
         // Copy all the master tiles as many times as the tile appears according to
         // the manual.
@@ -140,7 +111,7 @@ public class Deck {
         assert this.tiles.size() == 71;
 
         // The starting tile is always D, so create it separately.
-        this.startingTile = new Tile('D', bitmapProvider);
+        this.startingTile = new Tile('D');
     }
 
     /**
@@ -149,7 +120,6 @@ public class Deck {
      * @param other The deck to make a deep copy of.
      */
     public Deck(Deck other) {
-        this.masterTiles = Util.deepCopyMap(other.masterTiles, HashMap::new, Tile::new);
         this.tiles = Util.deepCopyCol(other.tiles, ArrayList::new, Tile::new);
         this.startingTile = Util.copyOrNull(other.startingTile, Tile::new);
     }
@@ -163,8 +133,8 @@ public class Deck {
      */
     private void addTiles(char id, int num) {
         for (int i = 0; i < num; i++) {
-            Tile created = createTile(id);
-            // TODO created.rotateRandomly();
+            Tile created = new Tile(id);
+            created.rotateRandomly();
             this.tiles.add(created);
         }
     }

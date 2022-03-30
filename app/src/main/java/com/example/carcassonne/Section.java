@@ -1,5 +1,7 @@
 package com.example.carcassonne;
 
+import android.graphics.Point;
+
 import java.util.HashSet;
 
 public class Section {
@@ -35,11 +37,10 @@ public class Section {
     }
 
     public void rotate() {
-        // Figure out how much each part needs to be rotated.
         int type = getType();
 
-        int add;
-        int mod;
+        // Figure out how much each part needs to be rotated.
+        int add, mod;
         if (type == Tile.TYPE_ROAD) {
             // There are four roads, and each side has only one road.
             add = 1;
@@ -54,19 +55,19 @@ public class Section {
         }
 
         // Rotate each part in the set of parts.
-        HashSet<Integer> rotated = new HashSet<>();
+        HashSet<Integer> rotatedSet = new HashSet<>();
         for (int part : this.parts) {
             // Increasing the parts rotates them clockwise on the tile. The modulus
             // ensures that increasing it past the highest part number wraps it back
             // around to zero again.
-            rotated.add((part + add) % mod);
+            rotatedSet.add((part + add) % mod);
         }
-        this.parts = rotated;
+        this.parts = rotatedSet;
 
         // Rotate the meeple positions.
-        int temp = this.meepleX;
-        this.meepleX = Tile.SIZE - this.meepleY;
-        this.meepleY = temp;
+        Point rotatedPoint = Tile.rotatePointCW(meepleX, meepleY, 90);
+        this.meepleX = rotatedPoint.x;
+        this.meepleY = rotatedPoint.y;
     }
 
     @Override
