@@ -1,5 +1,6 @@
 package com.example.carcassonne;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 /**
@@ -285,6 +286,65 @@ public class Board {
     }
 
     /**
+     * Represents a single position and rotation of the current tile on the board that
+     * is valid.
+     */
+    public static class TilePlacement {
+        /** The X position of this valid placement. */
+        public int x;
+        /** The Y position of this valid placement. */
+        public int y;
+        /** The tile rotation of this valid placement. */
+        public int rotation;
+
+        /** Constructor, just fills in the data values. */
+        public TilePlacement(int x, int y, int rotation) {
+            this.x = x;
+            this.y = y;
+            this.rotation = rotation;
+        }
+    }
+
+    /**
+     * Searches through every position on the board and every rotation of the current tile
+     * and creates an array of all valid positions and rotations that the current tile can
+     * be placed in. It ignores meeples on the current tile.
+     *
+     * @return An array of all valid placements of the current tile.
+     */
+    public ArrayList<TilePlacement> getValidTilePlacements() {
+        // Backup the original position of the current tile since it will be changed.
+        int origX = this.currentTileX;
+        int origY = this.currentTileY;
+
+        ArrayList<TilePlacement> placements = new ArrayList<>();
+
+        // Loop through every position and rotation and check the tile placement.
+        for (int x = 0; x < getWidth(); x++) {
+            for (int y = 0; y < getHeight(); y++) {
+                for (int rot = 0; rot < 4; rot++) {
+                    this.currentTileX = x;
+                    this.currentTileY = y;
+                    this.currentTile.rotate();
+
+                    if (isCurrentTilePlacementValid()) {
+                        placements.add(new TilePlacement(
+                                this.currentTileX, this.currentTileY,
+                                this.currentTile.getRotation()));
+                    }
+                }
+            }
+        }
+
+        // Restore the current tile's position. Rotation automatically goes through a full
+        // 360 degrees each inner loop, so no need to restore it.
+        this.currentTileX = origX;
+        this.currentTileY = origY;
+
+        return placements;
+    }
+
+    /**
      * Converts the deck to a string representation showing all instance variables
      * and the positions of all tiles on the board.
      *
@@ -303,7 +363,7 @@ public class Board {
 
         for (int y = 0; y < getHeight(); y++) {
             for (int x = 0; x < getWidth(); x++) {
-                // Print the coordinates of each non-null tile on the board.
+                // Add the string of each non-null tile on the board.
                 Tile tile = this.tiles[y][x];
                 if (tile != null) {
                     toStr.add("tiles[" + y + "][" + x + "]", tile);

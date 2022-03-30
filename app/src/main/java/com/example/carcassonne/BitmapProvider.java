@@ -122,24 +122,4 @@ public class BitmapProvider {
     public MeepleBitmapData getMeeple(int player) {
         return this.meeples[player];
     }
-
-    public static int[][] toArray(Bitmap bitmap) {
-        /*
-         * External Citation
-         * Date: 24 March 2022
-         * Problem: Needed ways to extract pixel information from Bitmaps
-         * Resource:
-         *     https://developer.android.com/reference/android/graphics/Bitmap
-         * Solution: Used getWidth(), getHeight(), and getPixel()
-         */
-        int[][] arr = new int[bitmap.getHeight()][bitmap.getWidth()];
-
-        for (int y = 0; y < bitmap.getHeight(); y++) {
-            for (int x = 0; x < bitmap.getWidth(); x++) {
-                arr[y][x] = bitmap.getPixel(x, y);
-            }
-        }
-
-        return arr;
-    }
 }

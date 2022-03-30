@@ -155,12 +155,18 @@ public class CarcassonneGameState extends GameState {
 
     public void newTurn(int newPlayer) {
         this.currentPlayer = newPlayer;
-
         this.isPlacementStage = true;
 
-        // TODO: Check if there are no places the tile can be placed
-        if (!this.deck.isEmpty()) {
+        // Draw a new tile if the deck is not empty. If it is empty, the game will be
+        // over when LocalGame checks for the emptiness of the deck.
+        while (!this.deck.isEmpty()) {
             this.board.setCurrentTile(this.deck.drawTile(this.currentPlayer));
+
+            // If there is a valid tile placement for this tile, break since we've found
+            // our tile. Otherwise, continue to draw tiles.
+            if (this.board.getValidTilePlacements().size() != 0) {
+                break;
+            }
         }
     }
 

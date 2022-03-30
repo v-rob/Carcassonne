@@ -9,11 +9,15 @@ public class CarcassonneLocalGame extends LocalGame {
 
     public CarcassonneLocalGame() {
         // TODO: THIS IS GARBAGE! Make it take any number of players
-        this.gameState = new CarcassonneGameState(2);
+        // ??? this.gameState = new CarcassonneGameState(2);
     }
 
     @Override
     protected void sendUpdatedStateTo(GamePlayer player) {
+        if (this.gameState == null) {
+            this.gameState = new CarcassonneGameState(this.players.length);
+        }
+
         player.sendInfo(new CarcassonneGameState(this.gameState));
     }
 
