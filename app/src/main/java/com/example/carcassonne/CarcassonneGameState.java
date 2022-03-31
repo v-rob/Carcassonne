@@ -207,6 +207,9 @@ public class CarcassonneGameState extends GameState {
             this.isPlacementStage = false;
             return true;
         }
+
+        android.util.Log.i("", " false " );
+
         return false;
     }
 

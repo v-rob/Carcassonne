@@ -215,7 +215,7 @@ public class Board {
      */
     public boolean isCurrentTilePlacementValid() {
         // Out-of-bounds tiles are never valid.
-        if (outOfBounds(this.currentTileX, this.currentTileY)) {
+        if (outOfBounds(this.currentTileX, this.currentTileY) || getConfirmedTile(this.currentTileX, this.currentTileY) != null) {
             return false;
         }
 
