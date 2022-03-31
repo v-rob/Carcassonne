@@ -6,21 +6,30 @@ import java.util.ArrayList;
 
 
 /**
- * Creates the Carcassonne game to be played.
- * Includes the configuration of the game.
+ * The entrypoint for the game. It creates the default configuration for the game, the
+ * local game controlling the entire game, and the bitmap provider that provides the
+ * bitmaps to every part of the game that requires the game's images or resources.
  *
- *
- * @author DJ Backus
- * @author Vincent Robinson
- * @author Alex Martinex-Lopez
- * @author Cheyanne Yim
  * @author Sophie Arcangel
+ * @author DJ Backus
+ * @author Alex Martinez-Lopez
+ * @author Vincent Robinson
+ * @author Cheyanne Yim
  */
 public class CarcassonneMainActivity extends GameMainActivity {
     /**
      * The bitmap provider that provides bitmaps to every part of the game that requires
-     * them, namely to Tile through Deck, CarcassonneGameState, and CarcassonneLocalGame,
-     * and to BoardSurfaceView through CarcassonneHumanPlayer.
+     * them, namely Tile (for the map and section images), CarcassonneHumanPlayer (for
+     * the current tile image) and BoardSurfaceView (for the tile images, tile borders,
+     * and meeple images).
+     *
+     * This is static for very good reason: game state objects and objects contained in
+     * it must be entirely serializable, so no GUI objects. This makes it very difficult
+     * and hackish to store the bitmap provider elsewhere (especially with the organization
+     * of the game framework) and pass it up the call chain every time it is required
+     * somewhere. Additionally, it doesn't make much sense to make copies of the bitmap
+     * provider, and it should never be modified in general, so a static variable is the
+     * best solution and very low risk.
      */
     private static BitmapProvider bitmapProvider;
 
@@ -35,12 +44,20 @@ public class CarcassonneMainActivity extends GameMainActivity {
      * Solution: Copied the code from Pig's main activity and modified it for Carcassonne
      */
 
+    /**
+     * Create the default configuration for Carcassonne, which is one human and one
+     * dumb computer player. It also gives the game framework information about the
+     * maximum and minimum number of players.
+     *
+     * @return The default game configuration
+     */
     @Override
     public GameConfig createDefaultConfig() {
-        // Create the bitmap provider that everyone will use
+        // Create the bitmap provider that everyone will use now that we have a
+        // resources object, and before the game starts.
         bitmapProvider = new BitmapProvider(getResources());
 
-        // Define the allowed player types
+        // Define the allowed player types.
         ArrayList<GamePlayerType> playerTypes = new ArrayList<>();
 
         playerTypes.add(new GamePlayerType("Local Human Player") {
@@ -55,9 +72,11 @@ public class CarcassonneMainActivity extends GameMainActivity {
             }
         });
 
-        // Create a game configuration class for Carcassonne
+        // Create the game configuration object with the max and min number of players
+        // and the game name and add the default players to it.
         GameConfig defaultConfig = new GameConfig(playerTypes, 1,
                 CarcassonneGameState.MAX_PLAYERS, "Carcassonne", PORT_NUMBER);
+
         defaultConfig.addPlayer("Human", 0);
         defaultConfig.addPlayer("Computer", 1);
         defaultConfig.setRemoteData("Remote Human Player", "", 0);
@@ -65,11 +84,21 @@ public class CarcassonneMainActivity extends GameMainActivity {
         return defaultConfig;
     }
 
+    /**
+     * Create the local game class that controls Carcassonne.
+     *
+     * @return The new local game object.
+     */
     @Override
     public LocalGame createLocalGame() {
         return new CarcassonneLocalGame();
     }
 
+    /**
+     * Gets the global bitmap provider used by the entire game.
+     *
+     * @return The bitmap provider.
+     */
     public static BitmapProvider getBitmapProvider() {
         return bitmapProvider;
     }

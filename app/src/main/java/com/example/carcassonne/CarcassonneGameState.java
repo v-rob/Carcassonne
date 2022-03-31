@@ -3,34 +3,54 @@ package com.example.carcassonne;
 import com.example.carcassonne.infoMsg.GameState;
 
 /**
- * Represents the game state of Carcassonne that includes instance variables
- * that displays all the information of the current state of the game to help
- * the human user or the computer player to make decisions
+ * Represents the entire game state of Carcassonne, including the deck of tiles
+ * and the current state of the board, the list of player meeples and scores, the
+ * current player, and the current tile and its state.
  *
- * @author DJ Backus
  * @author Sophie Arcangel
+ * @author DJ Backus
  * @author Alex Martinez-Lopez
- * @author Cheyanne Yim,
  * @author Vincent Robinson
+ * @author Cheyanne Yim
  */
 public class CarcassonneGameState extends GameState {
+    /** The maximum number of players that are allowed to play Carcassonne. */
     public static final int MAX_PLAYERS = 5;
+    /** The number of meeples each player starts out with. */
     public static final int STARTING_MEEPLES = 7;
 
+    /** The number of players playing right now. */
     private int numPlayers;
 
+    /** The number of meeples each player has. */
     private int[] playerMeeples;
+
+    /**
+     * The completed score of each player, i.e. the score of all their completed
+     * cities, roads, and cloisters.
+     */
     private int[] playerCompleteScores;
+    /**
+     * The incomplete score of each player, i.e. the score they would get for their
+     * farms and incomplete cities, roads, and cloisters if the game were to end right
+     * now.
+     */
     private int[] playerIncompleteScores;
 
+    /** The player index of the player whose turn it is. */
     private int currentPlayer;
+    /** Whether the current player is currently placing tiles or meeples. */
     private boolean isPlacementStage;
 
+    /** The deck of tiles used this game. */
     private Deck deck;
+    /** The current state of the board and the current tile being played. */
     private Board board;
 
     /**
-     * Creates a new game state given the number of players the game has.
+     * Creates a new game state given the number of players the game has by filling
+     * out all instance variables to their defaults and starting a new turn for
+     * player 0.
      *
      * @param numPlayers The number of players the game has.
      */
@@ -82,9 +102,10 @@ public class CarcassonneGameState extends GameState {
     }
 
     /**
-     * Prints information on all instance variables
+     * Converts the game state to a string representation showing all instance
+     * variables.
      *
-     * @return a String with all relevant information on the state of the game
+     * @return The string representation of the tile.
      */
     @Override
     public String toString() {
@@ -102,26 +123,61 @@ public class CarcassonneGameState extends GameState {
         return toStr.toString();
     }
 
+    /**
+     * Gets the number of players playing the game right now.
+     *
+     * @return The number of players.
+     */
     public int getNumPlayers() {
         return this.numPlayers;
     }
 
+    /**
+     * Gets the number of meeples the specified player has.
+     *
+     * @param player The player to get the meeple number of.
+     * @return The number of meeples that player has.
+     */
     public int getPlayerMeeples(int player) {
         return this.playerMeeples[player];
     }
 
+    /**
+     * Gets the completed score of the specified player.
+     *
+     * @param player The player to get the completed score of.
+     * @return The completed score of that player.
+     */
     public int getPlayerCompleteScore(int player) {
         return this.playerCompleteScores[player];
     }
 
+    /**
+     * Gets the incomplete score of the specified player.
+     *
+     * @param player The player to get the incomplete score of.
+     * @return The incomplete score of that player.
+     */
     public int getPlayerIncompleteScore(int player) {
         return this.playerIncompleteScores[player];
     }
 
+    /**
+     * Gets the total score of the specified player, i.e. the sum of the complete
+     * and incomplete scores.
+     *
+     * @param player The player to get the full score of.
+     * @return The full score of that player.
+     */
     public int getPlayerScore(int player) {
         return this.getPlayerCompleteScore(player) + this.getPlayerIncompleteScore(player);
     }
 
+    /**
+     * Gets the index of the player whose turn it currently is.
+     *
+     * @return The index of the current player.
+     */
     public int getCurrentPlayer() {
         return this.currentPlayer;
     }
@@ -149,11 +205,119 @@ public class CarcassonneGameState extends GameState {
      *
      * @return The deck.
      */
-    public Deck getDeck(){
+    public Deck getDeck() {
         return this.deck;
     }
 
-    public void newTurn(int newPlayer) {
+    /**
+     * Called when the player places a tile at some X and Y position on the board.
+     *
+     * @param x The X position to place the tile at.
+     * @param y The Y position to place the tile at.
+     * @return True if it is the tile placement stage and it is valid to place a tile
+     *         at the specified position, false otherwise. If false, the game state
+     *         does not change.
+     */
+    public boolean placeTile(int x, int y) {
+        if (this.isPlacementStage && this.board.getConfirmedTile(x, y) == null) {
+            this.board.setCurrentTilePosition(x, y);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Called when the player rotates a tile a specified number of degrees.
+     *
+     * @return True if it is the tile placement stage, false otherwise. If false,
+     *         the game state does not change.
+     */
+    public boolean rotateTile(int rotation) {
+        if (this.isPlacementStage) {
+            this.board.getCurrentTile().setRotation(rotation);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Called when the player confirms their current tile placement and starts
+     * the meeple placement stage.
+     *
+     * @return True if it is the tile placement stage and the current tile's position
+     *         is valid, false otherwise. If false, the game state does not change.
+     */
+    public boolean confirmTile() {
+        if (this.isPlacementStage && this.board.isCurrentTilePlacementValid()) {
+            this.isPlacementStage = false;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Called when the player wishes to reset from meeple placement back to tile
+     * placement, removing any meeples currently on the tile.
+     *
+     * @return True if it is the meeple placement stage, false otherwise. If false,
+     *         the game state does not change.
+     */
+    public boolean resetTurn() {
+        if (!this.isPlacementStage) {
+            this.board.getCurrentTile().removeMeeple();
+            this.isPlacementStage = true;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Called when the player wishes to place a meeple on a tile at the specified
+     * X and Y pixel positions.
+     *
+     * @return True if it is the meeple placement stage and the player has enough
+     *         meeples, false otherwise. If false, the game state does not change.
+     */
+    public boolean placeMeeple(int x, int y) {
+        if (!this.isPlacementStage && this.playerMeeples[this.currentPlayer] > 0) {
+            this.board.getCurrentTile().setMeeple(x, y);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Called when the player wishes to confirm their meeple placement, finishing
+     * their turn and starting a new turn for the next player.
+     *
+     * @return True if it is the meeple placement stage and the meeple placement is
+     *         valid, false otherwise. If false, the game state will not be changed.
+     */
+    public boolean confirmMeeple() {
+        if (!this.isPlacementStage && this.board.isCurrentMeeplePlacementValid()) {
+            // Before we confirm and the current tile becomes null, subtract the meeple
+            // if the player placed one.
+            if (this.board.getCurrentTile().hasMeeple()) {
+                this.playerMeeples[this.currentPlayer]--;
+            }
+
+            // Confirm the tile and start a new turn.
+            this.board.confirmCurrentTile();
+            newTurn((currentPlayer + 1) % this.numPlayers);
+
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Starts a new turn by setting the current player to the specified player, setting
+     * the game to the placement stage, and drawing a new tile. If there is no valid
+     * placement for the drawn tile, more will be drawn until a valid one is found.
+     *
+     * @param newPlayer The index of the player whose turn it will be next.
+     */
+    private void newTurn(int newPlayer) {
         this.currentPlayer = newPlayer;
         this.isPlacementStage = true;
 
@@ -168,95 +332,5 @@ public class CarcassonneGameState extends GameState {
                 break;
             }
         }
-    }
-
-    /**
-     * All actions follow a similar format, first checking if it is the turn
-     * of the player taking that action.
-     *
-     * @return true if player places a tile and false otherwise
-     */
-    public boolean placeTile(int x, int y) {
-        if (isPlacementStage) {
-            this.board.setCurrentTilePosition(x,y);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Determine if the player wants to rotate the current tile
-     *
-     * @return true if the tile is rotated and false otherwise
-     */
-    public boolean rotateTile(int rotation) {
-        if (isPlacementStage) {
-            this.board.getCurrentTile().setRotation(rotation);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Determine if the player confirmed where they wanted to place the tile
-     *
-     * @return if the player confirmed the tile and if the tile placement is legal. False otherwise
-     */
-    public boolean confirmTile() {
-        if (isPlacementStage && board.isCurrentTilePlacementValid()) {
-            this.isPlacementStage = false;
-            return true;
-        }
-
-        android.util.Log.i("", " false " );
-
-        return false;
-    }
-
-    /**
-     * Determine whether or not the user wants to reset their turn to move the tile again
-     *
-     * @return true if player resets on current turn and false otherwise
-     */
-    public boolean resetTurn() {
-        this.board.getCurrentTile().removeMeeple();
-        this.isPlacementStage = true;
-        return true;
-    }
-
-    /**
-     * Determine if the player wants to place a Meeple on the tile that was just placed
-     *
-     * @return true if Meeple is placed and false otherwise
-     */
-    public boolean placeMeeple(int x, int y) {
-        if (!isPlacementStage && this.playerMeeples[this.currentPlayer] > 0) {
-            this.board.getCurrentTile().setMeeple(x, y);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Determine if the current player confirmed if they wanted to place a Meeple on the
-     * tile and where the player wanted to place
-     *
-     * @return true if the player placed a Meeple and if the placement is valid. False otherwise.
-     */
-    public boolean confirmMeeple() {
-        if (!isPlacementStage && board.isCurrentMeeplePlacementValid()) {
-            // Before we confirm and the current tile becomes null, subtract the meeple
-            // if the player placed one.
-            if (this.board.getCurrentTile().hasMeeple()) {
-                this.playerMeeples[this.currentPlayer]--;
-            }
-
-            this.board.confirmCurrentTile();
-
-            newTurn((currentPlayer + 1) % this.numPlayers);
-
-            return true;
-        }
-        return false;
     }
 }

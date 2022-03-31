@@ -31,9 +31,15 @@ public class Section {
      */
     private HashSet<Integer> parts;
 
-    /** The X display position that meeples in this section should have. */
+    /**
+     * The X display position that meeples in this section should have. It will always
+     * be inside this section in the map image.
+     */
     private int meepleX;
-    /** The Y display position that meeples in this section should have. */
+    /**
+     * The Y display position that meeples in this section should have. It will always
+     * be inside this section in the map image.
+     */
     private int meepleY;
 
     /**
@@ -77,7 +83,8 @@ public class Section {
     }
 
     /**
-     * Gets the X display position that meeples in this section should have.
+     * Gets the X display position that meeples in this section should have. It will
+     * always be inside this section in the map image.
      *
      * @return The X display position for meeples in this section.
      */
@@ -86,7 +93,8 @@ public class Section {
     }
 
     /**
-     * Gets the Y display position that meeples in this section should have.
+     * Gets the Y display position that meeples in this section should have. It will
+     * always be inside this section in the map image.
      *
      * @return The Y display position for meeples in this section.
      */

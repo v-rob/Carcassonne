@@ -3,22 +3,27 @@ package com.example.carcassonne;
 import com.example.carcassonne.actionMsg.GameAction;
 
 /**
- * This class represents the action of placing a Meeple in Carcassonne.
- * Uses the x,y positions to place the meeple in the correct spot on the tile.
+ * Action class that signifies that a player wishes to place a meeple on the current
+ * tile. It contains the X and Y pixel position to place it at.
  *
+ * @author Sophie Arcangel
+ * @author DJ Backus
+ * @author Alex Martinez-Lopez
+ * @author Vincent Robinson
  * @author Cheyanne Yim
  */
-
 public class CarcassonnePlaceMeepleAction extends GameAction {
+    /** The X pixel position on the tile to place the meeple at. */
     private int x;
+    /** The Y pixel position on the tile to place the meeple at. */
     private int y;
 
     /**
-     * Creates the action to be sent to GameState
+     * Constructs a new action for placing a meeple for the specified player.
      *
-     * @param player the player taking the action
-     * @param x x position on the tile
-     * @param y y position on the tile
+     * @param player The player performing the action.
+     * @param x      The X pixel position on the tile to place the meeple at.
+     * @param y      The Y pixel position on the tile to place the meeple at.
      */
     public CarcassonnePlaceMeepleAction(GamePlayer player, int x, int y) {
         super(player);
@@ -26,10 +31,20 @@ public class CarcassonnePlaceMeepleAction extends GameAction {
         this.y = y;
     }
 
+    /**
+     * Gets the X pixel position on the tile to place the meeple at.
+     *
+     * @return The X pixel position.
+     */
     int getX() {
         return this.x;
     }
 
+    /**
+     * Gets the Y pixel position on the tile to place the meeple at.
+     *
+     * @return The Y pixel position.
+     */
     int getY() {
         return this.y;
     }

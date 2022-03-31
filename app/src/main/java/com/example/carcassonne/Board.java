@@ -137,16 +137,14 @@ public class Board {
 
     /**
      * Sets the tile currently being placed to a new position. If the position is
-     * already occupied, nothing changes.
+     * already occupied, it is an error.
      *
      * @param x The X position to give the tile.
      * @param y The Y position to give the tile.
      */
     public void setCurrentTilePosition(int x, int y) {
         // Ensure this position is not already taken.
-        if (getConfirmedTile(x, y) != null) {
-            return;
-        }
+        assert getConfirmedTile(x, y) == null;
 
         this.currentTileX = x;
         this.currentTileY = y;
@@ -214,8 +212,9 @@ public class Board {
      * @return True if the current tile placement is valid, false otherwise.
      */
     public boolean isCurrentTilePlacementValid() {
-        // Out-of-bounds tiles are never valid.
-        if (outOfBounds(this.currentTileX, this.currentTileY) || getConfirmedTile(this.currentTileX, this.currentTileY) != null) {
+        // Out-of-bounds tiles or tiles that are already occupied are never valid.
+        if (outOfBounds(this.currentTileX, this.currentTileY) ||
+                getConfirmedTile(this.currentTileX, this.currentTileY) != null) {
             return false;
         }
 
@@ -256,8 +255,7 @@ public class Board {
             return true;
         }
 
-        // This must be a farm or city meeple: check all parts of the section it's in
-        // for other meeples.
+        // Otherwise, check all connected sections and see if there's another meeple.
 
         // Make one shared visited set across all calls to ensure everything is counted
         // exactly once.
@@ -269,8 +267,8 @@ public class Board {
                     part, visited);
         }
 
-        // If there's only one city/farm meeple in any of the connected sections, it
-        // must be the one on this tile.
+        // If there's only one meeple in any of the connected sections, it must be the
+        // one on this tile.
         return total == 1;
     }
 
@@ -489,8 +487,8 @@ public class Board {
      * @param visited A set of all tile sections that have already been visited. This
      *                is necessary to ensure sections don't get counted multiple times
      *                in an infinite recursion loop.
-     * @return The number of meeples in the current section or any sections connected to
-     *         it.
+     * @return The number of meeples in the current section or any sections connected
+     *         to it.
      */
     private int countSectionMeeples(int type, int x, int y, int part,
                                     HashSet<Section> visited) {
@@ -501,13 +499,12 @@ public class Board {
         }
 
         Section section;
-
-        if(type == Tile.TYPE_ROAD) {
+        if (type == Tile.TYPE_ROAD) {
             section = tile.getRoadSection(part);
-        }
-        else{
+        } else {
             section = tile.getSection(part);
         }
+
         // Don't count tiles we've already searched through so that we don't run
         // into infinite recursion.
         if (visited.contains(section)) {
@@ -524,14 +521,11 @@ public class Board {
 
         // Run this same function on all adjacent tiles connected to this section.
         for (int other_part : section.getParts()) {
-
-            if(section.getType() == Tile.TYPE_ROAD){
+            if (type == Tile.TYPE_ROAD) {
                 total += countSectionMeeples(type, x + Tile.roadPartXOffset(other_part),
                         y + Tile.roadPartYOffset(other_part), Tile.flipRoadPart(other_part),
                         visited);
-            }
-
-            else {
+            } else {
                 total += countSectionMeeples(type, x + Tile.partXOffset(other_part),
                         y + Tile.partYOffset(other_part), Tile.flipPart(other_part),
                         visited);
