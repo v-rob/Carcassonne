@@ -145,7 +145,8 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
 
     private void onClickRotateReset(View button) {
         if (this.gameState.isPlacementStage()) {
-            this.game.sendAction(new CarcassonneRotateTileAction(this));
+            gameState.getBoard().getCurrentTile().rotate();
+            this.game.sendAction(new CarcassonneRotateTileAction(this, gameState.getBoard().getCurrentTile().getRotation()));
         } else {
             this.game.sendAction(new CarcassonneResetTurnAction(this));
         }
@@ -160,7 +161,16 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
     }
 
     private void onClickQuit(View button) {
-        this.game.sendAction(new CarcassonneQuitGameAction(this));
+        /*
+         * External Citation
+         * Date: 28 March 2022
+         * Problem: Didn't know how to EXIT_ON_CLOSE from outside main activity, and JFrame
+         * Resource:
+         *     https://www.codegrepper.com/code-examples/java/quit+android+app+programmatically
+         * Solution: We found a method call that uses the action to close the app that
+         *     we decided to implement
+         */
+        android.os.Process.killProcess(android.os.Process.myPid());
     }
 
     private boolean onTouchTileImage(View view, MotionEvent event) {

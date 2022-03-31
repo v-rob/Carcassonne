@@ -9,7 +9,15 @@ import com.example.carcassonne.actionMsg.GameAction;
  */
 
 public class CarcassonneRotateTileAction extends GameAction {
-    public CarcassonneRotateTileAction(GamePlayer player) {
+    private int rotation;
+    public CarcassonneRotateTileAction(GamePlayer player, int rotate) {
         super(player);
+        rotation = rotate;
     }
+
+    public int getRotation(){
+        return rotation;
+    }
+
+
 }

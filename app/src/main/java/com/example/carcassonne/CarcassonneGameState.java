@@ -171,25 +171,6 @@ public class CarcassonneGameState extends GameState {
     }
 
     /**
-     * Determine whether or not to quit the game
-     *
-     * @return true if the game was quit and false otherwise
-     */
-    public boolean quitGame() {
-        /*
-         * External Citation
-         * Date: 28 March 2022
-         * Problem: Didn't know how to EXIT_ON_CLOSE from outside main activity, and JFrame
-         * Resource:
-         *     https://www.codegrepper.com/code-examples/java/quit+android+app+programmatically
-         * Solution: We found a method call that uses the action to close the app that
-         *     we decided to implement
-         */
-        android.os.Process.killProcess(android.os.Process.myPid());
-        return true;
-    }
-
-    /**
      * All actions follow a similar format, first checking if it is the turn
      * of the player taking that action.
      *
@@ -208,9 +189,9 @@ public class CarcassonneGameState extends GameState {
      *
      * @return true if the tile is rotated and false otherwise
      */
-    public boolean rotateTile() {
+    public boolean rotateTile(int rotation) {
         if (isPlacementStage) {
-            this.board.getCurrentTile().rotate();
+            this.board.getCurrentTile().setRotation(rotation);
             return true;
         }
         return false;

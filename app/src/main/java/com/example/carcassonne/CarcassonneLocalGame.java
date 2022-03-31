@@ -62,13 +62,12 @@ public class CarcassonneLocalGame extends LocalGame {
 
     @Override
     protected boolean makeMove(GameAction action) {
-        if (action instanceof CarcassonneQuitGameAction) {
-            return this.gameState.quitGame();
-        } else if (action instanceof CarcassonnePlaceTileAction) {
+        if (action instanceof CarcassonnePlaceTileAction) {
             CarcassonnePlaceTileAction placeTileAction = (CarcassonnePlaceTileAction)action;
             return this.gameState.placeTile(placeTileAction.getX(), placeTileAction.getY());
         } else if (action instanceof CarcassonneRotateTileAction) {
-            return this.gameState.rotateTile();
+            CarcassonneRotateTileAction rotateTileAction = (CarcassonneRotateTileAction)action;
+            return this.gameState.rotateTile(((CarcassonneRotateTileAction) action).getRotation());
         } else if (action instanceof CarcassonneConfirmTileAction) {
             return this.gameState.confirmTile();
         } else if (action instanceof CarcassonneResetTurnAction) {
