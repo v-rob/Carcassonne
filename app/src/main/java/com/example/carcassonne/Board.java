@@ -255,12 +255,6 @@ public class Board {
             // a cloister.
             return true;
         }
-        else if (type == Tile.TYPE_ROAD) {
-            // If there's only one road meeple anywhere along this road, it must be
-            // the one on this tile.
-            return 1 == countRoadMeeples(this.currentTileX, this.currentTileY,
-                    new HashSet<>());
-        }
 
         // This must be a farm or city meeple: check all parts of the section it's in
         // for other meeples.
@@ -484,47 +478,6 @@ public class Board {
     }
 
     /**
-     * Recursive function to count all meeples on any roads connected to the tile
-     * at the specified position. It is useful to tell whether road meeple placement
-     * is valid or not.
-     *
-     * @param x       The X position of the tile to check for this recursive call.
-     * @param y       The Y position of the tile to check for this recursive call.
-     * @param visited A set of all tiles that have already been visited. This is
-     *                necessary to ensure tiles don't get counted multiple times in
-     *                an infinite recursion loop.
-     * @return The number of meeples anywhere on the road.
-     */
-    private int countRoadMeeples(int x, int y, HashSet<Tile> visited) {
-        Tile tile = getTile(x, y);
-
-        // Ignore non-existent tiles and don't count tiles we've already searched
-        // through so that we don't run into infinite recursion.
-        if (tile == null || visited.contains(tile)) {
-            return 0;
-        }
-        visited.add(tile);
-
-        int total = 0;
-
-        // Add the meeple from the current tile if it's a road meeple
-        if (tile.getMeepleType() == Tile.TYPE_ROAD) {
-            total++;
-        }
-
-        // Run this same function on all adjacent tiles connected to this tile
-        // via roads.
-        for (Section section : tile.getSectionsByType(Tile.TYPE_ROAD)) {
-            for (int other_road : section.getParts()) {
-                total += countRoadMeeples(x + Tile.roadPartXOffset(other_road),
-                        y + Tile.roadPartYOffset(other_road), visited);
-            }
-        }
-
-        return total;
-    }
-
-    /**
      * Recursive function to count all meeples on any sections (city or farm) connected
      * to the specified section on this tile. It is useful to tell whether city or farm
      * meeple placement is valid.
@@ -547,8 +500,14 @@ public class Board {
             return 0;
         }
 
-        Section section = tile.getSection(part);
+        Section section;
 
+        if(type == Tile.TYPE_ROAD) {
+            section = tile.getRoadSection(part);
+        }
+        else{
+            section = tile.getSection(part);
+        }
         // Don't count tiles we've already searched through so that we don't run
         // into infinite recursion.
         if (visited.contains(section)) {
@@ -564,12 +523,15 @@ public class Board {
         }
 
         // Run this same function on all adjacent tiles connected to this section.
-        for (Section other_section : tile.getSections()) {
-            if (!section.isFarmOrCity()) {
-                continue;
+        for (int other_part : section.getParts()) {
+
+            if(section.getType() == Tile.TYPE_ROAD){
+                total += countSectionMeeples(type, x + Tile.roadPartXOffset(other_part),
+                        y + Tile.roadPartYOffset(other_part), Tile.flipRoadPart(other_part),
+                        visited);
             }
 
-            for (int other_part : other_section.getParts()) {
+            else {
                 total += countSectionMeeples(type, x + Tile.partXOffset(other_part),
                         y + Tile.partYOffset(other_part), Tile.flipPart(other_part),
                         visited);
