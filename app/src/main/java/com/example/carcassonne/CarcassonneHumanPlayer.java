@@ -59,6 +59,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         this.boardSurfaceView.setGameState(this.gameState);
 
         for (int i = 0; i < this.gameState.getNumPlayers(); i++) {
+            // TODO: Show potential scores if the tile is confirmed?
             this.playerNameTextViews[i].setText(this.allPlayerNames[i]);
             this.meepleCountTextViews[i].setText("Meeples: " + this.gameState.getPlayerMeeples(i));
             this.scoreTextViews[i].setText("Score: " + this.gameState.getPlayerCompleteScore(i) +
@@ -77,7 +78,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         if (currentTile != null) {
             BitmapProvider bitmapProvider = CarcassonneMainActivity.getBitmapProvider();
             this.currentTileImageView.setImageResource(
-                    bitmapProvider.getTile(currentTile.getId()).tile.resource);
+                    bitmapProvider.getTile(currentTile.getId()).visual.resource);
 
             // TODO: Also draw meeples on current tile
             this.currentTileImageView.setRotation(currentTile.getRotation());

@@ -2,6 +2,7 @@ package com.example.carcassonne;
 
 import java.util.HashSet;
 
+// OLD: Only exists so the unfinished Analysis classes still build. Will be removed later.
 /**
  * Represents the "board" of tiles, i.e. all the tiles in play, including the special
  * current tile that is not fully committed to the board, if there is one. Any positions

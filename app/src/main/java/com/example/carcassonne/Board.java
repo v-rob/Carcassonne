@@ -16,7 +16,11 @@ import java.util.HashSet;
  * All logic for tile and placement and scoring takes place in the Analysis class and
  * its subclasses in this file, which get accessed through methods in Board.
  *
+ * @author Sophie Arcangel
+ * @author DJ Backus
+ * @author Alex Martinez-Lopez
  * @author Vincent Robinson
+ * @author Cheyanne Yim
  */
 public class Board {
     /**
@@ -286,18 +290,23 @@ public class Board {
     }
 
     /**
-     * Represents a single position and rotation of the current tile on the board that
-     * is valid.
+     * Represents a single position and rotation of the current tile on the board.
      */
     public static class TilePlacement {
-        /** The X position of this valid placement. */
+        /** The X position of this placement. */
         public int x;
-        /** The Y position of this valid placement. */
+        /** The Y position of this placement. */
         public int y;
-        /** The tile rotation of this valid placement. */
+        /** The tile rotation of this placement. */
         public int rotation;
 
-        /** Constructor, just fills in the data values. */
+        /**
+         * Constructor; just fills in the data values of the same name.
+         *
+         * @param x        The X position of this placement.
+         * @param y        The Y position of this placement.
+         * @param rotation The tile rotation of this placement.
+         */
         public TilePlacement(int x, int y, int rotation) {
             this.x = x;
             this.y = y;
@@ -313,7 +322,7 @@ public class Board {
      * @return An array of all valid placements of the current tile.
      */
     public ArrayList<TilePlacement> getValidTilePlacements() {
-        // Backup the original position of the current tile since it will be changed.
+        // Back up the original position of the current tile since it will be changed.
         int origX = this.currentTileX;
         int origY = this.currentTileY;
 
@@ -323,10 +332,12 @@ public class Board {
         for (int x = 0; x < getWidth(); x++) {
             for (int y = 0; y < getHeight(); y++) {
                 for (int rot = 0; rot < 4; rot++) {
+                    // Set the current tile to these parameters.
                     this.currentTileX = x;
                     this.currentTileY = y;
                     this.currentTile.rotate();
 
+                    // If the placement is valid, add it to the array of valid placements.
                     if (isCurrentTilePlacementValid()) {
                         placements.add(new TilePlacement(
                                 this.currentTileX, this.currentTileY,
@@ -468,8 +479,8 @@ public class Board {
                 tile.getSection(Tile.flipPart(secondPart)).getType();
 
         // Check whether the roads match up.
-        adjacent.isValid &= (this.currentTile.getRoadSection(roadPart) == null) ==
-                (tile.getRoadSection(Tile.flipRoadPart(roadPart)) == null);
+        adjacent.isValid &= this.currentTile.hasRoad(roadPart) ==
+                tile.hasRoad(Tile.flipRoadPart(roadPart));
     }
 
     /**
@@ -503,11 +514,7 @@ public class Board {
 
         // Run this same function on all adjacent tiles connected to this tile
         // via roads.
-        for (Section section : tile.getSections()) {
-            if (section.getType() != Tile.TYPE_ROAD) {
-                continue;
-            }
-
+        for (Section section : tile.getSectionsByType(Tile.TYPE_ROAD)) {
             for (int other_road : section.getParts()) {
                 total += countRoadMeeples(x + Tile.roadPartXOffset(other_road),
                         y + Tile.roadPartYOffset(other_road), visited);
@@ -558,7 +565,7 @@ public class Board {
 
         // Run this same function on all adjacent tiles connected to this section.
         for (Section other_section : tile.getSections()) {
-            if (section.isFarmOrCity()) {
+            if (!section.isFarmOrCity()) {
                 continue;
             }
 

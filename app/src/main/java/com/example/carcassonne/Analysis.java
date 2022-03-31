@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+// IN PROGRESS: NOT TO BE USED YET
 public abstract class Analysis {
     protected BoardOLD board;
     protected TileOLD start;

@@ -3,6 +3,7 @@ package com.example.carcassonne;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+// IN PROGRESS: NOT TO BE USED YET
 public class SectionAnalysis extends Analysis {
     private int type;
     private int pennantCount;

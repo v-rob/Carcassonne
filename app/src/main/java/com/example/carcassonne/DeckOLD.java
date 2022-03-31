@@ -2,6 +2,7 @@ package com.example.carcassonne;
 
 import java.util.ArrayList;
 
+// OLD: Only exists so the unfinished Analysis classes still build. Will be removed later.
 /**
  * Represents a deck of Tiles that can be drawn from until empty. The Deck also
  * contains the special starting tile, which is drawn separately from the rest

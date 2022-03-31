@@ -2,6 +2,7 @@ package com.example.carcassonne;
 
 import java.util.HashSet;
 
+// OLD: Only exists so the unfinished Analysis classes still build. Will be removed later.
 /**
  * Represents a single Carcassonne tile. Carcassonne's main complexity lies in
  * how things connect: for instance, farmland connects to farmland on different

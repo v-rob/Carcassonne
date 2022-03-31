@@ -9,7 +9,11 @@ import java.util.HashMap;
  * tile, which is always tile D, that is drawn separately from the rest of the tiles
  * in the deck.
  *
+ * @author Sophie Arcangel
+ * @author DJ Backus
+ * @author Alex Martinez-Lopez
  * @author Vincent Robinson
+ * @author Cheyanne Yim
  */
 public class Deck {
     /**
@@ -134,7 +138,10 @@ public class Deck {
     private void addTiles(char id, int num) {
         for (int i = 0; i < num; i++) {
             Tile created = new Tile(id);
-            created.rotateRandomly();
+
+            // Rotate to some multiple of 90 between 0 and 270
+            created.setRotation((int)(Math.random() * 4) * 90);
+
             this.tiles.add(created);
         }
     }

@@ -14,7 +14,11 @@ import android.graphics.Canvas;
  * Draws the entire main game board containing the tiles, and also includes information
  * about the scrolling of the board.
  *
- * @author Vincent Robinson, Sophie Arcangel
+ * @author Sophie Arcangel
+ * @author DJ Backus
+ * @author Alex Martinez-Lopez
+ * @author Vincent Robinson
+ * @author Cheyanne Yim
  */
 public class BoardSurfaceView extends SurfaceView {
     /**
@@ -181,7 +185,7 @@ public class BoardSurfaceView extends SurfaceView {
                     tileBitmap = bitmapProvider.getEmptyTile().bitmap;
                 } else {
                     // Otherwise, get the proper tile bitmap.
-                    tileBitmap = bitmapProvider.getTile(tile.getId()).tile.bitmap;
+                    tileBitmap = bitmapProvider.getTile(tile.getId()).visual.bitmap;
                 }
 
                 /*
@@ -248,7 +252,7 @@ public class BoardSurfaceView extends SurfaceView {
                 // Farmers have their own special bitmaps, so select the correct one.
                 Bitmap meepleBitmap = meepleSection.getType() == Tile.TYPE_FARM ?
                         bitmapData.farmer.bitmap :
-                        bitmapData.meeple.bitmap;
+                        bitmapData.normal.bitmap;
 
                 // Draw the meeple centered at the meeple position for the section it's in.
                 float width = meepleBitmap.getWidth();

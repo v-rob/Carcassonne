@@ -16,55 +16,122 @@ import java.util.HashMap;
  *           So, move all the image resources there.
  */
 
+/**
+ * Class that loads and holds all bitmaps and image resources used by the game. There is
+ * only a single BitmapProvider for the entire game, which can be retrieved via
+ * CarcassonneMainActivity.getBitmapProvider().
+ *
+ * @author Sophie Arcangel
+ * @author DJ Backus
+ * @author Alex Martinez-Lopez
+ * @author Vincent Robinson
+ * @author Cheyanne Yim
+ */
 public class BitmapProvider {
+    // TODO: Lazy loading instead of all at once? It may speed up game starting.
+    /**
+     * Holds the data for a single bitmap, namely the bitmap and its resource. All
+     * instance variables are public, but they are final as they should not be modified.
+     */
     public class BitmapData {
-        public int resource;
-        public Bitmap bitmap;
+        /** The resource for this bitmap. */
+        public final int resource;
+        /** The actual loaded bitmap. */
+        public final Bitmap bitmap;
 
-        public BitmapData(int resource) {
+        /**
+         * Creates a new BitmapData, loading the bitmap from the specified resource.
+         *
+         * @param resource The resource to load the bitmap from.
+         */
+        private BitmapData(int resource) {
             this.resource = resource;
             this.bitmap = BitmapFactory.decodeResource(resources, resource);
         }
     }
 
+    /**
+     * Holds the three bitmaps relevant for each tile, namely the meeple placement map
+     * bitmap, the section connection and meeple position bitmap, and the visual bitmap
+     * that the user sees. Similarly to BitmapData, the variables may not be modified.
+     */
     public class TileBitmapData {
-        public BitmapData map;
-        public BitmapData section;
-        public BitmapData tile;
+        /** The meeple placement collision map bitmap. */
+        public final BitmapData map;
+        /** The section connection and meeple position bitmap. */
+        public final BitmapData section;
+        /** The visual bitmap that the user sees. */
+        public final BitmapData visual;
 
-        public TileBitmapData(int mapRes, int sectionRes, int tileRes) {
+        /**
+         * Creates a new TileBitmapData, loading each bitmap from its proper resource.
+         *
+         * @param mapRes     The resource of the map bitmap.
+         * @param sectionRes The resource of the section bitmap.
+         * @param visualRes  The resource of the visual bitmap.
+         */
+        private TileBitmapData(int mapRes, int sectionRes, int visualRes) {
             this.map = new BitmapData(mapRes);
             this.section = new BitmapData(sectionRes);
-            this.tile = new BitmapData(tileRes);
+            this.visual = new BitmapData(visualRes);
         }
     }
 
+    /**
+     * Holds the bitmaps for a single color of meeple, namely the normal upright meeple
+     * and the laying down farmer meeple.
+     */
     public class MeepleBitmapData {
-        public BitmapData meeple;
-        public BitmapData farmer;
+        /** The normal upright meeple bitmap. */
+        public final BitmapData normal;
+        /** The laying down farmer meeple. */
+        public final BitmapData farmer;
 
-        public MeepleBitmapData(int meepleRes, int farmerRes) {
-            this.meeple = new BitmapData(meepleRes);
+        /**
+         * Creates a new MeepleBitmapData, loading each bitmap from its proper resource.
+         *
+         * @param normalRes The resource of the normal meeple bitmap.
+         * @param farmerRes The resource of the farmer meeple bitmap.
+         */
+        private MeepleBitmapData(int normalRes, int farmerRes) {
+            this.normal = new BitmapData(normalRes);
             this.farmer = new BitmapData(farmerRes);
         }
     }
 
+    /**
+     * The Resources object containing the resources of Carcassonne. Note that the
+     * BitmapData classes are not static so that they can access this object from their
+     * parent BitmapProvider.
+     */
     private Resources resources;
 
+    /** A map of tile IDs to tile bitmap data. */
     private HashMap<Character, TileBitmapData> tiles;
 
+    /** The bitmap for the empty tile. */
     private BitmapData emptyTile;
 
+    /** The bitmap for the valid border around the current tile. */
     private BitmapData validBorder;
+    /** The bitmap for the invalid border around the current tile. */
     private BitmapData invalidBorder;
 
+    /** The array of player IDs to meeple bitmap data. */
     MeepleBitmapData[] meeples;
 
+    /**
+     * Construct a new BitmapData object from the provided pack of resources. Only one
+     * BitmapData should ever be created, namely by CarcassonneMainActivity.
+     *
+     * @param resources The pack of resources to load the resources from.
+     */
     public BitmapProvider(Resources resources) {
         this.resources = resources;
 
+        // Fill out the tile bitmap data. There is unfortunately no cleaner way to do
+        // this than hardcoding all the IDs.
         this.tiles = new HashMap<>();
-        this.meeples = new MeepleBitmapData[CarcassonneGameState.MAX_PLAYERS];
 
         this.tiles.put('A', new TileBitmapData(R.drawable.map_a, R.drawable.section_a, R.drawable.tile_a));
         this.tiles.put('B', new TileBitmapData(R.drawable.map_b, R.drawable.section_b, R.drawable.tile_b));
@@ -91,10 +158,14 @@ public class BitmapProvider {
         this.tiles.put('W', new TileBitmapData(R.drawable.map_w, R.drawable.section_w, R.drawable.tile_w));
         this.tiles.put('X', new TileBitmapData(R.drawable.map_x, R.drawable.section_x, R.drawable.tile_x));
 
+        // Fill out other standalone bitmaps.
         this.emptyTile = new BitmapData(R.drawable.tile_empty);
 
         this.validBorder = new BitmapData(R.drawable.border_valid);
         this.invalidBorder = new BitmapData(R.drawable.border_invalid);
+
+        // Finally, fill out the meeple bitmap data.
+        this.meeples = new MeepleBitmapData[CarcassonneGameState.MAX_PLAYERS];
 
         this.meeples[0] = new MeepleBitmapData(R.drawable.meeple_blue,   R.drawable.farmer_blue);
         this.meeples[1] = new MeepleBitmapData(R.drawable.meeple_yellow, R.drawable.farmer_yellow);
@@ -103,22 +174,51 @@ public class BitmapProvider {
         this.meeples[4] = new MeepleBitmapData(R.drawable.meeple_black,  R.drawable.farmer_black);
     }
 
+    /**
+     * Get the tile bitmap data for the tile with the specified ID.
+     *
+     * @param id The tile ID to get the bitmap data for, from A-X
+     * @return The tile bitmap data for that ID.
+     */
     public TileBitmapData getTile(char id) {
         return this.tiles.get(id);
     }
 
+    /**
+     * Retrieve the bitmap data for an empty (null) tile on the board.
+     *
+     * @return The empty tile bitmap data.
+     */
     public BitmapData getEmptyTile() {
         return this.emptyTile;
     }
 
+    /**
+     * Retrieve the bitmap data for the border around the current tile when its
+     * placement is valid.
+     *
+     * @return The valid tile border.
+     */
     public BitmapData getValidBorder() {
         return this.validBorder;
     }
 
+    /**
+     * Retrieve the bitmap data for the border around the current tile when its
+     * placement is invalid.
+     *
+     * @return The invalid tile border.
+     */
     public BitmapData getInvalidBorder() {
         return this.invalidBorder;
     }
 
+    /**
+     * Return the meeple bitmap data associated with the specified player.
+     *
+     * @param player The player to get the meeples for. This determines the color.
+     * @return The meeple bitmap data for that player.
+     */
     public MeepleBitmapData getMeeple(int player) {
         return this.meeples[player];
     }
