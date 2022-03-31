@@ -7,13 +7,9 @@ import java.util.ArrayList;
 public class CarcassonneLocalGame extends LocalGame {
     private CarcassonneGameState gameState;
 
-    public CarcassonneLocalGame() {
-        // TODO: THIS IS GARBAGE! Make it take any number of players
-        // ??? this.gameState = new CarcassonneGameState(2);
-    }
-
     @Override
     protected void sendUpdatedStateTo(GamePlayer player) {
+        // We have to create the game state here
         if (this.gameState == null) {
             this.gameState = new CarcassonneGameState(this.players.length);
         }
@@ -47,9 +43,9 @@ public class CarcassonneLocalGame extends LocalGame {
             for (int i = 0; i < highestNames.size(); i++) {
                 names.append(highestNames.get(i));
 
-                if (i < highestNames.size() - 1) {
+                if (i < highestNames.size() - 2) {
                     names.append(", ");
-                } else if (i == highestNames.size() - 1) {
+                } else if (i == highestNames.size() - 2) {
                     names.append(", and ");
                 }
             }

@@ -123,6 +123,8 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         meepleCountTextViews = new TextView[CarcassonneGameState.MAX_PLAYERS];
 
         // TODO: Hide players that aren't playing
+        // TODO: Show whose turn it is
+        // TODO: Show how many tiles are left
 
         for (int i = 0; i < CarcassonneGameState.MAX_PLAYERS; i++) {
             playerNameTextViews[i] = activity.findViewById(PLAYER_NAME_RESOURCES[i]);

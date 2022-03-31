@@ -99,6 +99,7 @@ public class BoardSurfaceView extends SurfaceView {
         // TODO: Don't jerk when adding to left/top
         // TODO: Allow placing meeple from board
         // TODO: Prettify board?
+        // TODO: Allow scaling
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_UP:
