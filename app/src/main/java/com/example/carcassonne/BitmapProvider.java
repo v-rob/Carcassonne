@@ -28,7 +28,6 @@ import java.util.HashMap;
  * @author Cheyanne Yim
  */
 public class BitmapProvider {
-    // TODO: Lazy loading instead of all at once? It may speed up game starting.
     /**
      * Holds the data for a single bitmap, namely the bitmap and its resource. All
      * instance variables are public, but they are final as they should not be modified.

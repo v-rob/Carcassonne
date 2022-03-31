@@ -123,6 +123,12 @@ import java.util.HashSet;
  * who placed the tile (and therefore owns the meeple). Tiles also keep track of
  * their ID (for looking up map images in BitmapProvider) and their rotation in
  * degrees (for rendering).
+ *
+ * @author Sophie Arcangel
+ * @author DJ Backus
+ * @author Alex Martinez-Lopez
+ * @author Vincent Robinson
+ * @author Cheyanne Yim
  */
 public class Tile {
     /** The size of every tile image, which is 292 pixels. */
@@ -168,7 +174,7 @@ public class Tile {
      * Constant returned from getMeepleType() to indicate that there is no meeple on
      * the tile.
      */
-    public static final int TYPE_NONE = 0;
+    public static final int NO_TYPE = 0;
 
     /**
      * A color constant (pure white) that indicates that there is no meeple on this tile.
@@ -476,7 +482,7 @@ public class Tile {
     public int getMeepleType() {
         Section meepleSection = getMeepleSection();
         if (meepleSection == null) {
-            return TYPE_NONE;
+            return NO_TYPE;
         }
         return meepleSection.getType();
     }
@@ -563,8 +569,10 @@ public class Tile {
     }
 
     /**
-     * Create a new tile from the specified ID. The tile will load its sections from the
+     * Creates a new tile from the specified ID. The tile will load its sections from the
      * section image. It will have no owner, no meeple, and a rotation of zero.
+     *
+     * @param id The ID of the tile to create.
      */
     public Tile(char id) {
         this.id = id;
@@ -583,7 +591,7 @@ public class Tile {
 
         // Run all the parsers on the section bitmap to load all the necessary information.
         parseSectionPositions(sectionBitmap);
-        parseSectionConnections(sectionBitmap);
+        parseSectionParts(sectionBitmap);
         parseSectionSpecials(sectionBitmap);
     }
 
@@ -625,7 +633,7 @@ public class Tile {
 
         // If it's any other color, the images are invalid.
         assert false;
-        return TYPE_NONE;
+        return NO_TYPE;
     }
 
     /**
@@ -725,7 +733,7 @@ public class Tile {
      *
      * @param sectionBitmap The section image for this tile.
      */
-    private void parseSectionConnections(Bitmap sectionBitmap) {
+    private void parseSectionParts(Bitmap sectionBitmap) {
         // Iterate over all the positions that we need to look at.
         for (SectionConn sectionConn : PART_POSITIONS) {
             int color = sectionBitmap.getPixel(sectionConn.x, sectionConn.y);

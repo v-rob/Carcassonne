@@ -97,6 +97,8 @@ public class BoardSurfaceView extends SurfaceView {
         // TODO: Don't allow scrolling out of bounds
         // TODO: Center scrolling initially
         // TODO: Don't jerk when adding to left/top
+        // TODO: Allow placing meeple from board
+        // TODO: Prettify board?
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_UP:

@@ -249,7 +249,7 @@ public class Board {
 
         int type = this.currentTile.getMeepleType();
 
-        if (type == Tile.TYPE_NONE || type == Tile.TYPE_CLOISTER) {
+        if (type == Tile.NO_TYPE || type == Tile.TYPE_CLOISTER) {
             // If there's no meeple or it's a monk, the placement is always valid.
             // It should be impossible for a monk to ever be placed on a tile without
             // a cloister.
