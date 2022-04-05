@@ -715,10 +715,10 @@ public class Tile {
             new SectionConn(false, 1, SIZE * 3 / 4, 0),
             new SectionConn(false, 2, SIZE - 1,     SIZE / 4),
             new SectionConn(false, 3, SIZE - 1,     SIZE * 3 / 4),
-            new SectionConn(false, 4, SIZE / 4,     SIZE - 1),
-            new SectionConn(false, 5, SIZE * 3 / 4, SIZE - 1),
-            new SectionConn(false, 6, 0,             SIZE / 4),
-            new SectionConn(false, 7, 0,             SIZE * 3 / 4),
+            new SectionConn(false, 4, SIZE * 3 / 4, SIZE - 1),
+            new SectionConn(false, 5, SIZE / 4,     SIZE - 1),
+            new SectionConn(false, 6, 0,            SIZE * 3 / 4),
+            new SectionConn(false, 7, 0,            SIZE / 4),
 
             // Road parts
             new SectionConn(true, 0, SIZE / 2, 0),
