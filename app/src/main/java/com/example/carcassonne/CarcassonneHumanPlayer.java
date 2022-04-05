@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 /**
  * Represents a human player for Carcassonne, mainly consisting of GUI objects and
@@ -99,7 +100,20 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
     @Override
     public void receiveInfo(GameInfo info) {
         if (!(info instanceof CarcassonneGameState)) {
-            flash(0xFFBF0000, 100);
+            /* External Citation
+             * Date: 4 April 2022
+             * Problem: Wanted a nicer (and less buggy) thing than flashes
+             * Resource:
+             *     https://developer.android.com/guide/topics/ui/notifiers/toasts#java
+             * Solution: Used Toast.makeText().show().
+             *
+             * Flashes aren't very nice in terms of looks, and they're also buggy because
+             * receiving two invalid infos in quick succession causes a race condition
+             * between two flashes, causing the screen to get stuck at red. So, use toasts
+             * instead, which look nicer as well.
+             */
+            Toast.makeText(this.activity.getApplicationContext(), "That move's invalid.",
+                    Toast.LENGTH_SHORT).show();
             return;
         }
 
