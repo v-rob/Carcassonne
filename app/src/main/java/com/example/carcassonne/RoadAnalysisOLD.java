@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 // IN PROGRESS: NOT TO BE USED YET
-public class RoadAnalysis extends Analysis {
+public class RoadAnalysisOLD extends AnalysisOLD {
     private static class RoadEnd {
         public int x;
         public int y;
@@ -115,7 +115,7 @@ public class RoadAnalysis extends Analysis {
         }
     }
 
-    public RoadAnalysis(BoardOLD board) {
+    public RoadAnalysisOLD(BoardOLD board) {
         super(board);
 
         this.visited = new HashSet<>();
@@ -129,7 +129,7 @@ public class RoadAnalysis extends Analysis {
                 continue;
             }
 
-            Scorers scorers = Analysis.getScorers(subRoad.meeples);
+            Scorers scorers = AnalysisOLD.getScorers(subRoad.meeples);
             if (!scorers.players.contains(player)) {
                 continue;
             }

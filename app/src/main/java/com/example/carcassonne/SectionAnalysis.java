@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 // IN PROGRESS: NOT TO BE USED YET
-public class SectionAnalysis extends Analysis {
+public class SectionAnalysis extends AnalysisOLD {
     private int type;
     private int pennantCount;
     private boolean complete;
@@ -66,7 +66,7 @@ public class SectionAnalysis extends Analysis {
             return 0;
         }
 
-        Scorers scorers = Analysis.getScorers(this.meeples);
+        Scorers scorers = AnalysisOLD.getScorers(this.meeples);
         if (!scorers.players.contains(player)) {
             return 0;
         }

@@ -1,63 +1,69 @@
 package com.example.carcassonne;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 
-// IN PROGRESS: NOT TO BE USED YET
 public abstract class Analysis {
-    protected BoardOLD board;
-    protected TileOLD start;
+    protected Board board;
+
+    protected Tile startTile;
+    protected Section startSection;
+
+    public abstract boolean isComplete();
 
     public abstract boolean isMeepleValid();
 
     public abstract int getCompleteScore(int player);
     public abstract int getIncompleteScore(int player);
 
-    public abstract ArrayList<TileOLD> getCompletedMeeples();
+    public abstract ArrayList<Tile> getCompletedMeeples();
 
-    public Analysis(BoardOLD board) {
+    protected abstract void runAnalysis(int x, int y, int part);
+
+    public Analysis(Board board, int x, int y, Section startSection) {
         this.board = board;
+        this.startTile = board.getTile(x, y);
+        this.startSection = startSection;
     }
 
-    public static class Scorers {
-        public int score;
-        public HashSet<Integer> players;
-
-        public Scorers() {
-            this.score = 0;
-            this.players = new HashSet<>();
+    public static Analysis create(Board board, int x, int y, Section startSection) {
+        switch (startSection.getType()) {
+            case Tile.TYPE_FARM:
+                return new FarmAnalysis(board, x, y, startSection);
+            case Tile.TYPE_CITY:
+                return new CityRoadAnalysis(board, x, y, startSection, true);
+            case Tile.TYPE_ROAD:
+                return new CityRoadAnalysis(board, x, y, startSection, false);
+            case Tile.TYPE_CLOISTER:
+                return new CloisterAnalysis(board, x, y, startSection);
         }
+
+        // Shouldn't be able to happen.
+        assert false;
+        return null;
     }
 
-    public static Scorers getScorers(ArrayList<TileOLD> meeples) {
-        HashMap<Integer, Integer> playerMeeples = new HashMap<>();
-
-        for (TileOLD tile : meeples) {
-            int owner = tile.getOwner();
-            playerMeeples.put(owner, getOrDefault(playerMeeples, owner, 0) + 1);
+    protected static ArrayList<Tile> getScoringMeeples(HashSet<Tile> allMeeples) {
+        ArrayList<Tile>[] playerMeeples = new ArrayList[CarcassonneGameState.MAX_PLAYERS];
+        int highest = 0;
+        ArrayList<Tile> scoringMeeples = new ArrayList<>();
+        for (int i = 0; i < playerMeeples.length; i++) {
+            playerMeeples[i] = new ArrayList<>();
         }
-
-        Scorers scorers = new Scorers();
-
-        for (int other_player : playerMeeples.keySet()) {
-            int score = playerMeeples.get(other_player);
-
-            if (score > scorers.score) {
-                // Clear the list because we have a new highest score
-                scorers.score = score;
-                scorers.players.clear();
+        for (Tile tile : allMeeples) {
+            playerMeeples[tile.getOwner()].add(tile);
+        }
+        for (int i = 0; i < playerMeeples.length; i++) {
+            int size = playerMeeples[i].size();
+            if (size > highest) {
+                highest = size;
             }
-            scorers.players.add(other_player);
         }
-
-        return scorers;
-    }
-
-    public static int getOrDefault(HashMap<Integer, Integer> map, int key, int def) {
-        if (map.containsKey(key)) {
-            return map.get(key);
+        for (int i = 0; i < playerMeeples.length; i++) {
+            if (playerMeeples[i].size() == highest) {
+                scoringMeeples.addAll(playerMeeples[i]);
+            }
         }
-        return def;
+        return scoringMeeples;
     }
 }

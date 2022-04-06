@@ -1,13 +1,14 @@
 package com.example.carcassonne;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
-// IN PROGRESS: NOT TO BE USED YET
 public class CloisterAnalysis extends Analysis {
     private int score;
 
-    private HashSet<TileOLD> visited;
+    @Override
+    public boolean isComplete(){
+        return (this.score == 9);
+    }
 
     @Override
     public boolean isMeepleValid() {
@@ -16,47 +17,36 @@ public class CloisterAnalysis extends Analysis {
 
     @Override
     public int getCompleteScore(int player) {
-        return (this.score == 8) ? this.score : 0;
+        return (this.score == 9) ? this.score : 0;
     }
 
     @Override
     public int getIncompleteScore(int player) {
-        return (this.score != 8) ? this.score : 0;
+        return (this.score != 9) ? this.score : 0;
     }
 
     @Override
-    public ArrayList<TileOLD> getCompletedMeeples() {
-        ArrayList<TileOLD> completed = new ArrayList<>();
-        if (this.score == 8) {
-            completed.add(this.start);
+    public ArrayList<Tile> getCompletedMeeples() {
+        ArrayList<Tile> meeple = new ArrayList<>();
+        if (this.score == 9) {
+            meeple.add(this.startTile);
         }
-        return completed;
+        return meeple;
     }
 
-    public void runAnalysis(int x, int y) {
-        this.score = 0;
-    }
-
-    public CloisterAnalysis(BoardOLD board) {
-        super(board);
-        this.visited = new HashSet<>();
-    }
-
-    private void doAnalysis(int x, int y) {
-        TileOLD tile = this.board.getTile(x, y);
-        if (this.visited.contains(tile) ||
-                tile.getMeepleType() != TileOLD.TYPE_CLOISTER) {
-            return;
-        }
-
-        this.start = tile;
-
+    @Override
+    protected void runAnalysis(int x, int y, int part) {
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
-                if (this.board.getTile(dx, dy) != null) {
+                if (this.board.getTile(x + dx, y + dy) != null) {
                     this.score++;
                 }
             }
         }
+    }
+
+    public CloisterAnalysis(Board board, int x, int y, Section startSection) {
+        super(board, x, y, startSection);
+        runAnalysis(x, y, 0);
     }
 }

@@ -83,6 +83,11 @@ public class BoardSurfaceView extends SurfaceView {
      *         to place any such tile.
      */
     public Point onTouch(MotionEvent event) {
+        // We can't do anything until we've received the game state from CarcassonneHumanPlayer.
+        if (this.gameState == null) {
+            return null;
+        }
+
         /*
          * External Citation
          * Date: 28 March 2022
@@ -168,7 +173,7 @@ public class BoardSurfaceView extends SurfaceView {
      * @param canvas The canvas to draw with.
      */
     public void onDraw(Canvas canvas) {
-        // We can't draw unless we've received the game state from CarcassonneHumanPlayer
+        // We can't draw unless we've received the game state from CarcassonneHumanPlayer.
         if (this.gameState == null) {
             return;
         }
