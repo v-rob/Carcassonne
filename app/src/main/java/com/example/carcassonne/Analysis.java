@@ -43,27 +43,39 @@ public abstract class Analysis {
         return null;
     }
 
-    protected static ArrayList<Tile> getScoringMeeples(HashSet<Tile> allMeeples) {
+    protected static ArrayList<Tile> getScoringMeeples(HashSet<Tile> allTiles) {
+        // Create arrays for each player containing all their meeples.
         ArrayList<Tile>[] playerMeeples = new ArrayList[CarcassonneGameState.MAX_PLAYERS];
-        int highest = 0;
-        ArrayList<Tile> scoringMeeples = new ArrayList<>();
         for (int i = 0; i < playerMeeples.length; i++) {
             playerMeeples[i] = new ArrayList<>();
         }
-        for (Tile tile : allMeeples) {
-            playerMeeples[tile.getOwner()].add(tile);
+
+        // Iterate through the set of tiles, find each with a meeple, and put it in
+        // the proper player's array.
+        for (Tile tile : allTiles) {
+            if (tile.hasMeeple()) {
+                playerMeeples[tile.getOwner()].add(tile);
+            }
         }
+
+        // Find the number of meeples of the player(s) with the most meeples.
+        int highest = 0;
         for (int i = 0; i < playerMeeples.length; i++) {
             int size = playerMeeples[i].size();
             if (size > highest) {
                 highest = size;
             }
         }
+
+        // Combine all the meeples from the player(s) with the most meeples into a
+        // single array.
+        ArrayList<Tile> scoringMeeples = new ArrayList<>();
         for (int i = 0; i < playerMeeples.length; i++) {
             if (playerMeeples[i].size() == highest) {
                 scoringMeeples.addAll(playerMeeples[i]);
             }
         }
+
         return scoringMeeples;
     }
 }

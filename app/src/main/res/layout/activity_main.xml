@@ -33,7 +33,7 @@
                     android:id="@+id/blueMeeple"
                     android:layout_width="65dp"
                     android:layout_height="65dp"
-                    app:srcCompat="@drawable/meeple_blue" />
+                    android:src="@drawable/meeple_blue" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -69,7 +69,7 @@
                     android:id="@+id/yellowMeeple"
                     android:layout_width="65dp"
                     android:layout_height="65dp"
-                    app:srcCompat="@drawable/meeple_yellow" />
+                    android:src="@drawable/meeple_yellow" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -105,7 +105,7 @@
                     android:id="@+id/greenMeeple"
                     android:layout_width="65dp"
                     android:layout_height="65dp"
-                    app:srcCompat="@drawable/meeple_green" />
+                    android:src="@drawable/meeple_green" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -141,7 +141,7 @@
                     android:id="@+id/redMeeple"
                     android:layout_width="65dp"
                     android:layout_height="65dp"
-                    app:srcCompat="@drawable/meeple_red" />
+                    android:src="@drawable/meeple_red" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -177,7 +177,7 @@
                     android:id="@+id/blackMeeple"
                     android:layout_width="65dp"
                     android:layout_height="65dp"
-                    app:srcCompat="@drawable/meeple_black" />
+                    android:src="@drawable/meeple_black" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -239,7 +239,7 @@
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:rotation="180"
-            app:srcCompat="@drawable/tile_l" />
+            android:src="@drawable/tile_l" />
 
         <Button
             android:id="@+id/quitButton"

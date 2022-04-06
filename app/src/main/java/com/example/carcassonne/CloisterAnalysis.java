@@ -6,8 +6,8 @@ public class CloisterAnalysis extends Analysis {
     private int score;
 
     @Override
-    public boolean isComplete(){
-        return (this.score == 9);
+    public boolean isComplete() {
+        return this.score == 9;
     }
 
     @Override
@@ -17,18 +17,18 @@ public class CloisterAnalysis extends Analysis {
 
     @Override
     public int getCompleteScore(int player) {
-        return (this.score == 9) ? this.score : 0;
+        return isComplete() ? this.score : 0;
     }
 
     @Override
     public int getIncompleteScore(int player) {
-        return (this.score != 9) ? this.score : 0;
+        return !isComplete() ? this.score : 0;
     }
 
     @Override
     public ArrayList<Tile> getCompletedMeeples() {
         ArrayList<Tile> meeple = new ArrayList<>();
-        if (this.score == 9) {
+        if (isComplete()) {
             meeple.add(this.startTile);
         }
         return meeple;

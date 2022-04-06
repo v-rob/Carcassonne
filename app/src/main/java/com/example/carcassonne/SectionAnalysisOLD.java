@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 // IN PROGRESS: NOT TO BE USED YET
-public class SectionAnalysis extends AnalysisOLD {
+public class SectionAnalysisOLD extends AnalysisOLD {
     private int type;
     private int pennantCount;
     private boolean complete;
@@ -53,7 +53,7 @@ public class SectionAnalysis extends AnalysisOLD {
         this.meeples = new ArrayList<>();
     }
 
-    public SectionAnalysis(BoardOLD board) {
+    public SectionAnalysisOLD(BoardOLD board) {
         super(board);
 
         // For each analysis object, tiles are not checked twice even across

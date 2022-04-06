@@ -11,8 +11,8 @@ public class CityRoadAnalysis extends Analysis {
     private boolean isComplete;
 
     @Override
-    public boolean isComplete(){
-        return isComplete;
+    public boolean isComplete() {
+        return this.isComplete;
     }
 
     @Override
@@ -39,34 +39,40 @@ public class CityRoadAnalysis extends Analysis {
     protected void runAnalysis(int x, int y, int part) {
         Tile tile = this.board.getTile(x, y);
         if (tile == null) {
-            // Ignore non-existent tiles
+            // If we managed to find a non-existent tile, this means that the road
+            // or city is not complete. Mark it as such and return.
             this.isComplete = false;
             return;
         }
 
+        // Get the section from the part we were provided.
         Section section;
-        if (!this.isCity) {
-            section = tile.getRoadSection(part);
-        } else {
+        if (this.isCity) {
             section = tile.getSection(part);
+        } else {
+            section = tile.getRoadSection(part);
         }
 
-        // Don't count tiles we've already searched through so that we don't run
+        // Don't count sections we've already searched through so that we don't run
         // into infinite recursion.
         if (visitedSections.contains(section)) {
             return;
         }
-        visitedSections.add(section);
-        visitedTiles.add(tile);
 
-        // Run this same function on all adjacent tiles connected to this section.
+        // Otherwise, add this section and tile to the visited sets. If the tile has
+        // already been visited, but this is a different section, adding the tile to
+        // the set again will be a no-op.
+        this.visitedSections.add(section);
+        this.visitedTiles.add(tile);
+
+        // Run this same function on all adjacent parts connected to this section.
         for (int other_part : section.getParts()) {
-            if (!this.isCity) {
-                runAnalysis(x + Tile.roadPartXOffset(other_part),
-                        y + Tile.roadPartYOffset(other_part), Tile.flipRoadPart(other_part));
-            } else {
+            if (this.isCity) {
                 runAnalysis(x + Tile.partXOffset(other_part),
                         y + Tile.partYOffset(other_part), Tile.flipPart(other_part));
+            } else {
+                runAnalysis(x + Tile.roadPartXOffset(other_part),
+                        y + Tile.roadPartYOffset(other_part), Tile.flipRoadPart(other_part));
             }
         }
     }

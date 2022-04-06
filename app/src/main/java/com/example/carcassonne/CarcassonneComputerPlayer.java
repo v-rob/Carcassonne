@@ -92,11 +92,13 @@ public class CarcassonneComputerPlayer extends GameComputerPlayer {
 
                 // Commence sending actions one after another: rotation, place the tile, confirm
                 // it, and confirm the meeple.
-                this.game.sendAction(new CarcassonneRotateTileAction(this, this.chosenPlacement.rotation));
+                this.game.sendAction(new CarcassonneRotateTileAction(this,
+                        this.chosenPlacement.rotation));
                 nextAction = PLACE;
                 break;
             case PLACE:
-                this.game.sendAction(new CarcassonnePlaceTileAction(this, this.chosenPlacement.x, this.chosenPlacement.y));
+                this.game.sendAction(new CarcassonnePlaceTileAction(this,
+                        this.chosenPlacement.x, this.chosenPlacement.y));
                 this.nextAction = CONFIRM_TILE;
                 break;
             case CONFIRM_TILE:

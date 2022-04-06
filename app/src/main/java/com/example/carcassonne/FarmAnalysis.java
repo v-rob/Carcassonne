@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class FarmAnalysis extends Analysis {
     @Override
-    public boolean isComplete(){
+    public boolean isComplete() {
         return false;
     }
 
