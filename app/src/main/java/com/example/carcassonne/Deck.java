@@ -1,7 +1,6 @@
 package com.example.carcassonne;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Represents a deck of tiles. It contains the list of tiles in the deck, which can
@@ -38,7 +37,7 @@ public class Deck {
      */
     public Tile drawTile(int owner) {
         Tile tile = this.tiles.remove((int)(Math.random() * this.tiles.size()));
-        tile.setOwner(owner);
+        tile.setMeepleOwner(owner);
         return tile;
     }
 

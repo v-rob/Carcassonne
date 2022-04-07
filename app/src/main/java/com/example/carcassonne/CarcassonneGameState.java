@@ -143,6 +143,17 @@ public class CarcassonneGameState extends GameState {
     }
 
     /**
+     * Adds a certain number of meeples to the specified player's number of meeples.
+     * Used in the Analysis classes in returnMeeples().
+     *
+     * @param player     The player to add meeples to.
+     * @param numMeeples The number of meeples to add to that player's set of meeples.
+     */
+    public void addPlayerMeeples(int player, int numMeeples) {
+        this.playerMeeples[player] += numMeeples;
+    }
+
+    /**
      * Gets the completed score of the specified player.
      *
      * @param player The player to get the completed score of.

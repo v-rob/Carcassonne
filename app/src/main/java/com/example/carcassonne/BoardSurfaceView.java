@@ -255,7 +255,7 @@ public class BoardSurfaceView extends SurfaceView {
 
                 // Choose the color of the meeple from the owner of the tile.
                 BitmapProvider.MeepleBitmapData bitmapData =
-                        bitmapProvider.getMeeple(tile.getOwner());
+                        bitmapProvider.getMeeple(tile.getMeepleOwner());
 
                 // Farmers have their own special bitmaps, so select the correct one.
                 Bitmap meepleBitmap = meepleSection.getType() == Tile.TYPE_FARM ?

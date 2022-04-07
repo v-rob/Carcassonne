@@ -43,6 +43,25 @@ public class Section {
     private int meepleY;
 
     /**
+     * Whether this section has a meeple in it. Only one section per tile may have a
+     * meeple, but it's the Tile class's job to do that.
+     *
+     * This is stored in each Section rather than the parent Tile so that the
+     * MeepleAnalysis classes can work with sections rather than juggling between
+     * sections and tiles.
+     */
+    private boolean hasMeeple;
+
+    /**
+     * The player index of the player who placed the tile and therefore owns any meeple
+     * in this section. It will be set by Tile.setOwner(), and is -1 before then.
+     *
+     * Owner is stored in Section rather than the parent Tile for the same reasons as
+     * hasMeeple.
+     */
+    private int meepleOwner;
+
+    /**
      * Gets the type of this section.
      *
      * @return The type of this section, which is one of the TYPE_* constants in Tile.
@@ -100,6 +119,47 @@ public class Section {
      */
     public int getMeepleY() {
         return this.meepleY;
+    }
+
+    /**
+     * Queries whether this section has a meeple or not.
+     *
+     * @return True if the section has a meeple, false otherwise.
+     */
+    public boolean hasMeeple() {
+        return this.hasMeeple;
+    }
+
+    /** Adds a meeple to this section. */
+    public void addMeeple() {
+        this.hasMeeple = true;
+    }
+
+    /** Removes the meeple from this section if there is one. */
+    public void removeMeeple() {
+        this.hasMeeple = false;
+    }
+
+    /**
+     * Gets the player index of the player who placed the tile and therefore the owner
+     * of any meeple in this section. If there is no owner (i.e. it was freshly drawn
+     * from the deck), returns -1.
+     *
+     * @return The index of the player who placed this tile, or -1 if there is no
+     *         owner yet.
+     */
+    public int getMeepleOwner() {
+        return this.meepleOwner;
+    }
+
+    /**
+     * Sets the player index of the player who placed this tile. It should only be
+     * called by Tile.setOwner().
+     *
+     * @param owner The index of the player who placed this tile.
+     */
+    public void setMeepleOwner(int owner) {
+        this.meepleOwner = owner;
     }
 
     /** Rotates this section 90 degrees clockwise. */
@@ -169,6 +229,8 @@ public class Section {
 
         this.meepleX = meepleX;
         this.meepleY = meepleY;
+        this.hasMeeple = false;
+        this.meepleOwner = -1;
     }
 
     /**
@@ -184,5 +246,7 @@ public class Section {
 
         this.meepleX = other.meepleX;
         this.meepleY = other.meepleY;
+        this.hasMeeple = other.hasMeeple;
+        this.meepleOwner = other.meepleOwner;
     }
 }
