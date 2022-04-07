@@ -8,246 +8,277 @@
     android:orientation="horizontal">
 
 
-    <com.example.carcassonne.BoardSurfaceView
-        android:id="@+id/boardSurfaceView"
+    <LinearLayout
+        android:id="@+id/loadingLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1" />
+        android:layout_weight="0"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/loadingText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text="Loading, please wait."
+            android:textSize="60sp" />
+    </LinearLayout>
 
     <LinearLayout
-        android:layout_width="237dp"
+        android:id="@+id/gameView"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="10dp"
-        android:isScrollContainer="false"
-        android:orientation="vertical">
+        android:layout_weight="0"
+        android:orientation="horizontal">
 
-        <TableLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-            <TableRow
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:id="@+id/blueMeeple"
-                    android:layout_width="65dp"
-                    android:layout_height="65dp"
-                    android:src="@drawable/meeple_blue" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/bluePlayerName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Vincent"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:id="@+id/blueScore"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Score: 10" />
-
-                    <TextView
-                        android:id="@+id/blueMeepleCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Meeples: 3" />
-                </LinearLayout>
-            </TableRow>
-
-            <TableRow
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:id="@+id/yellowMeeple"
-                    android:layout_width="65dp"
-                    android:layout_height="65dp"
-                    android:src="@drawable/meeple_yellow" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/yellowPlayerName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="George Washington"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:id="@+id/yellowScore"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Score: 1776" />
-
-                    <TextView
-                        android:id="@+id/yellowMeepleCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Meeples: 7" />
-                </LinearLayout>
-            </TableRow>
-
-            <TableRow
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:id="@+id/greenMeeple"
-                    android:layout_width="65dp"
-                    android:layout_height="65dp"
-                    android:src="@drawable/meeple_green" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/greenPlayerName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Dr. Nuxoll"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:id="@+id/greenScore"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Score: ∞" />
-
-                    <TextView
-                        android:id="@+id/greenMeepleCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Meeples: 5" />
-                </LinearLayout>
-            </TableRow>
-
-            <TableRow
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:id="@+id/redMeeple"
-                    android:layout_width="65dp"
-                    android:layout_height="65dp"
-                    android:src="@drawable/meeple_red" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/redPlayerName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="King Louis XIV"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:id="@+id/redScore"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Score: -125" />
-
-                    <TextView
-                        android:id="@+id/redMeepleCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Meeples: 0" />
-                </LinearLayout>
-            </TableRow>
-
-            <TableRow
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:id="@+id/blackMeeple"
-                    android:layout_width="65dp"
-                    android:layout_height="65dp"
-                    android:src="@drawable/meeple_black" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/blackPlayerName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Mr. Potato Head"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:id="@+id/blackScore"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Score: 0" />
-
-                    <TextView
-                        android:id="@+id/blackMeepleCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Meeples: 1" />
-                </LinearLayout>
-            </TableRow>
-
-        </TableLayout>
-
-        <Space
+        <com.example.carcassonne.BoardSurfaceView
+            android:id="@+id/boardSurfaceView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1" />
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_width="237dp"
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
+            android:isScrollContainer="false"
+            android:orientation="vertical">
+
+            <TableLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TableRow
+                    android:id="@+id/bluePlayer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/blueMeeple"
+                        android:layout_width="65dp"
+                        android:layout_height="65dp"
+                        android:src="@drawable/meeple_blue" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/bluePlayerName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Vincent"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/blueScore"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Score: 10" />
+
+                        <TextView
+                            android:id="@+id/blueMeepleCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Meeples: 3" />
+                    </LinearLayout>
+                </TableRow>
+
+                <TableRow
+                    android:id="@+id/yellowPlayer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/yellowMeeple"
+                        android:layout_width="65dp"
+                        android:layout_height="65dp"
+                        android:src="@drawable/meeple_yellow" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/yellowPlayerName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="George Washington"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/yellowScore"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Score: 1776" />
+
+                        <TextView
+                            android:id="@+id/yellowMeepleCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Meeples: 7" />
+                    </LinearLayout>
+                </TableRow>
+
+                <TableRow
+                    android:id="@+id/greenPlayer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/greenMeeple"
+                        android:layout_width="65dp"
+                        android:layout_height="65dp"
+                        android:src="@drawable/meeple_green" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/greenPlayerName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Dr. Nuxoll"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/greenScore"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Score: ∞" />
+
+                        <TextView
+                            android:id="@+id/greenMeepleCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Meeples: 5" />
+                    </LinearLayout>
+                </TableRow>
+
+                <TableRow
+                    android:id="@+id/redPlayer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/redMeeple"
+                        android:layout_width="65dp"
+                        android:layout_height="65dp"
+                        android:src="@drawable/meeple_red" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/redPlayerName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="King Louis XIV"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/redScore"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Score: -125" />
+
+                        <TextView
+                            android:id="@+id/redMeepleCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Meeples: 0" />
+                    </LinearLayout>
+                </TableRow>
+
+                <TableRow
+                    android:id="@+id/blackPlayer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/blackMeeple"
+                        android:layout_width="65dp"
+                        android:layout_height="65dp"
+                        android:src="@drawable/meeple_black" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/blackPlayerName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Mr. Potato Head"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/blackScore"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Score: 0" />
+
+                        <TextView
+                            android:id="@+id/blackMeepleCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Meeples: 1" />
+                    </LinearLayout>
+                </TableRow>
+
+            </TableLayout>
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/rotateResetButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="3dp"
+                    android:layout_weight="1"
+                    android:text="Rotate" />
+
+                <Button
+                    android:id="@+id/confirmButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="3dp"
+                    android:layout_weight="1"
+                    android:text="Confirm Tile" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/currentTile"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:rotation="180"
+                android:src="@drawable/tile_l" />
 
             <Button
-                android:id="@+id/rotateResetButton"
+                android:id="@+id/quitButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="3dp"
-                android:layout_weight="1"
-                android:text="Rotate" />
+                android:layout_gravity="right"
+                android:text="Quit" />
 
-            <Button
-                android:id="@+id/confirmButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="3dp"
-                android:layout_weight="1"
-                android:text="Confirm Tile" />
         </LinearLayout>
-
-        <ImageView
-            android:id="@+id/currentTile"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:rotation="180"
-            android:src="@drawable/tile_l" />
-
-        <Button
-            android:id="@+id/quitButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:text="Quit" />
-
     </LinearLayout>
 
 </LinearLayout>

@@ -4,6 +4,8 @@ import com.example.carcassonne.infoMsg.GameInfo;
 import android.graphics.Point;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -72,6 +74,15 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
     /** The surface view that draws the entire current state of the board. */
     private BoardSurfaceView boardSurfaceView;
 
+    /**The table row holding information for each player**/
+    private TableRow[] containerViews;
+
+    /** Contains the entire GUI **/
+    private LinearLayout mainLayout;
+
+    /** Contains loading screen **/
+    private LinearLayout loadingScreen;
+
     /**
      * Creates a new human player with the specified name.
      *
@@ -123,6 +134,8 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         // shows the latest updates.
         this.boardSurfaceView.setGameState(this.gameState);
         this.boardSurfaceView.invalidate();
+        this.loadingScreen.setVisibility(View.GONE);
+        this.mainLayout.setVisibility(View.VISIBLE);
 
         // Update the meeples and scores of each player. Also update the names of the
         // players since the GUI will not have the correct names.
@@ -133,6 +146,13 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
             this.scoreTextViews[i].setText("Score: " + this.gameState.getPlayerCompleteScore(i) +
                     " | " + this.gameState.getPlayerIncompleteScore(i));
         }
+
+        // TODO: External citation
+        for(int i = CarcassonneGameState.MAX_PLAYERS - 1; i > allPlayerNames.length - 1; i--) {
+            containerViews[i].setVisibility(View.GONE);
+        }
+
+
 
         // Change the text of the buttons above the current tile to be proper for the
         // current placement stage of the game.
@@ -154,6 +174,8 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
             // TODO: Also draw meeples on current tile
             this.currentTileImageView.setRotation(currentTile.getRotation());
         }
+
+
     }
 
     /** Array of the resources of each player name GUI object. */
@@ -183,6 +205,14 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
             R.id.blackMeepleCount
     };
 
+    private static final int[] CONTAINER_COUNT_RESOURCES = {
+            R.id.bluePlayer,
+            R.id.yellowPlayer,
+            R.id.greenPlayer,
+            R.id.redPlayer,
+            R.id.blackPlayer
+    };
+
     /**
      * Sets up the human player, getting the references to each GUI object and
      * binding event listeners to the interactive ones.
@@ -197,7 +227,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         // screen is through.
         activity.setContentView(R.layout.activity_main);
 
-        // TODO: Hide players that aren't playing
+
         // TODO: Show whose turn it is
         // TODO: Show how many tiles are left
 
@@ -206,19 +236,23 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         playerNameTextViews = new TextView[CarcassonneGameState.MAX_PLAYERS];
         scoreTextViews = new TextView[CarcassonneGameState.MAX_PLAYERS];
         meepleCountTextViews = new TextView[CarcassonneGameState.MAX_PLAYERS];
+        containerViews = new TableRow[CarcassonneGameState.MAX_PLAYERS];
 
         for (int i = 0; i < CarcassonneGameState.MAX_PLAYERS; i++) {
             playerNameTextViews[i] = activity.findViewById(PLAYER_NAME_RESOURCES[i]);
             scoreTextViews[i] = activity.findViewById(PLAYER_SCORE_RESOURCES[i]);
             meepleCountTextViews[i] = activity.findViewById(MEEPLE_COUNT_RESOURCES[i]);
+            containerViews[i] = activity.findViewById(CONTAINER_COUNT_RESOURCES[i]);
         }
 
-        // Find all the interactive GUI objects.
+        // Find all the GUI objects.
         this.rotateResetButton = activity.findViewById(R.id.rotateResetButton);
         this.confirmButton = activity.findViewById(R.id.confirmButton);
         this.quitButton = activity.findViewById(R.id.quitButton);
         this.currentTileImageView = activity.findViewById(R.id.currentTile);
         this.boardSurfaceView = activity.findViewById(R.id.boardSurfaceView);
+        this.mainLayout = activity.findViewById(R.id.gameView);
+        this.loadingScreen = activity.findViewById(R.id.loadingLayout);
 
         // Bind listeners to the interactive GUI objects. The event listeners are
         // method references to listener methods defined in this class.
@@ -227,6 +261,9 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         this.quitButton.setOnClickListener(this::onClickQuit);
         this.currentTileImageView.setOnTouchListener(this::onTouchTileImage);
         this.boardSurfaceView.setOnTouchListener(this::onTouchBoardSurfaceView);
+
+        this.mainLayout.setVisibility(View.GONE);
+        this.loadingScreen.setVisibility(View.VISIBLE);
     }
 
     /**
