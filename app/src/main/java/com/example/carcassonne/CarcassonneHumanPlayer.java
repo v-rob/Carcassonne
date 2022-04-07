@@ -135,7 +135,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         this.boardSurfaceView.setGameState(this.gameState);
         this.boardSurfaceView.invalidate();
 
-        //toggles loading screen offœ
+        //toggles loading screen off
         this.loadingScreen.setVisibility(View.GONE);
         this.mainLayout.setVisibility(View.VISIBLE);
 
