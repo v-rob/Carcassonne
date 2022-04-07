@@ -77,7 +77,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
     /**The table row holding information for each player**/
     private TableRow[] containerViews;
 
-    /** Contains the entire GUI **/
+    /** Contains the main gameplay screen **/
     private LinearLayout mainLayout;
 
     /** Contains loading screen **/
@@ -134,6 +134,8 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         // shows the latest updates.
         this.boardSurfaceView.setGameState(this.gameState);
         this.boardSurfaceView.invalidate();
+
+        //toggles loading screen offœ
         this.loadingScreen.setVisibility(View.GONE);
         this.mainLayout.setVisibility(View.VISIBLE);
 
@@ -147,7 +149,16 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
                     " | " + this.gameState.getPlayerIncompleteScore(i));
         }
 
-        // TODO: External citation
+        /** External Citation
+         * Date: 6 April 2022
+         * Problem: Wanted to hide the gameboard while everything loads in, didn't know how
+         * to make elements invisible.
+         * Resource:
+         *     https://www.codegrepper.com/code-examples/java/hide+elements+android
+         * Solution: Learned how to use setVisibility to toggle the visibility of elements.
+         */
+
+        //Go through the player list, hide the rows that aren't in use
         for(int i = CarcassonneGameState.MAX_PLAYERS - 1; i > allPlayerNames.length - 1; i--) {
             containerViews[i].setVisibility(View.GONE);
         }
@@ -205,6 +216,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
             R.id.blackMeepleCount
     };
 
+    /** Array of rows that have player info */
     private static final int[] CONTAINER_COUNT_RESOURCES = {
             R.id.bluePlayer,
             R.id.yellowPlayer,
@@ -262,6 +274,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         this.currentTileImageView.setOnTouchListener(this::onTouchTileImage);
         this.boardSurfaceView.setOnTouchListener(this::onTouchBoardSurfaceView);
 
+        //toggles loading screen on
         this.mainLayout.setVisibility(View.GONE);
         this.loadingScreen.setVisibility(View.VISIBLE);
     }
