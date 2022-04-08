@@ -4,6 +4,23 @@ import com.example.carcassonne.config.GameConfig;
 import com.example.carcassonne.config.GamePlayerType;
 import java.util.ArrayList;
 
+/* Header comment for beta release:
+ *
+ * Necessary functionality added since alpha:
+ *
+ * Additional features/changes:
+ * - Loading screen
+ * - Improved graphics
+ * - Current player highlight, non-players are hidden
+ * - Used Toasts instead of flashing on invalid moves
+ *
+ * Bugfixes:
+ * - Meeples are now shown next to each player
+ * - The code for loading sections had some sections flipped
+ *
+ * Known bugs:
+ * - The game ends right before the last tile is drawn and placed.
+ */
 
 /**
  * The entrypoint for the game. It creates the default configuration for the game, the
@@ -54,19 +71,19 @@ public class CarcassonneMainActivity extends GameMainActivity {
     @Override
     public GameConfig createDefaultConfig() {
         // Create the bitmap provider that everyone will use now that we have a
-        // resources object, and before the game starts.
+        // resources object now before the game starts.
         bitmapProvider = new BitmapProvider(getResources());
 
         // Define the allowed player types.
         ArrayList<GamePlayerType> playerTypes = new ArrayList<>();
 
-        playerTypes.add(new GamePlayerType("Local Human Player") {
+        playerTypes.add(new GamePlayerType("Human (Local)") {
             public GamePlayer createPlayer(String name) {
                 return new CarcassonneHumanPlayer(name);
             }
         });
 
-        playerTypes.add(new GamePlayerType("Dumb Computer Player") {
+        playerTypes.add(new GamePlayerType("Computer (Dumb)") {
             public GamePlayer createPlayer(String name) {
                 return new CarcassonneComputerPlayer(name, false);
             }
@@ -79,7 +96,7 @@ public class CarcassonneMainActivity extends GameMainActivity {
 
         defaultConfig.addPlayer("Human", 0);
         defaultConfig.addPlayer("Computer", 1);
-        defaultConfig.setRemoteData("Remote Human Player", "", 0);
+        defaultConfig.setRemoteData("Human (Remote)", "", 0);
 
         return defaultConfig;
     }

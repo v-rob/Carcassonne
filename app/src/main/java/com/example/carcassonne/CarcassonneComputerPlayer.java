@@ -94,7 +94,7 @@ public class CarcassonneComputerPlayer extends GameComputerPlayer {
                 // it, and confirm the meeple.
                 this.game.sendAction(new CarcassonneRotateTileAction(this,
                         this.chosenPlacement.rotation));
-                nextAction = PLACE;
+                this.nextAction = PLACE;
                 break;
             case PLACE:
                 this.game.sendAction(new CarcassonnePlaceTileAction(this,

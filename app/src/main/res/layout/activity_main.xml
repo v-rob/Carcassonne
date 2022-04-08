@@ -5,49 +5,59 @@
     android:id="@+id/topView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#EFECDA"
     android:orientation="horizontal">
-
 
     <LinearLayout
         android:id="@+id/loadingLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="0"
         android:gravity="center"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:src="@drawable/title" />
 
         <TextView
             android:id="@+id/loadingText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:text="Loading, please wait."
-            android:textSize="60sp" />
+            android:text="Loading, please wait"
+            android:textSize="45sp"
+            android:textStyle="italic" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/gameView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="0"
         android:orientation="horizontal">
 
         <com.example.carcassonne.BoardSurfaceView
             android:id="@+id/boardSurfaceView"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1" />
+
+        <ImageView
+            android:layout_width="10px"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:src="@drawable/edge_vertical_repeat" />
 
         <LinearLayout
             android:layout_width="237dp"
             android:layout_height="match_parent"
             android:layout_margin="10dp"
-            android:isScrollContainer="false"
             android:orientation="vertical">
 
             <TableLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <TableRow
@@ -268,6 +278,7 @@
                 android:id="@+id/currentTile"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
+                android:layout_marginVertical="10dp"
                 android:rotation="180"
                 android:src="@drawable/tile_l" />
 

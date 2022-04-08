@@ -44,9 +44,9 @@ public class BoardSurfaceView extends SurfaceView {
     /** The previous Y position of the last touch event, used to calculate movement. */
     private float prevTouchY;
 
-    /** The current X scroll of the board, measured in pixels towards the right. */
+    /** The current X scroll of the board, measured in pixels towards the left. */
     private float scrollX;
-    /** The current Y scroll of the board, measured in pixels towards the bottom. */
+    /** The current Y scroll of the board, measured in pixels towards the top. */
     private float scrollY;
 
     /**
@@ -61,6 +61,10 @@ public class BoardSurfaceView extends SurfaceView {
 
         setWillNotDraw(false);
         setBackgroundColor(0xFFFFFFFF);
+
+        // Hacky code to center the board: will be replaced later.
+        this.scrollX = (float)Tile.SIZE * 1.3f;
+        this.scrollY = (float)Tile.SIZE * 0.4f;
     }
 
     /**
@@ -102,8 +106,6 @@ public class BoardSurfaceView extends SurfaceView {
         // TODO: Don't allow scrolling out of bounds
         // TODO: Center scrolling initially
         // TODO: Don't jerk when adding to left/top
-        // TODO: Allow placing meeple from board
-        // TODO: Prettify board?
         // TODO: Allow scaling
 
         switch (event.getAction()) {
@@ -182,12 +184,17 @@ public class BoardSurfaceView extends SurfaceView {
         BitmapProvider bitmapProvider = CarcassonneMainActivity.getBitmapProvider();
 
         // Draw all the tiles on the board, including empty tiles.
-        for (int x = 0; x < board.getWidth(); x++) {
-            for (int y = 0; y < board.getHeight(); y++) {
+        for (int x = -2; x < board.getWidth() + 2; x++) {
+            for (int y = -2; y < board.getHeight() + 2; y++) {
                 Tile tile = board.getTile(x, y);
+                boolean outside = board.isOutOfBounds(x, y);
+
                 Bitmap tileBitmap;
 
-                if (tile == null) {
+                if (outside) {
+                    // If we're outside the boundaries of the board, use the outside bitmap.
+                    tileBitmap = bitmapProvider.getOutsideTile().bitmap;
+                } else if (tile == null) {
                     // Empty tiles have their own special empty bitmap, which forms a grid
                     // and shows where the valid positions are.
                     tileBitmap = bitmapProvider.getEmptyTile().bitmap;
@@ -215,7 +222,7 @@ public class BoardSurfaceView extends SurfaceView {
                  */
                 Matrix matrix = new Matrix();
 
-                if (tile != null) {
+                if (!outside && tile != null) {
                     matrix.postRotate(tile.getRotation(), (float)Tile.SIZE / 2, (float)Tile.SIZE / 2);
                 }
                 matrix.postTranslate(x * Tile.SIZE + this.scrollX, y * Tile.SIZE + this.scrollY);

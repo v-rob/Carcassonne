@@ -110,6 +110,8 @@ public class BitmapProvider {
 
     /** The bitmap for the empty tile. */
     private BitmapData emptyTile;
+    /** The bitmap for the tile outside the bounds of the board. */
+    private BitmapData outsideTile;
 
     /** The bitmap for the valid border around the current tile. */
     private BitmapData validBorder;
@@ -159,6 +161,7 @@ public class BitmapProvider {
 
         // Fill out other standalone bitmaps.
         this.emptyTile = new BitmapData(R.drawable.tile_empty);
+        this.outsideTile = new BitmapData(R.drawable.tile_outside);
 
         this.validBorder = new BitmapData(R.drawable.border_valid);
         this.invalidBorder = new BitmapData(R.drawable.border_invalid);
@@ -190,6 +193,15 @@ public class BitmapProvider {
      */
     public BitmapData getEmptyTile() {
         return this.emptyTile;
+    }
+
+    /**
+     * Retrieve the bitmap data for a tile position out of bounds for the board.
+     *
+     * @return The empty tile bitmap data.
+     */
+    public BitmapData getOutsideTile() {
+        return this.outsideTile;
     }
 
     /**

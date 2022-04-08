@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+External Citation
+Date: 7 April 2022
+Problem: Needed a way to vertically repeat an image
+Resource:
+    https://stackoverflow.com/questions/8899222/tiling-images-in-android-with-imageview-in-xml#8899954
+Solution: Made a separate XML file for defining attributes of bitmaps, notably
+    android:tileMode="repeat", and set android:scaleType="fitXY" on the ImageView
+    using this repeating image.
+-->
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@drawable/edge_vertical"
+    android:tileMode="repeat" />

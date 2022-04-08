@@ -66,6 +66,17 @@ public class Board {
     }
 
     /**
+     * Queries whether the specified position is out of bounds for the board array.
+     *
+     * @param x The X position to query boundedness of.
+     * @param y The Y position to query boundedness of.
+     * @return True if the position is out of bounds, false if in bounds.
+     */
+    public boolean isOutOfBounds(int x, int y) {
+        return x < 0 || y < 0 || x >= getWidth() || y >= getHeight();
+    }
+
+    /**
      * Gets a tile on the board with bounds checking, including the current tile.
      *
      * @param x The X position of the tile to get.
@@ -89,7 +100,7 @@ public class Board {
      *         position is out of bounds.
      */
     public Tile getConfirmedTile(int x, int y) {
-        if (outOfBounds(x, y)) {
+        if (isOutOfBounds(x, y)) {
             return null;
         }
         return this.tiles[y][x];
@@ -213,7 +224,7 @@ public class Board {
      */
     public boolean isCurrentTilePlacementValid() {
         // Out-of-bounds tiles or tiles that are already occupied are never valid.
-        if (outOfBounds(this.currentTileX, this.currentTileY) ||
+        if (isOutOfBounds(this.currentTileX, this.currentTileY) ||
                 getConfirmedTile(this.currentTileX, this.currentTileY) != null) {
             return false;
         }
@@ -402,17 +413,6 @@ public class Board {
         this.currentTile = Util.copyOrNull(other.currentTile, Tile::new);
         this.currentTileX = other.currentTileX;
         this.currentTileY = other.currentTileY;
-    }
-
-    /**
-     * Queries whether the specified position is out of bounds for the board array.
-     *
-     * @param x The X position to query boundedness of.
-     * @param y The Y position to query boundedness of.
-     * @return True if the position is out of bounds, false if in bounds.
-     */
-    private boolean outOfBounds(int x, int y) {
-        return x < 0 || y < 0 || x >= getWidth() || y >= getHeight();
     }
 
     /**

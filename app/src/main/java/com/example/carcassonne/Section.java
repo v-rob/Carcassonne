@@ -130,7 +130,9 @@ public class Section {
         return this.hasMeeple;
     }
 
-    /** Adds a meeple to this section. */
+    /**
+     * Adds a meeple to this section. This should only be called by Tile.addMeeple().
+     */
     public void addMeeple() {
         this.hasMeeple = true;
     }

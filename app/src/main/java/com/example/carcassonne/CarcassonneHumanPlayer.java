@@ -33,6 +33,9 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
     /** The game state of the game, received in the last receiveInfo() callback. */
     private CarcassonneGameState gameState;
 
+    /** The table rows holding the information for each player. **/
+    private TableRow[] playerTableRows;
+
     /**
      * The text views representing the name of each player. It includes all five GUI
      * objects even when there are less than five players.
@@ -74,14 +77,59 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
     /** The surface view that draws the entire current state of the board. */
     private BoardSurfaceView boardSurfaceView;
 
-    /**The table row holding information for each player**/
-    private TableRow[] containerViews;
-
-    /** Contains the main gameplay screen **/
+    /** Contains the main gameplay (i.e. not loading) screen **/
     private LinearLayout mainLayout;
 
-    /** Contains loading screen **/
+    /** Contains the loading screen **/
     private LinearLayout loadingScreen;
+
+    /** Array of the resources of each player information table row. */
+    private static final int[] PLAYER_TABLE_ROW_RESOURCES = {
+            R.id.bluePlayer,
+            R.id.yellowPlayer,
+            R.id.greenPlayer,
+            R.id.redPlayer,
+            R.id.blackPlayer
+    };
+
+    /** Array of the resources of each player name GUI object. */
+    private static final int[] PLAYER_NAME_RESOURCES = {
+            R.id.bluePlayerName,
+            R.id.yellowPlayerName,
+            R.id.greenPlayerName,
+            R.id.redPlayerName,
+            R.id.blackPlayerName
+    };
+
+    /** Array of the resources of each player score GUI object. */
+    private static final int[] PLAYER_SCORE_RESOURCES = {
+            R.id.blueScore,
+            R.id.yellowScore,
+            R.id.greenScore,
+            R.id.redScore,
+            R.id.blackScore
+    };
+
+    /** Array of the resources of each player meeple count GUI object. */
+    private static final int[] MEEPLE_COUNT_RESOURCES = {
+            R.id.blueMeepleCount,
+            R.id.yellowMeepleCount,
+            R.id.greenMeepleCount,
+            R.id.redMeepleCount,
+            R.id.blackMeepleCount
+    };
+
+    /**
+     * Array of all the current player background highlight colors. They are all
+     * partially transparent to let the off-white background color blend in.
+     */
+    private static final int[] PLAYER_HIGHLIGHT_COLORS = {
+            0x3F5454AA,
+            0x4Ff0e34c,
+            0x4862AD46,
+            0x28C30017,
+            0x381D1D1D
+    };
 
     /**
      * Creates a new human player with the specified name.
@@ -135,35 +183,41 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         this.boardSurfaceView.setGameState(this.gameState);
         this.boardSurfaceView.invalidate();
 
-        //toggles loading screen off
-        this.loadingScreen.setVisibility(View.GONE);
-        this.mainLayout.setVisibility(View.VISIBLE);
-
-        // Update the meeples and scores of each player. Also update the names of the
-        // players since the GUI will not have the correct names.
-        for (int i = 0; i < this.gameState.getNumPlayers(); i++) {
-            // TODO: Also show what the scores will be if the tile is confirmed?
-            this.playerNameTextViews[i].setText(this.allPlayerNames[i]);
-            this.meepleCountTextViews[i].setText("Meeples: " + this.gameState.getPlayerMeeples(i));
-            this.scoreTextViews[i].setText("Score: " + this.gameState.getPlayerCompleteScore(i) +
-                    " | " + this.gameState.getPlayerIncompleteScore(i));
-        }
-
-        /** External Citation
+        /* External Citation
          * Date: 6 April 2022
-         * Problem: Wanted to hide the gameboard while everything loads in, didn't know how
-         * to make elements invisible.
+         * Problem: Required a way to set the visibility of a GUI object programmatically.
          * Resource:
-         *     https://www.codegrepper.com/code-examples/java/hide+elements+android
-         * Solution: Learned how to use setVisibility to toggle the visibility of elements.
+         *     https://developer.android.com/guide/topics/ui/notifiers/toasts#java
+         * Solution: Used View.setVisibility() with View.VISIBLE/View.GONE.
          */
 
-        //Go through the player list, hide the rows that aren't in use
-        for(int i = CarcassonneGameState.MAX_PLAYERS - 1; i > allPlayerNames.length - 1; i--) {
-            containerViews[i].setVisibility(View.GONE);
+        // Hide the player table rows for the players who are not playing. It only needs
+        // to be done once, but setAsGui() doesn't know how many players are playing.
+        for (int i = CarcassonneGameState.MAX_PLAYERS - 1; i >= allPlayerNames.length; i--) {
+            this.playerTableRows[i].setVisibility(View.GONE);
         }
 
+        // Update the data for each player.
+        for (int i = 0; i < this.gameState.getNumPlayers(); i++) {
+            // Setting names only has to be done once, but setAsGui() doesn't know the
+            // names of the player.
+            this.playerNameTextViews[i].setText(this.allPlayerNames[i]);
 
+            // Update the meeple counts and scores.
+            this.meepleCountTextViews[i].setText("Meeples: " +
+                    this.gameState.getPlayerMeeples(i));
+            this.scoreTextViews[i].setText("Score: " +
+                    this.gameState.getPlayerCompleteScore(i) +
+                    " | Partial: " + this.gameState.getPlayerIncompleteScore(i));
+
+            // Set the background color back to transparent to remove current player
+            // highlights.
+            this.playerTableRows[i].setBackgroundColor(0x0);
+        }
+
+        // Highlight the background of the current player.
+        int currentPlayer = this.gameState.getCurrentPlayer();
+        this.playerTableRows[currentPlayer].setBackgroundColor(PLAYER_HIGHLIGHT_COLORS[currentPlayer]);
 
         // Change the text of the buttons above the current tile to be proper for the
         // current placement stage of the game.
@@ -186,44 +240,12 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
             this.currentTileImageView.setRotation(currentTile.getRotation());
         }
 
-
+        // Once the game has finished loading everything and sends the game state to
+        // each player, the game has started and we can remove the loading screen. If
+        // this is a later receiveInfo() call, this is effectively a no-op.
+        this.loadingScreen.setVisibility(View.GONE);
+        this.mainLayout.setVisibility(View.VISIBLE);
     }
-
-    /** Array of the resources of each player name GUI object. */
-    private static final int[] PLAYER_NAME_RESOURCES = {
-            R.id.bluePlayerName,
-            R.id.yellowPlayerName,
-            R.id.greenPlayerName,
-            R.id.redPlayerName,
-            R.id.blackPlayerName
-    };
-
-    /** Array of the resources of each player score GUI object. */
-    private static final int[] PLAYER_SCORE_RESOURCES = {
-            R.id.blueScore,
-            R.id.yellowScore,
-            R.id.greenScore,
-            R.id.redScore,
-            R.id.blackScore
-    };
-
-    /** Array of the resources of each player meeple count GUI object. */
-    private static final int[] MEEPLE_COUNT_RESOURCES = {
-            R.id.blueMeepleCount,
-            R.id.yellowMeepleCount,
-            R.id.greenMeepleCount,
-            R.id.redMeepleCount,
-            R.id.blackMeepleCount
-    };
-
-    /** Array of rows that have player info */
-    private static final int[] CONTAINER_COUNT_RESOURCES = {
-            R.id.bluePlayer,
-            R.id.yellowPlayer,
-            R.id.greenPlayer,
-            R.id.redPlayer,
-            R.id.blackPlayer
-    };
 
     /**
      * Sets up the human player, getting the references to each GUI object and
@@ -237,24 +259,22 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
 
         // Set this GUI as the one we're using now that the game configuration
         // screen is through.
-        activity.setContentView(R.layout.activity_main);
+        this.activity.setContentView(R.layout.activity_main);
 
-
-        // TODO: Show whose turn it is
         // TODO: Show how many tiles are left
 
         // Create the arrays for the information pertaining to each player and fill
         // them out with the appropriate GUI objects.
-        playerNameTextViews = new TextView[CarcassonneGameState.MAX_PLAYERS];
-        scoreTextViews = new TextView[CarcassonneGameState.MAX_PLAYERS];
-        meepleCountTextViews = new TextView[CarcassonneGameState.MAX_PLAYERS];
-        containerViews = new TableRow[CarcassonneGameState.MAX_PLAYERS];
+        this.playerTableRows = new TableRow[CarcassonneGameState.MAX_PLAYERS];
+        this.playerNameTextViews = new TextView[CarcassonneGameState.MAX_PLAYERS];
+        this.scoreTextViews = new TextView[CarcassonneGameState.MAX_PLAYERS];
+        this.meepleCountTextViews = new TextView[CarcassonneGameState.MAX_PLAYERS];
 
         for (int i = 0; i < CarcassonneGameState.MAX_PLAYERS; i++) {
-            playerNameTextViews[i] = activity.findViewById(PLAYER_NAME_RESOURCES[i]);
-            scoreTextViews[i] = activity.findViewById(PLAYER_SCORE_RESOURCES[i]);
-            meepleCountTextViews[i] = activity.findViewById(MEEPLE_COUNT_RESOURCES[i]);
-            containerViews[i] = activity.findViewById(CONTAINER_COUNT_RESOURCES[i]);
+            this.playerTableRows[i] = activity.findViewById(PLAYER_TABLE_ROW_RESOURCES[i]);
+            this.playerNameTextViews[i] = activity.findViewById(PLAYER_NAME_RESOURCES[i]);
+            this.scoreTextViews[i] = activity.findViewById(PLAYER_SCORE_RESOURCES[i]);
+            this.meepleCountTextViews[i] = activity.findViewById(MEEPLE_COUNT_RESOURCES[i]);
         }
 
         // Find all the GUI objects.
@@ -274,7 +294,8 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         this.currentTileImageView.setOnTouchListener(this::onTouchTileImage);
         this.boardSurfaceView.setOnTouchListener(this::onTouchBoardSurfaceView);
 
-        //toggles loading screen on
+        // Hide the main layout and show the loading screen. The loading screen will be
+        // hidden after the first receiveInfo() call.
         this.mainLayout.setVisibility(View.GONE);
         this.loadingScreen.setVisibility(View.VISIBLE);
     }
@@ -366,6 +387,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         Point point = this.boardSurfaceView.onTouch(event);
 
         // If the board reports that it was pressed and not scrolled, send an action
+        // TODO: Allow placing meeple from board
         if (point != null) {
             this.game.sendAction(new CarcassonnePlaceTileAction(this, point.x, point.y));
         }
