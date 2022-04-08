@@ -3,7 +3,7 @@ package com.example.carcassonne;
 public class FarmMeepleAnalysis extends PartMeepleAnalysis {
     @Override
     public boolean isComplete() {
-        return this.gameState.getDeck().isEmpty();
+        return this.gameState.isGameOver();
     }
 
     @Override

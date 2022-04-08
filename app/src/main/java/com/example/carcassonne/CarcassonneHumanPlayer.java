@@ -183,17 +183,18 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         this.boardSurfaceView.setGameState(this.gameState);
         this.boardSurfaceView.invalidate();
 
-        /* External Citation
+        /*
+         * External Citation
          * Date: 6 April 2022
          * Problem: Required a way to set the visibility of a GUI object programmatically.
          * Resource:
-         *     https://developer.android.com/guide/topics/ui/notifiers/toasts#java
+         *     https://developer.android.com/reference/android/view/View#setVisibility(int)
          * Solution: Used View.setVisibility() with View.VISIBLE/View.GONE.
          */
 
         // Hide the player table rows for the players who are not playing. It only needs
         // to be done once, but setAsGui() doesn't know how many players are playing.
-        for (int i = CarcassonneGameState.MAX_PLAYERS - 1; i >= allPlayerNames.length; i--) {
+        for (int i = CarcassonneGameState.MAX_PLAYERS - 1; i >= this.allPlayerNames.length; i--) {
             this.playerTableRows[i].setVisibility(View.GONE);
         }
 
@@ -231,11 +232,15 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
 
         // Update the current tile image to have the proper resource and rotation.
         Tile currentTile = this.gameState.getBoard().getCurrentTile();
-        if (currentTile != null) {
-            BitmapProvider bitmapProvider = CarcassonneMainActivity.getBitmapProvider();
+        BitmapProvider bitmapProvider = CarcassonneMainActivity.getBitmapProvider();
+
+        if (currentTile == null) {
+            // There is no image after the game has ended.
+            this.currentTileImageView.setImageResource(bitmapProvider.getEmptyTile().resource);
+        } else {
+            // Otherwise, use the proper image.
             this.currentTileImageView.setImageResource(
                     bitmapProvider.getTile(currentTile.getId()).visual.resource);
-
             // TODO: Also draw meeples on current tile
             this.currentTileImageView.setRotation(currentTile.getRotation());
         }

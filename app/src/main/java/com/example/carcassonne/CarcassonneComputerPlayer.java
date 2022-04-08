@@ -73,8 +73,8 @@ public class CarcassonneComputerPlayer extends GameComputerPlayer {
 
         CarcassonneGameState gameState = (CarcassonneGameState)info;
 
-        if (gameState.getCurrentPlayer() != this.playerNum) {
-            // Do nothing if it's not our turn.
+        if (gameState.isGameOver() || gameState.getCurrentPlayer() != this.playerNum) {
+            // Do nothing if it's not our turn or the game is over.
             return;
         }
 
@@ -82,7 +82,7 @@ public class CarcassonneComputerPlayer extends GameComputerPlayer {
         switch (this.nextAction) {
             case ROTATE:
                 // Sleep to give the illusion of thought.
-                sleep(1500);
+                //sleep(1500);
 
                 // Get a list of valid positions that we can place our tiles at and choose
                 // a random one to place the tile at.

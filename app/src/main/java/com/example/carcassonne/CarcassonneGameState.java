@@ -42,6 +42,9 @@ public class CarcassonneGameState extends GameState {
     /** Whether the current player is currently placing tiles or meeples. */
     private boolean isPlacementStage;
 
+    /** Whether the game is now over, after the last tile has been placed. */
+    private boolean isGameOver;
+
     /** The deck of tiles used this game. */
     private Deck deck;
     /** The current state of the board and the current tile being played. */
@@ -64,6 +67,10 @@ public class CarcassonneGameState extends GameState {
 
         this.playerCompleteScores = new int[numPlayers];
         this.playerIncompleteScores = new int[numPlayers];
+
+        this.currentPlayer = 0;
+        this.isPlacementStage = false;
+        this.isGameOver = false;
 
         this.deck = new Deck();
         this.board = new Board(this.deck.drawStartingTile());
@@ -96,6 +103,7 @@ public class CarcassonneGameState extends GameState {
 
         this.currentPlayer = other.currentPlayer;
         this.isPlacementStage = other.isPlacementStage;
+        this.isGameOver = other.isGameOver;
 
         this.deck = new Deck(other.deck);
         this.board = new Board(other.board);
@@ -200,6 +208,15 @@ public class CarcassonneGameState extends GameState {
      */
     public boolean isPlacementStage() {
         return this.isPlacementStage;
+    }
+
+    /**
+     * Returns the game is now over, after the last tile has been placed.
+     *
+     * @return True if the game is over, false if not.
+     */
+    public boolean isGameOver() {
+        return this.isGameOver;
     }
 
     /**
@@ -325,6 +342,7 @@ public class CarcassonneGameState extends GameState {
      * Starts a new turn by setting the current player to the specified player, setting
      * the game to the placement stage, and drawing a new tile. If there is no valid
      * placement for the drawn tile, more will be drawn until a valid one is found.
+     * If the deck is empty when trying to draw a tile, the game is over.
      *
      * @param newPlayer The index of the player whose turn it will be next.
      */
@@ -332,9 +350,14 @@ public class CarcassonneGameState extends GameState {
         this.currentPlayer = newPlayer;
         this.isPlacementStage = true;
 
-        // Draw a new tile if the deck is not empty. If it is empty, the game will be
-        // over when LocalGame checks for the emptiness of the deck.
-        while (!this.deck.isEmpty()) {
+        // Keep drawing tiles until the deck is empty. If it is, set the game as over
+        // and break. LocalGame will detect this and end the game.
+        while (true) {
+            if (this.deck.isEmpty()) {
+                this.isGameOver = true;
+                break;
+            }
+
             this.board.setCurrentTile(this.deck.drawTile(this.currentPlayer));
 
             // If there is a valid tile placement for this tile, break since we've found

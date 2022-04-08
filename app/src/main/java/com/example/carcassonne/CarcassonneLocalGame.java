@@ -63,11 +63,8 @@ public class CarcassonneLocalGame extends LocalGame {
      */
     @Override
     protected String checkIfGameOver() {
-        // TODO: Remove the last tile when checking?
-        // TODO: Bug: The last tile never gets played! isEmpty() is too eager.
-
         // Do nothing if the game isn't over.
-        if (!this.gameState.getDeck().isEmpty()) {
+        if (!this.gameState.isGameOver()) {
             return null;
         }
 
