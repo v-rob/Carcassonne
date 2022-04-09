@@ -242,6 +242,28 @@ public class Tile {
     }
 
     /**
+     * Returns the part number for the part diagonally adjacent to the specified one.
+     * For instance, 1 flipped is 2 and vice-versa.
+     *
+     * @param part The part to find the diagonally adjacent part for.
+     * @return The diagonally adjacent part to the provided part.
+     */
+    public static int getDiagonalPart(int part) {
+        /* If a part is odd, the diagonally adjacent is the next even one, and if the
+         * part is even, it is the previous odd one.
+         *
+         * To make this work for the parts 0 and 7, we have to modulus by 8 to make it
+         * wrap around. Additionally, since (-1 % 8) == -1 in Java, we add 7 rather than
+         * subtract one so 0 goes to 7 rather than to -1; everything else will still wrap
+         * around to their proper parts.
+         */
+        if (part % 2 == 0) {
+            return (part + 9) % 8;
+        }
+        return (part + 1) % 8;
+    }
+
+    /**
      * Given a part number, this function returns an offset of either -1 or 1 for the
      * tile next to the specified part number in the horizontal direction. Parts on
      * the vertical side of the tile return 0.

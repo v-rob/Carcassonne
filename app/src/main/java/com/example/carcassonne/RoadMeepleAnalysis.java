@@ -7,13 +7,8 @@ public class RoadMeepleAnalysis extends PartMeepleAnalysis {
     }
 
     @Override
-    public int getScore(int player) {
+    public int getScore() {
         return this.visitedTiles.size();
-    }
-
-    @Override
-    public boolean isMeepleValid() {
-        return false;
     }
 
     public RoadMeepleAnalysis(CarcassonneGameState gameState, int x, int y,

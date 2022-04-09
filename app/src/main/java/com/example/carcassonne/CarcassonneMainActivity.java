@@ -19,7 +19,7 @@ import java.util.ArrayList;
  * - The code for loading sections had some sections flipped
  *
  * Known bugs:
- * - The game ends right before the last tile is drawn and placed.
+ * - None as of now.
  */
 
 /**

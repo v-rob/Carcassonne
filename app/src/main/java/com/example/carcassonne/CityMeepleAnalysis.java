@@ -9,13 +9,12 @@ public class CityMeepleAnalysis extends PartMeepleAnalysis {
     }
 
     @Override
-    public int getScore(int player) {
-        return 0;
-    }
-
-    @Override
-    public boolean isMeepleValid() {
-        return false;
+    public int getScore() {
+        int score = this.visitedTiles.size() + numPennants;
+        if (isComplete()) {
+            return score * 2;
+        }
+        return score;
     }
 
     @Override

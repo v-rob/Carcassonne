@@ -9,13 +9,11 @@ public abstract class MeepleAnalysis {
 
     public abstract boolean isComplete();
 
-    public abstract int getScore(int player);
+    public abstract int getScore();
 
     public abstract boolean isMeepleValid();
 
-    public void returnMeeples() {
-        assert isComplete();
-    }
+    public abstract void returnMeeples();
 
     protected abstract void runAnalysis(int x, int y);
 

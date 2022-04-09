@@ -29,8 +29,7 @@ public abstract class PartMeepleAnalysis extends MeepleAnalysis {
         return true;
     }
 
-    @Override
-    public void returnMeeples() {
+    public HashSet<Integer> getScoringPlayers() {
         // Create arrays for each player containing all their meeples.
         ArrayList<Section>[] playerMeeples = new ArrayList[CarcassonneGameState.MAX_PLAYERS];
         for (int i = 0; i < playerMeeples.length; i++) {
@@ -54,20 +53,32 @@ public abstract class PartMeepleAnalysis extends MeepleAnalysis {
             }
         }
 
-        // Return the meeples for the player with the highest number of meeples/the
-        // players that are tied for the highest number of meeples.
+        HashSet<Integer> scoringPlayers = new HashSet<>();
+
+        // If the highest score is zero, there are no meeples, so return no players.
+        if (highest == 0) {
+            return scoringPlayers;
+        }
+
+        // Find the meeples for the player(s) with the highest number of meeples.
         for (int i = 0; i < playerMeeples.length; i++) {
-            // Ignore players who don't have the highest number of meeples.
-            int numMeeples = playerMeeples[i].size();
-            if (numMeeples != highest) {
-                continue;
+            if (playerMeeples[i].size() == highest) {
+                scoringPlayers.add(i);
             }
+        }
 
-            // Add the meeples back to the player's meeples.
-            this.gameState.addPlayerMeeples(this.startTile.getMeepleOwner(), numMeeples);
+        return scoringPlayers;
+    }
 
-            // Remove the meeples from each tile.
-            for (Section section : playerMeeples[i]) {
+    @Override
+    public void returnMeeples() {
+        assert isComplete();
+
+        HashSet<Integer> scoringPlayers = getScoringPlayers();
+
+        for (Section section : this.visitedSections) {
+            if (scoringPlayers.contains(section.getMeepleOwner())) {
+                this.gameState.addPlayerMeeples(section.getMeepleOwner(), 1);
                 section.removeMeeple();
             }
         }
@@ -126,5 +137,8 @@ public abstract class PartMeepleAnalysis extends MeepleAnalysis {
         this.visitedTiles = new HashSet<>();
         this.visitedSections = new HashSet<>();
         this.isClosed = true;
+
+        // Do not run the analysis; that is for derivative classes to do in their
+        // constructors.
     }
 }

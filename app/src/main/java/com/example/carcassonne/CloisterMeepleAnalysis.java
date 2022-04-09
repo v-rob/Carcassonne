@@ -14,22 +14,17 @@ public class CloisterMeepleAnalysis extends MeepleAnalysis {
     }
 
     @Override
-    public int getScore(int player) {
-        // If there is a meeple owned by the specified player, return the score.
-        if (this.startSection.hasMeeple() &&
-                this.startSection.getMeepleOwner() == player) {
-            return this.neighbors;
-        }
-        return 0;
+    public int getScore() {
+        return this.neighbors;
     }
 
     @Override
     public void returnMeeples() {
-        super.returnMeeples();
+        assert isComplete();
 
         // If we have a meeple, remove it and add it to the player's meeples.
         if (this.startSection.hasMeeple()) {
-            this.gameState.addPlayerMeeples(this.startTile.getMeepleOwner(), 1);
+            this.gameState.addPlayerMeeples(this.startSection.getMeepleOwner(), 1);
             this.startSection.removeMeeple();
         }
     }
