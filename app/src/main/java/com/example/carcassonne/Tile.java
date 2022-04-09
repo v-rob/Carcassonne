@@ -140,6 +140,19 @@ public class Tile {
     /** The map of all section colors to Sections that this tile contains. */
     private HashMap<Integer, Section> sections;
 
+    /**
+     * If there is a meeple on this tile, contains the color of the section that
+     * the meeple is in. Otherwise, this contains NO_MEEPLE.
+     */
+    private int meepleSection;
+
+    /**
+     * The player index of the player who placed this tile and therefore owns any
+     * meeples on the tile. Must be set with setMeepleOwner() sometime after the tile
+     * has been created.
+     */
+    private int owner;
+
     /** Indicates whether this tile has a pennant on it. */
     private boolean hasPennant;
 
@@ -148,6 +161,12 @@ public class Tile {
      * of 90 in the range 0-270.
      */
     private int rotation;
+
+    /** The X position of this tile on the board, or -1 if it is not on the board. */
+    private int x;
+
+    /** The Y position of this tile on the board, or -1 if it is not on the board. */
+    private int y;
 
     /** Indicates that a section or section color is a farm. */
     public static final int TYPE_FARM = 1;
@@ -449,6 +468,15 @@ public class Tile {
     }
 
     /**
+     * Queries whether the tile has a meeple on it.
+     *
+     * @return True if there is a meeple on this tile, false otherwise.
+     */
+    public boolean hasMeeple() {
+        return this.meepleSection != NO_MEEPLE;
+    }
+
+    /**
      * Sets the meeple on this tile to a new X and Y position. It looks up the section
      * from the tile's map image.
      *
@@ -463,15 +491,12 @@ public class Tile {
         // and Y positions automatically.
         BitmapProvider bitmapProvider = CarcassonneMainActivity.getBitmapProvider();
 
-        int color = bitmapProvider.getTile(this.id).map.bitmap.getPixel(x, y);
-        this.sections.get(color).addMeeple();
+        this.meepleSection = bitmapProvider.getTile(this.id).map.bitmap.getPixel(x, y);
     }
 
     /** Removes the meeple from this tile if there is one. */
     public void removeMeeple() {
-        for (Section section : this.sections.values()) {
-            section.removeMeeple();
-        }
+        this.meepleSection = NO_MEEPLE;
     }
 
     /**
@@ -480,12 +505,7 @@ public class Tile {
      * @return The section that the meeple is in, or null if no meeple.
      */
     public Section getMeepleSection() {
-        for (Section section : this.sections.values()) {
-            if (section.hasMeeple()) {
-                return section;
-            }
-        }
-        return null;
+        return this.sections.get(this.meepleSection);
     }
 
     /**
@@ -502,15 +522,6 @@ public class Tile {
     }
 
     /**
-     * Queries whether the tile has a meeple on it.
-     *
-     * @return True if there is a meeple on this tile, false otherwise.
-     */
-    public boolean hasMeeple() {
-        return getMeepleType() != NO_TYPE;
-    }
-
-    /**
      * Queries the index of the player that placed this tile, and therefore the owner
      * of any meeples on the tile as well. If there is no owner (i.e. it was freshly
      * drawn from the deck), returns -1.
@@ -518,10 +529,8 @@ public class Tile {
      * @return The index of the player who placed this tile, or -1 if there is no
      *         owner yet.
      */
-    public int getMeepleOwner() {
-        // Since all sections have an owner instance variable, there's no need to
-        // store our own copy; just get it from the first section we come across.
-        return this.sections.values().iterator().next().getMeepleOwner();
+    public int getOwner() {
+        return this.owner;
     }
 
     /**
@@ -531,10 +540,18 @@ public class Tile {
      *
      * @param owner The index of the player who placed this tile.
      */
-    public void setMeepleOwner(int owner) {
-        for (Section section : this.sections.values()) {
-            section.setMeepleOwner(owner);
-        }
+    public void setOwner(int owner) {
+        this.owner = owner;
+    }
+
+    /**
+     * Queries whether the city in this tile has a pennant. Tiles with zero or two
+     * cities will always return false.
+     *
+     * @return True if there is a pennant, false otherwise.
+     */
+    public boolean hasPennant() {
+        return this.hasPennant;
     }
 
     /**
@@ -570,13 +587,33 @@ public class Tile {
     }
 
     /**
-     * Queries whether the city in this tile has a pennant. Tiles with zero or two
-     * cities will always return false.
+     * Queries the X position of this tile on the board.
      *
-     * @return True if there is a pennant, false otherwise.
+     * @return The X position of the tile, or -1 if it is not on the board yet.
      */
-    public boolean hasPennant() {
-        return this.hasPennant;
+    public int getX() {
+        return this.x;
+    }
+
+    /**
+     * Queries the Y position of this tile on the board.
+     *
+     * @return The Y position of the tile, or -1 if it is not on the board yet.
+     */
+    public int getY() {
+        return this.y;
+    }
+
+    /**
+     * Sets the X and Y coordinates of this tile on the board. It is only valid to call
+     * this function on the current tile.
+     *
+     * @param x The new X position of this tile on the board.
+     * @param y The new Y position of this tile on the board.
+     */
+    public void setPosition(int x, int y) {
+        this.x = x;
+        this.y = y;
     }
 
     /**
@@ -588,8 +625,14 @@ public class Tile {
     public String toString() {
         ToStringer toStr = new ToStringer("Tile");
 
+        toStr.add("id", this.id);
         toStr.add("sections", this.sections);
+        toStr.add("meepleSection", this.meepleSection);
+        toStr.add("meepleOwner", this.owner);
         toStr.add("hasPennant", this.hasPennant);
+        toStr.add("rotation", this.rotation);
+        toStr.add("x", this.x);
+        toStr.add("y", this.y);
 
         return toStr.toString();
     }
@@ -605,9 +648,14 @@ public class Tile {
 
         // Fill out everything to the default/empty state
         this.sections = new HashMap<>();
+
+        this.meepleSection = NO_MEEPLE;
+        this.owner = -1;
         this.hasPennant = false;
 
         this.rotation = 0;
+        this.x = -1;
+        this.y = -1;
 
         BitmapProvider bitmapProvider = CarcassonneMainActivity.getBitmapProvider();
         Bitmap sectionBitmap = bitmapProvider.getTile(id).section.bitmap;
@@ -627,10 +675,18 @@ public class Tile {
     public Tile(Tile other) {
         this.id = other.id;
 
-        this.sections = Util.deepCopyMap(other.sections, HashMap::new, Section::new);
+        // Make a deep copy, explicitly providing this deep copy as the new parent of
+        // each deep copied section.
+        this.sections = Util.deepCopyMap(other.sections, HashMap::new,
+                (section) -> new Section(section, this));
+
+        this.meepleSection = other.meepleSection;
+        this.owner = other.owner;
         this.hasPennant = other.hasPennant;
 
         this.rotation = other.rotation;
+        this.x = other.x;
+        this.y = other.y;
     }
 
     /**
@@ -681,7 +737,7 @@ public class Tile {
                 // There should be no duplicate sections with the same color.
                 assert !this.sections.containsKey(color);
 
-                this.sections.put(color, new Section(getTypeFromColor(color), x, y));
+                this.sections.put(color, new Section(this, getTypeFromColor(color), x, y));
             }
         }
     }

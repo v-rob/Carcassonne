@@ -40,7 +40,7 @@ public abstract class PartMeepleAnalysis extends MeepleAnalysis {
         // the proper player's array.
         for (Section section : this.visitedSections) {
             if (section.hasMeeple()) {
-                playerMeeples[section.getMeepleOwner()].add(section);
+                playerMeeples[section.getOwner()].add(section);
             }
         }
 
@@ -77,17 +77,17 @@ public abstract class PartMeepleAnalysis extends MeepleAnalysis {
         HashSet<Integer> scoringPlayers = getScoringPlayers();
 
         for (Section section : this.visitedSections) {
-            if (scoringPlayers.contains(section.getMeepleOwner())) {
-                this.gameState.addPlayerMeeples(section.getMeepleOwner(), 1);
-                section.removeMeeple();
+            if (section.hasMeeple() && scoringPlayers.contains(section.getOwner())) {
+                this.gameState.addPlayerMeeples(section.getOwner(), 1);
+                section.getParent().removeMeeple();
             }
         }
     }
 
     @Override
-    protected void runAnalysis(int x, int y) {
+    protected void runAnalysis() {
         for (int part : this.startSection.getParts()) {
-            partAnalysis(x, y, part);
+            partAnalysis(this.startTile.getX(), this.startTile.getY(), part);
         }
     }
 
@@ -129,16 +129,16 @@ public abstract class PartMeepleAnalysis extends MeepleAnalysis {
         }
     }
 
-    public PartMeepleAnalysis(CarcassonneGameState gameState, int x, int y,
-                              Section startSection, boolean isRoad) {
-        super(gameState, x, y, startSection);
+    public PartMeepleAnalysis(CarcassonneGameState gameState, Section startSection,
+                              boolean isRoad) {
+        super(gameState, startSection);
 
         this.isRoad = isRoad;
         this.visitedTiles = new HashSet<>();
         this.visitedSections = new HashSet<>();
         this.isClosed = true;
 
-        // Do not run the analysis; that is for derivative classes to do in their
-        // constructors.
+        // Do not run the analysis; that is for subclasses to do in their
+        // respective constructors.
     }
 }

@@ -36,16 +36,6 @@ public class Board {
      * overlap other tiles.
      */
     private Tile currentTile;
-    /**
-     * The X position of the current tile in the tiles array. If the current tile has not
-     * yet been placed down or if there is no current tile, it contains -1.
-     */
-    private int currentTileX;
-    /**
-     * The Y position of the current tile in the tiles array. If the current tile has not
-     * yet been placed down or if there is no current tile, it contains -1.
-     */
-    private int currentTileY;
 
     /**
      * Queries the width of the board, including the empty border.
@@ -85,7 +75,8 @@ public class Board {
      *         position is out of bounds.
      */
     public Tile getTile(int x, int y) {
-        if (x == this.currentTileX && y == this.currentTileY) {
+        if (this.currentTile != null &&
+                x == this.currentTile.getX() && y == this.currentTile.getY()) {
             return this.currentTile;
         }
         return getConfirmedTile(x, y);
@@ -116,26 +107,6 @@ public class Board {
     }
 
     /**
-     * Returns the X position of the tile currently being placed, or -1 if there is
-     * no such tile or the tile has not been placed down yet.
-     *
-     * @return The X position of the tile being placed, or -1 if no position.
-     */
-    public int getCurrentTileX() {
-        return this.currentTileX;
-    }
-
-    /**
-     * Returns the Y position of the tile currently being placed, or -1 if there is
-     * no such tile or the tile has not been placed down yet.
-     *
-     * @return The Y position of the tile being placed, or -1 if no position.
-     */
-    public int getCurrentTileY() {
-        return this.currentTileY;
-    }
-
-    /**
      * Sets the tile currently being placed to a new tile. The tile will be given no
      * position, i.e. an X and Y position of -1.
      *
@@ -143,29 +114,6 @@ public class Board {
      */
     public void setCurrentTile(Tile tile) {
         this.currentTile = tile;
-        resetCurrentTilePosition();
-    }
-
-    /**
-     * Sets the tile currently being placed to a new position. If the position is
-     * already occupied, it is an error.
-     *
-     * @param x The X position to give the tile.
-     * @param y The Y position to give the tile.
-     */
-    public void setCurrentTilePosition(int x, int y) {
-        // Ensure this position is not already taken.
-        assert getConfirmedTile(x, y) == null;
-
-        this.currentTileX = x;
-        this.currentTileY = y;
-    }
-
-    /**
-     * Resets the X and Y position of the current tile to -1.
-     */
-    public void resetCurrentTilePosition() {
-        this.currentTileX = this.currentTileY = -1;
     }
 
     /**
@@ -174,22 +122,24 @@ public class Board {
      * the X and Y positions set to -1.
      *
      * It is an error if the current tile placement or meeple placement on the tile
-     * are invalid. They can be checked with isCurrentTilePlacementValid() and
-     * isCurrentMeeplePlacementValid().
+     * are invalid. They can be checked with isCurrentPlacementValid().
      */
     public void confirmCurrentTile() {
         // Ensure the tile is valid so we don't run into bugs later.
         assert isCurrentPlacementValid();
+        
+        int currentX = this.currentTile.getX();
+        int currentY = this.currentTile.getY();
 
         // Insert the current tile into the array.
-        this.tiles[this.currentTileY][this.currentTileX] = this.currentTile;
+        this.tiles[currentY][currentX] = this.currentTile;
 
         // Booleans for checking if the tile was placed in the empty border
-        boolean incLeft = this.currentTileX == 0;
-        boolean incTop  = this.currentTileY == 0;
+        boolean incLeft = currentX == 0;
+        boolean incTop  = currentY == 0;
 
-        boolean incX = incLeft || this.currentTileX == getWidth() - 1;
-        boolean incY = incTop  || this.currentTileY == getHeight() - 1;
+        boolean incX = incLeft || currentX == getWidth() - 1;
+        boolean incY = incTop  || currentY == getHeight() - 1;
 
         // Resize the tile array if necessary
         if (incX || incY) {
@@ -210,7 +160,6 @@ public class Board {
 
         // Reset the current tile to null and no position.
         this.currentTile = null;
-        resetCurrentTilePosition();
     }
 
     /**
@@ -223,9 +172,12 @@ public class Board {
      * @return True if the current tile placement is valid, false otherwise.
      */
     public boolean isCurrentTilePlacementValid() {
+        int currentX = this.currentTile.getX();
+        int currentY = this.currentTile.getY();
+        
         // Out-of-bounds tiles or tiles that are already occupied are never valid.
-        if (isOutOfBounds(this.currentTileX, this.currentTileY) ||
-                getConfirmedTile(this.currentTileX, this.currentTileY) != null) {
+        if (isOutOfBounds(currentX, currentY) ||
+                getConfirmedTile(currentX, currentY) != null) {
             return false;
         }
 
@@ -274,7 +226,7 @@ public class Board {
 
         int total = 0;
         for (int part : this.currentTile.getMeepleSection().getParts()) {
-            total += countSectionMeeples(type, this.currentTileX, this.currentTileY,
+            total += countSectionMeeples(type, this.currentTile.getX(), this.currentTile.getY(),
                     part, visited);
         }
 
@@ -326,8 +278,10 @@ public class Board {
      */
     public ArrayList<TilePlacement> getValidTilePlacements() {
         // Back up the original position of the current tile since it will be changed.
-        int origX = this.currentTileX;
-        int origY = this.currentTileY;
+        // Rotation automatically goes through a full 360 degrees each inner loop,
+        // so no need to back it up.
+        int origX = this.currentTile.getX();
+        int origY = this.currentTile.getY();
 
         ArrayList<TilePlacement> placements = new ArrayList<>();
 
@@ -336,24 +290,20 @@ public class Board {
             for (int y = 0; y < getHeight(); y++) {
                 for (int rot = 0; rot < 4; rot++) {
                     // Set the current tile to these parameters.
-                    this.currentTileX = x;
-                    this.currentTileY = y;
+                    this.currentTile.setPosition(x, y);
                     this.currentTile.rotate();
 
                     // If the placement is valid, add it to the array of valid placements.
                     if (isCurrentTilePlacementValid()) {
-                        placements.add(new TilePlacement(
-                                this.currentTileX, this.currentTileY,
+                        placements.add(new TilePlacement(x, y,
                                 this.currentTile.getRotation()));
                     }
                 }
             }
         }
 
-        // Restore the current tile's position. Rotation automatically goes through a full
-        // 360 degrees each inner loop, so no need to restore it.
-        this.currentTileX = origX;
-        this.currentTileY = origY;
+        // Restore the current tile's position.
+        this.currentTile.setPosition(origX, origY);
 
         return placements;
     }
@@ -369,8 +319,6 @@ public class Board {
         ToStringer toStr = new ToStringer("Board");
 
         toStr.add("currentTile", this.currentTile);
-        toStr.add("currentTileX", this.currentTileX);
-        toStr.add("currentTileY", this.currentTileY);
 
         toStr.add("getWidth()", getWidth());
         toStr.add("getHeight()", getHeight());
@@ -399,7 +347,6 @@ public class Board {
         this.tiles[1][1] = startingTile;
 
         this.currentTile = null;
-        resetCurrentTilePosition();
     }
 
     /**
@@ -411,8 +358,6 @@ public class Board {
         this.tiles = Util.deepCopyNested(other.tiles, Tile::new);
 
         this.currentTile = Util.copyOrNull(other.currentTile, Tile::new);
-        this.currentTileX = other.currentTileX;
-        this.currentTileY = other.currentTileY;
     }
 
     /**
@@ -453,8 +398,8 @@ public class Board {
      */
     private void isAdjacentValid(Board.AdjacentValidation adjacent, int xOffset, int yOffset,
                                  int firstPart, int secondPart, int roadPart) {
-        Tile tile = getConfirmedTile(this.currentTileX + xOffset,
-                this.currentTileY + yOffset);
+        Tile tile = getConfirmedTile(this.currentTile.getX() + xOffset,
+                this.currentTile.getY() + yOffset);
         if (tile == null) {
             // There's no tile: nothing has changed.
             return;

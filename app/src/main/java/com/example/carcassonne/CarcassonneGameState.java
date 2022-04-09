@@ -248,7 +248,7 @@ public class CarcassonneGameState extends GameState {
      */
     public boolean placeTile(int x, int y) {
         if (this.isPlacementStage && this.board.getConfirmedTile(x, y) == null) {
-            this.board.setCurrentTilePosition(x, y);
+            this.board.getCurrentTile().setPosition(x, y);
             return true;
         }
         return false;

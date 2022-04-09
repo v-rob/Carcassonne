@@ -82,7 +82,7 @@ public class CarcassonneComputerPlayer extends GameComputerPlayer {
         switch (this.nextAction) {
             case ROTATE:
                 // Sleep to give the illusion of thought.
-                //sleep(1500);
+                sleep(1500);
 
                 // Get a list of valid positions that we can place our tiles at and choose
                 // a random one to place the tile at.

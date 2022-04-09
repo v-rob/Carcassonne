@@ -18,8 +18,8 @@ public class CityMeepleAnalysis extends PartMeepleAnalysis {
     }
 
     @Override
-    protected void runAnalysis(int x, int y) {
-        super.runAnalysis(x, y);
+    protected void runAnalysis() {
+        super.runAnalysis();
 
         for (Tile tile : this.visitedTiles) {
             if (tile.hasPennant()) {
@@ -28,11 +28,10 @@ public class CityMeepleAnalysis extends PartMeepleAnalysis {
         }
     }
 
-    public CityMeepleAnalysis(CarcassonneGameState gameState, int x, int y,
-                              Section startSection) {
-        super(gameState, x, y, startSection, false);
+    public CityMeepleAnalysis(CarcassonneGameState gameState, Section startSection) {
+        super(gameState, startSection, false);
         this.numPennants = 0;
 
-        runAnalysis(x, y);
+        runAnalysis();
     }
 }

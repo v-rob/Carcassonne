@@ -9,33 +9,32 @@ public abstract class MeepleAnalysis {
 
     public abstract boolean isComplete();
 
-    public abstract int getScore();
-
     public abstract boolean isMeepleValid();
+
+    public abstract int getScore();
 
     public abstract void returnMeeples();
 
-    protected abstract void runAnalysis(int x, int y);
+    protected abstract void runAnalysis();
 
-    public MeepleAnalysis(CarcassonneGameState gameState, int x, int y, Section startSection) {
+    public MeepleAnalysis(CarcassonneGameState gameState, Section startSection) {
         this.gameState = gameState;
         this.board = this.gameState.getBoard();
 
-        this.startTile = board.getTile(x, y);
+        this.startTile = startSection.getParent();
         this.startSection = startSection;
     }
 
-    public static MeepleAnalysis create(CarcassonneGameState gameState, int x, int y,
-                                        Section startSection) {
+    public static MeepleAnalysis create(CarcassonneGameState gameState, Section startSection) {
         switch (startSection.getType()) {
             case Tile.TYPE_FARM:
-                return new FarmMeepleAnalysis(gameState, x, y, startSection);
+                return new FarmMeepleAnalysis(gameState, startSection);
             case Tile.TYPE_CITY:
-                return new CityMeepleAnalysis(gameState, x, y, startSection);
+                return new CityMeepleAnalysis(gameState, startSection);
             case Tile.TYPE_ROAD:
-                return new RoadMeepleAnalysis(gameState, x, y, startSection);
+                return new RoadMeepleAnalysis(gameState, startSection);
             case Tile.TYPE_CLOISTER:
-                return new CloisterMeepleAnalysis(gameState, x, y, startSection);
+                return new CloisterMeepleAnalysis(gameState, startSection);
         }
 
         // Shouldn't be able to happen.

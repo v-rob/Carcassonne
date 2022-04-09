@@ -24,25 +24,25 @@ public class CloisterMeepleAnalysis extends MeepleAnalysis {
 
         // If we have a meeple, remove it and add it to the player's meeples.
         if (this.startSection.hasMeeple()) {
-            this.gameState.addPlayerMeeples(this.startSection.getMeepleOwner(), 1);
-            this.startSection.removeMeeple();
+            this.gameState.addPlayerMeeples(this.startSection.getOwner(), 1);
+            this.startSection.getParent().removeMeeple();
         }
     }
 
     @Override
-    protected void runAnalysis(int x, int y) {
+    protected void runAnalysis() {
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
-                if (this.board.getTile(x + dx, y + dy) != null) {
+                if (this.board.getTile(this.startTile.getX() + dx,
+                        this.startTile.getY() + dy) != null) {
                     this.neighbors++;
                 }
             }
         }
     }
 
-    public CloisterMeepleAnalysis(CarcassonneGameState gameState, int x, int y,
-                                  Section startSection) {
-        super(gameState, x, y, startSection);
-        runAnalysis(x, y);
+    public CloisterMeepleAnalysis(CarcassonneGameState gameState, Section startSection) {
+        super(gameState, startSection);
+        runAnalysis();
     }
 }

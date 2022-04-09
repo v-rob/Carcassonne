@@ -21,6 +21,9 @@ import java.util.HashSet;
  * @author Cheyanne Yim
  */
 public class Section {
+    /** The parent tile that contains this section. */
+    private Tile parent;
+
     /** The type of the section, which is one of the TYPE_* constants in Tile. */
     private int type;
 
@@ -43,23 +46,13 @@ public class Section {
     private int meepleY;
 
     /**
-     * Whether this section has a meeple in it. Only one section per tile may have a
-     * meeple, but it's the Tile class's job to do that.
+     * Gets the parent tile that contains this section.
      *
-     * This is stored in each Section rather than the parent Tile so that the
-     * MeepleAnalysis classes can work with sections rather than juggling between
-     * sections and tiles.
+     * @return The parent tile that contains this section.
      */
-    private boolean hasMeeple;
-
-    /**
-     * The player index of the player who placed the tile and therefore owns any meeple
-     * in this section. It will be set by Tile.setOwner(), and is -1 before then.
-     *
-     * Owner is stored in Section rather than the parent Tile for the same reasons as
-     * hasMeeple.
-     */
-    private int meepleOwner;
+    public Tile getParent() {
+        return this.parent;
+    }
 
     /**
      * Gets the type of this section.
@@ -122,46 +115,26 @@ public class Section {
     }
 
     /**
-     * Queries whether this section has a meeple or not.
+     * Queries whether this section has a meeple or not. Convenience method, just
+     * calls getMeepleSection() on the parent tile and compares it to this.
      *
      * @return True if the section has a meeple, false otherwise.
      */
     public boolean hasMeeple() {
-        return this.hasMeeple;
+        return this.getParent().getMeepleSection() == this;
     }
 
     /**
-     * Adds a meeple to this section. This should only be called by Tile.addMeeple().
-     */
-    public void addMeeple() {
-        this.hasMeeple = true;
-    }
-
-    /** Removes the meeple from this section if there is one. */
-    public void removeMeeple() {
-        this.hasMeeple = false;
-    }
-
-    /**
-     * Gets the player index of the player who placed the tile and therefore the owner
-     * of any meeple in this section. If there is no owner (i.e. it was freshly drawn
-     * from the deck), returns -1.
+     * Queries the index of the player that placed this tile, and therefore the owner
+     * of any meeples on the tile as well. If there is no owner (i.e. it was freshly
+     * drawn from the deck), returns -1. Convenience method, just calls getOwner() on
+     * the parent tile.
      *
      * @return The index of the player who placed this tile, or -1 if there is no
      *         owner yet.
      */
-    public int getMeepleOwner() {
-        return this.meepleOwner;
-    }
-
-    /**
-     * Sets the player index of the player who placed this tile. It should only be
-     * called by Tile.setOwner().
-     *
-     * @param owner The index of the player who placed this tile.
-     */
-    public void setMeepleOwner(int owner) {
-        this.meepleOwner = owner;
+    public int getOwner() {
+        return this.getParent().getOwner();
     }
 
     /** Rotates this section 90 degrees clockwise. */
@@ -208,6 +181,10 @@ public class Section {
     public String toString() {
         ToStringer toStr = new ToStringer("Section");
 
+        // We can't add the parent tile directly to avoid infinite recursion, so just
+        // add it's address instead.
+        toStr.add("parent", this.parent.hashCode());
+
         toStr.add("parts", this.parts);
         toStr.add("type", this.type);
         toStr.add("meepleX", this.meepleX);
@@ -220,35 +197,36 @@ public class Section {
      * Creates a new section with the specified type and meeple X and Y display
      * position.
      *
+     * @param parent  The parent tile that contains this section.
      * @param type    The type of the section.
      * @param meepleX The X display position of meeples in this section.
      * @param meepleY The Y display position of meeples in this section.
      */
-    public Section(int type, int meepleX, int meepleY) {
+    public Section(Tile parent, int type, int meepleX, int meepleY) {
+        this.parent = parent;
         this.type = type;
 
         this.parts = new HashSet<>();
 
         this.meepleX = meepleX;
         this.meepleY = meepleY;
-        this.hasMeeple = false;
-        this.meepleOwner = -1;
     }
 
     /**
      * Create a new section that is a deep copy of another section and all its
-     * instance variables.
+     * instance variables. Since sections contain a **reference** to their
+     * parent tile, the parent must be provided manually.
      *
-     * @param other The section to make a copy of.
+     * @param other  The section to make a copy of.
+     * @param parent The new parent of the deep copy of the original section.
      */
-    public Section(Section other) {
+    public Section(Section other, Tile parent) {
+        this.parent = parent;
         this.type = other.type;
 
         this.parts = new HashSet<>(other.parts);
 
         this.meepleX = other.meepleX;
         this.meepleY = other.meepleY;
-        this.hasMeeple = other.hasMeeple;
-        this.meepleOwner = other.meepleOwner;
     }
 }

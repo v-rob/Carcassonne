@@ -37,7 +37,7 @@ public class Deck {
      */
     public Tile drawTile(int owner) {
         Tile tile = this.tiles.remove((int)(Math.random() * this.tiles.size()));
-        tile.setMeepleOwner(owner);
+        tile.setOwner(owner);
         return tile;
     }
 

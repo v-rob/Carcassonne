@@ -234,14 +234,15 @@ public class BoardSurfaceView extends SurfaceView {
 
         // If the current tile has been placed on the board, draw the valid/invalid
         // border around it.
-        if (board.getCurrentTileX() != -1) {
+        Tile currentTile = board.getCurrentTile();
+        if (currentTile.getX() != -1) {
             Bitmap border = board.isCurrentPlacementValid() ?
                     bitmapProvider.getValidBorder().bitmap :
                     bitmapProvider.getInvalidBorder().bitmap;
 
             canvas.drawBitmap(border, null, makeRect(
-                    board.getCurrentTileX() * Tile.SIZE,
-                    board.getCurrentTileY() * Tile.SIZE,
+                    currentTile.getX() * Tile.SIZE,
+                    currentTile.getY() * Tile.SIZE,
                     Tile.SIZE,
                     Tile.SIZE
             ), null);
@@ -262,7 +263,7 @@ public class BoardSurfaceView extends SurfaceView {
 
                 // Choose the color of the meeple from the owner of the tile.
                 BitmapProvider.MeepleBitmapData bitmapData =
-                        bitmapProvider.getMeeple(tile.getMeepleOwner());
+                        bitmapProvider.getMeeple(tile.getOwner());
 
                 // Farmers have their own special bitmaps, so select the correct one.
                 Bitmap meepleBitmap = meepleSection.getType() == Tile.TYPE_FARM ?
