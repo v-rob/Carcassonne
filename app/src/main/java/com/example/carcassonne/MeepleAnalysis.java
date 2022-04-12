@@ -1,7 +1,6 @@
 package com.example.carcassonne;
 
 public abstract class MeepleAnalysis {
-    protected CarcassonneGameState gameState;
     protected Board board;
 
     protected Tile startTile;
@@ -13,28 +12,27 @@ public abstract class MeepleAnalysis {
 
     public abstract int getScore();
 
-    public abstract void returnMeeples();
+    //public abstract void returnMeeples();
 
     protected abstract void runAnalysis();
 
-    public MeepleAnalysis(CarcassonneGameState gameState, Section startSection) {
-        this.gameState = gameState;
-        this.board = this.gameState.getBoard();
+    public MeepleAnalysis(Board board, Section startSection) {
+        this.board = board;
 
         this.startTile = startSection.getParent();
         this.startSection = startSection;
     }
 
-    public static MeepleAnalysis create(CarcassonneGameState gameState, Section startSection) {
+    public static MeepleAnalysis create(Board board, Section startSection) {
         switch (startSection.getType()) {
             case Tile.TYPE_FARM:
-                return new FarmMeepleAnalysis(gameState, startSection);
+                return new FarmMeepleAnalysis(board, startSection);
             case Tile.TYPE_CITY:
-                return new CityMeepleAnalysis(gameState, startSection);
+                return new CityMeepleAnalysis(board, startSection);
             case Tile.TYPE_ROAD:
-                return new RoadMeepleAnalysis(gameState, startSection);
+                return new RoadMeepleAnalysis(board, startSection);
             case Tile.TYPE_CLOISTER:
-                return new CloisterMeepleAnalysis(gameState, startSection);
+                return new CloisterMeepleAnalysis(board, startSection);
         }
 
         // Shouldn't be able to happen.

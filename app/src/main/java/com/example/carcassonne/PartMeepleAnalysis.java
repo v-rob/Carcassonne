@@ -70,7 +70,7 @@ public abstract class PartMeepleAnalysis extends MeepleAnalysis {
         return scoringPlayers;
     }
 
-    @Override
+    /*@Override
     public void returnMeeples() {
         assert isComplete();
 
@@ -82,7 +82,7 @@ public abstract class PartMeepleAnalysis extends MeepleAnalysis {
                 section.getParent().removeMeeple();
             }
         }
-    }
+    }*/
 
     @Override
     protected void runAnalysis() {
@@ -107,7 +107,7 @@ public abstract class PartMeepleAnalysis extends MeepleAnalysis {
 
         // Don't count sections we've already searched through so that we don't run
         // into infinite recursion.
-        if (visitedSections.contains(section)) {
+        if (this.visitedSections.contains(section)) {
             return;
         }
 
@@ -129,9 +129,9 @@ public abstract class PartMeepleAnalysis extends MeepleAnalysis {
         }
     }
 
-    public PartMeepleAnalysis(CarcassonneGameState gameState, Section startSection,
+    public PartMeepleAnalysis(Board board, Section startSection,
                               boolean isRoad) {
-        super(gameState, startSection);
+        super(board, startSection);
 
         this.isRoad = isRoad;
         this.visitedTiles = new HashSet<>();

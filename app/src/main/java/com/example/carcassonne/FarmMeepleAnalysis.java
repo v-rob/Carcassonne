@@ -5,7 +5,7 @@ import java.util.HashSet;
 public class FarmMeepleAnalysis extends PartMeepleAnalysis {
     @Override
     public boolean isComplete() {
-        return this.gameState.isGameOver();
+        return false;
     }
 
     @Override
@@ -24,7 +24,7 @@ public class FarmMeepleAnalysis extends PartMeepleAnalysis {
                     continue;
                 }
 
-                CityMeepleAnalysis analysis = new CityMeepleAnalysis(this.gameState,
+                CityMeepleAnalysis analysis = new CityMeepleAnalysis(this.board,
                         diagonalSection);
 
                 visitedCitySections.addAll(analysis.visitedSections);
@@ -38,8 +38,8 @@ public class FarmMeepleAnalysis extends PartMeepleAnalysis {
         return score;
     }
 
-    public FarmMeepleAnalysis(CarcassonneGameState gameState, Section startSection) {
-        super(gameState, startSection, false);
+    public FarmMeepleAnalysis(Board board, Section startSection) {
+        super(board, startSection, false);
         runAnalysis();
     }
 

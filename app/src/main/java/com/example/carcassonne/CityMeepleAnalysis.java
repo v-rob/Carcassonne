@@ -28,8 +28,8 @@ public class CityMeepleAnalysis extends PartMeepleAnalysis {
         }
     }
 
-    public CityMeepleAnalysis(CarcassonneGameState gameState, Section startSection) {
-        super(gameState, startSection, false);
+    public CityMeepleAnalysis(Board board, Section startSection) {
+        super(board, startSection, false);
         this.numPennants = 0;
 
         runAnalysis();

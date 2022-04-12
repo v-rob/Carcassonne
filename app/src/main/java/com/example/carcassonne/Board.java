@@ -1,7 +1,6 @@
 package com.example.carcassonne;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 /**
  * Represents the "board" of tiles, i.e. all the tiles in play, including the special
@@ -209,7 +208,15 @@ public class Board {
         // the meeple placement code.
         assert isCurrentTilePlacementValid();
 
-        int type = this.currentTile.getMeepleType();
+        Section meepleSection = this.currentTile.getMeepleSection();
+        if (meepleSection == null) {
+            return true;
+        }
+
+        return MeepleAnalysis.create(this, meepleSection).isMeepleValid();
+
+        // TODO: Remove later
+        /*int type = this.currentTile.getMeepleType();
 
         if (type == Tile.NO_TYPE || type == Tile.TYPE_CLOISTER) {
             // If there's no meeple or it's a monk, the placement is always valid.
@@ -232,7 +239,7 @@ public class Board {
 
         // If there's only one meeple in any of the connected sections, it must be the
         // one on this tile.
-        return total == 1;
+        return total == 1;*/
     }
 
     /**
@@ -435,7 +442,7 @@ public class Board {
      * @return The number of meeples in the current section or any sections connected
      *         to it.
      */
-    private int countSectionMeeples(int type, int x, int y, int part,
+    /*private int countSectionMeeples(int type, int x, int y, int part,
                                     HashSet<Section> visited) {
         Tile tile = getTile(x, y);
         if (tile == null) {
@@ -478,5 +485,5 @@ public class Board {
         }
 
         return total;
-    }
+    }*/
 }

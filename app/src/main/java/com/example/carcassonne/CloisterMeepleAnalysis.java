@@ -18,7 +18,7 @@ public class CloisterMeepleAnalysis extends MeepleAnalysis {
         return this.neighbors;
     }
 
-    @Override
+    /*@Override
     public void returnMeeples() {
         assert isComplete();
 
@@ -27,7 +27,7 @@ public class CloisterMeepleAnalysis extends MeepleAnalysis {
             this.gameState.addPlayerMeeples(this.startSection.getOwner(), 1);
             this.startSection.getParent().removeMeeple();
         }
-    }
+    }*/
 
     @Override
     protected void runAnalysis() {
@@ -41,8 +41,8 @@ public class CloisterMeepleAnalysis extends MeepleAnalysis {
         }
     }
 
-    public CloisterMeepleAnalysis(CarcassonneGameState gameState, Section startSection) {
-        super(gameState, startSection);
+    public CloisterMeepleAnalysis(Board board, Section startSection) {
+        super(board, startSection);
         runAnalysis();
     }
 }

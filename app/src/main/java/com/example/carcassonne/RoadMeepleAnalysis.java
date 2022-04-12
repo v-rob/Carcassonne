@@ -11,8 +11,8 @@ public class RoadMeepleAnalysis extends PartMeepleAnalysis {
         return this.visitedTiles.size();
     }
 
-    public RoadMeepleAnalysis(CarcassonneGameState gameState, Section startSection) {
-        super(gameState, startSection, true);
+    public RoadMeepleAnalysis(Board board, Section startSection) {
+        super(board, startSection, true);
         runAnalysis();
     }
 }
