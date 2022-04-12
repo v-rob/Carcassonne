@@ -387,6 +387,27 @@ public class CarcassonneGameState extends GameState {
         // and break. LocalGame will detect this and end the game.
         while (true) {
             if (this.deck.isEmpty()) {
+                HashSet<Section> visitedSections = new HashSet<>();
+                for(int i = 0; i < board.getWidth(); i++){
+                    for(int j = 0; j < board.getHeight(); j++){
+                        Tile tile = board.getTile(i,j);
+                        if(tile != null){
+                            for(Section section : tile.getSectionsByType(Tile.TYPE_FARM)){
+                                MeepleAnalysis analysis = MeepleAnalysis.create(this.board, section);
+                                if(!visitedSections.containsAll(analysis.getVisitedSections())) {
+                                    visitedSections.addAll(analysis.getVisitedSections());
+                                    if (analysis.isComplete()) {
+                                        for (int player : analysis.getScoringPlayers()) {
+                                            this.playerCompleteScores[player] += analysis.getScore();
+                                        }
+                                        analysis.returnMeeples(this);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 this.isGameOver = true;
                 break;
             }

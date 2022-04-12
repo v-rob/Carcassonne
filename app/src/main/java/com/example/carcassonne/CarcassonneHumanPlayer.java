@@ -11,6 +11,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.util.HashSet;
+
 /**
  * Represents a human player for Carcassonne, mainly consisting of GUI objects and
  * listeners for receiving input from the user, sending them to the local game, and
@@ -196,6 +198,28 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         // to be done once, but setAsGui() doesn't know how many players are playing.
         for (int i = CarcassonneGameState.MAX_PLAYERS - 1; i >= this.allPlayerNames.length; i--) {
             this.playerTableRows[i].setVisibility(View.GONE);
+        }
+
+        int[] playerIncompleteScores = new int[CarcassonneGameState.MAX_PLAYERS];
+        Board board = gameState.getBoard();
+        HashSet<Section> visitedSections = new HashSet<>();
+        for(int i = 0; i < board.getWidth(); i++){
+            for(int j = 0; j < board.getHeight(); j++){
+                Tile tile = board.getTile(i,j);
+                if(tile != null){
+                    for(Section section : tile.getSections()){
+                        MeepleAnalysis analysis = MeepleAnalysis.create(board, section);
+                        if(!visitedSections.containsAll(analysis.getVisitedSections())) {
+                            visitedSections.addAll(analysis.getVisitedSections());
+                            if (!analysis.isComplete()) {
+                                for (int player : analysis.getScoringPlayers()) {
+                                    playerIncompleteScores[player] += analysis.getScore();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         // Update the data for each player.
