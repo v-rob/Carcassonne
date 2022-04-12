@@ -9,7 +9,7 @@ public class FarmMeepleAnalysis extends PartMeepleAnalysis {
     }
 
     @Override
-    public int getScore() {
+    protected int getScore() {
         int score = 0;
 
         HashSet<Section> visitedCitySections = new HashSet<>();
@@ -19,13 +19,12 @@ public class FarmMeepleAnalysis extends PartMeepleAnalysis {
                 int diagonalPart = Tile.getDiagonalPart(part);
                 Section diagonalSection = section.getParent().getSection(diagonalPart);
 
-                if (section.getType() != Tile.TYPE_CITY ||
+                if (diagonalSection.getType() != Tile.TYPE_CITY ||
                         visitedCitySections.contains(diagonalSection)) {
                     continue;
                 }
 
-                CityMeepleAnalysis analysis = new CityMeepleAnalysis(this.board,
-                        diagonalSection);
+                MeepleAnalysis analysis = MeepleAnalysis.create(this.board, diagonalSection);
 
                 visitedCitySections.addAll(analysis.getVisitedSections());
 

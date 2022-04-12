@@ -147,9 +147,18 @@ public class Board {
 
             for (int y = 0; y < getHeight(); y++) {
                 for (int x = 0; x < getWidth(); x++) {
+                    Tile tile = this.tiles[y][x];
+                    if (tile == null) {
+                        continue;
+                    }
+
                     // If we inserted to the top or left, we need to add an offset in
-                    // the destination array.
-                    copy[y + (incTop ? 1 : 0)][x + (incLeft ? 1 : 0)] = this.tiles[y][x];
+                    // the destination array and update the internal position.
+                    copy[y + (incTop ? 1 : 0)][x + (incLeft ? 1 : 0)] = tile;
+                    tile.setPosition(
+                            tile.getX() + (incLeft ? 1 : 0),
+                            tile.getY() + (incTop ? 1 : 0)
+                    );
                 }
             }
 
@@ -214,32 +223,6 @@ public class Board {
         }
 
         return MeepleAnalysis.create(this, meepleSection).isMeepleValid();
-
-        // TODO: Remove later
-        /*int type = this.currentTile.getMeepleType();
-
-        if (type == Tile.NO_TYPE || type == Tile.TYPE_CLOISTER) {
-            // If there's no meeple or it's a monk, the placement is always valid.
-            // It should be impossible for a monk to ever be placed on a tile without
-            // a cloister.
-            return true;
-        }
-
-        // Otherwise, check all connected sections and see if there's another meeple.
-
-        // Make one shared visited set across all calls to ensure everything is counted
-        // exactly once.
-        HashSet<Section> visited = new HashSet<>();
-
-        int total = 0;
-        for (int part : this.currentTile.getMeepleSection().getParts()) {
-            total += countSectionMeeples(type, this.currentTile.getX(), this.currentTile.getY(),
-                    part, visited);
-        }
-
-        // If there's only one meeple in any of the connected sections, it must be the
-        // one on this tile.
-        return total == 1;*/
     }
 
     /**
@@ -351,6 +334,10 @@ public class Board {
      */
     public Board(Tile startingTile) {
         this.tiles = new Tile[3][3];
+
+        // Place the starting tile on the board. Make sure to set the tile's internal
+        // position as well.
+        startingTile.setPosition(1, 1);
         this.tiles[1][1] = startingTile;
 
         this.currentTile = null;
@@ -426,64 +413,4 @@ public class Board {
         adjacent.isValid &= this.currentTile.hasRoad(roadPart) ==
                 tile.hasRoad(Tile.flipRoadPart(roadPart));
     }
-
-    /**
-     * Recursive function to count all meeples on any sections (city or farm) connected
-     * to the specified section on this tile. It is useful to tell whether city or farm
-     * meeple placement is valid.
-     *
-     * @param type    The type of the section, either city or farm.
-     * @param x       The X position of the tile to check for this recursive call.
-     * @param y       The Y position of the tile to check for this recursive call.
-     * @param part    The part contained in the section to search.
-     * @param visited A set of all tile sections that have already been visited. This
-     *                is necessary to ensure sections don't get counted multiple times
-     *                in an infinite recursion loop.
-     * @return The number of meeples in the current section or any sections connected
-     *         to it.
-     */
-    /*private int countSectionMeeples(int type, int x, int y, int part,
-                                    HashSet<Section> visited) {
-        Tile tile = getTile(x, y);
-        if (tile == null) {
-            // Ignore non-existent tiles
-            return 0;
-        }
-
-        Section section;
-        if (type == Tile.TYPE_ROAD) {
-            section = tile.getRoadSection(part);
-        } else {
-            section = tile.getSection(part);
-        }
-
-        // Don't count tiles we've already searched through so that we don't run
-        // into infinite recursion.
-        if (visited.contains(section)) {
-            return 0;
-        }
-        visited.add(section);
-
-        int total = 0;
-
-        // Add the meeple from the current tile if it's in our section.
-        if (tile.getMeepleSection() == section) {
-            total++;
-        }
-
-        // Run this same function on all adjacent tiles connected to this section.
-        for (int other_part : section.getParts()) {
-            if (type == Tile.TYPE_ROAD) {
-                total += countSectionMeeples(type, x + Tile.roadPartXOffset(other_part),
-                        y + Tile.roadPartYOffset(other_part), Tile.flipRoadPart(other_part),
-                        visited);
-            } else {
-                total += countSectionMeeples(type, x + Tile.partXOffset(other_part),
-                        y + Tile.partYOffset(other_part), Tile.flipPart(other_part),
-                        visited);
-            }
-        }
-
-        return total;
-    }*/
 }

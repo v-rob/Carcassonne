@@ -30,11 +30,12 @@ public abstract class PartMeepleAnalysis extends MeepleAnalysis {
     }
 
     @Override
-    public HashSet<Section> getVisitedSections() {
-        return visitedSections;
+    protected HashSet<Section> getVisitedSections() {
+        return this.visitedSections;
     }
 
-    public HashSet<Integer> getScoringPlayers() {
+    @Override
+    protected HashSet<Integer> getScoringPlayers() {
         // Create arrays for each player containing all their meeples.
         ArrayList<Section>[] playerMeeples = new ArrayList[CarcassonneGameState.MAX_PLAYERS];
         for (int i = 0; i < playerMeeples.length; i++) {
@@ -73,20 +74,6 @@ public abstract class PartMeepleAnalysis extends MeepleAnalysis {
         }
 
         return scoringPlayers;
-    }
-
-    @Override
-    public void returnMeeples(CarcassonneGameState gameState) {
-        assert isComplete();
-
-        HashSet<Integer> scoringPlayers = getScoringPlayers();
-
-        for (Section section : this.visitedSections) {
-            if (section.hasMeeple() && scoringPlayers.contains(section.getOwner())) {
-                gameState.addPlayerMeeples(section.getOwner(), 1);
-                section.getParent().removeMeeple();
-            }
-        }
     }
 
     @Override

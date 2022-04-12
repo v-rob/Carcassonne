@@ -16,34 +16,27 @@ public class CloisterMeepleAnalysis extends MeepleAnalysis {
     }
 
     @Override
-    public HashSet<Section> getVisitedSections () {
+    protected HashSet<Section> getVisitedSections() {
         HashSet<Section> visitedSections = new HashSet<>();
         visitedSections.add(this.startSection);
         return visitedSections;
     }
 
     @Override
-    public int getScore() {
+    protected int getScore() {
         return this.neighbors;
     }
 
-    public HashSet<Integer> getScoringPlayers() {
+    @Override
+    protected HashSet<Integer> getScoringPlayers() {
         HashSet<Integer> scoringPlayers = new HashSet<>();
-        if(this.startSection.hasMeeple()){
+
+        // If we have a meeple, add it to the set.
+        if (this.startSection.hasMeeple()) {
             scoringPlayers.add(this.startSection.getOwner());
         }
+
         return scoringPlayers;
-    }
-
-    @Override
-    public void returnMeeples(CarcassonneGameState gameState) {
-        assert isComplete();
-
-        // If we have a meeple, remove it and add it to the player's meeples.
-        if (this.startSection.hasMeeple()) {
-            gameState.addPlayerMeeples(this.startSection.getOwner(), 1);
-            this.startSection.getParent().removeMeeple();
-        }
     }
 
     @Override

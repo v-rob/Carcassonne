@@ -7,7 +7,7 @@ public class RoadMeepleAnalysis extends PartMeepleAnalysis {
     }
 
     @Override
-    public int getScore() {
+    protected int getScore() {
         return this.visitedTiles.size();
     }
 

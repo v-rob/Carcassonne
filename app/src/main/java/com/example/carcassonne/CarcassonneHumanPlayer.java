@@ -85,6 +85,12 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
     /** Contains the loading screen **/
     private LinearLayout loadingScreen;
 
+    /**
+     * A reference to the last toast that was popped up when the player made an invalid
+     * move, or null if no toasts have popped up yet.
+     */
+    Toast lastToast;
+
     /** Array of the resources of each player information table row. */
     private static final int[] PLAYER_TABLE_ROW_RESOURCES = {
             R.id.bluePlayer,
@@ -173,8 +179,16 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
              * between two flashes, causing the screen to get stuck at red. So, use toasts
              * instead, which look nicer as well.
              */
-            Toast.makeText(this.activity.getApplicationContext(), "That move's invalid.",
-                    Toast.LENGTH_SHORT).show();
+
+            // If we already have a toast, hide it so they don't pile up like crazy and
+            // take forever to disappear.
+            if (this.lastToast != null) {
+                this.lastToast.cancel();
+            }
+
+            this.lastToast = Toast.makeText(this.activity.getApplicationContext(),
+                    "That move's invalid.", Toast.LENGTH_SHORT);
+            this.lastToast.show();
             return;
         }
 
@@ -198,28 +212,6 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         // to be done once, but setAsGui() doesn't know how many players are playing.
         for (int i = CarcassonneGameState.MAX_PLAYERS - 1; i >= this.allPlayerNames.length; i--) {
             this.playerTableRows[i].setVisibility(View.GONE);
-        }
-
-        int[] playerIncompleteScores = new int[CarcassonneGameState.MAX_PLAYERS];
-        Board board = gameState.getBoard();
-        HashSet<Section> visitedSections = new HashSet<>();
-        for(int i = 0; i < board.getWidth(); i++){
-            for(int j = 0; j < board.getHeight(); j++){
-                Tile tile = board.getTile(i,j);
-                if(tile != null){
-                    for(Section section : tile.getSections()){
-                        MeepleAnalysis analysis = MeepleAnalysis.create(board, section);
-                        if(!visitedSections.containsAll(analysis.getVisitedSections())) {
-                            visitedSections.addAll(analysis.getVisitedSections());
-                            if (!analysis.isComplete()) {
-                                for (int player : analysis.getScoringPlayers()) {
-                                    playerIncompleteScores[player] += analysis.getScore();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         // Update the data for each player.
@@ -337,8 +329,14 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
      */
     private void onClickRotateReset(View button) {
         if (this.gameState.isPlacementStage()) {
+            Tile tile = this.gameState.getBoard().getCurrentTile();
+            if (tile == null) {
+                // The game has ended; there is no current tile.
+                return;
+            }
+
             // Calculate the new rotation, which is 90 degrees clockwise.
-            int rotation = gameState.getBoard().getCurrentTile().getRotation();
+            int rotation = tile.getRotation();
             rotation = (rotation + 90) % 360;
             this.game.sendAction(new CarcassonneRotateTileAction(this, rotation));
         } else {

@@ -9,8 +9,8 @@ public class CityMeepleAnalysis extends PartMeepleAnalysis {
     }
 
     @Override
-    public int getScore() {
-        int score = this.visitedTiles.size() + numPennants;
+    protected int getScore() {
+        int score = this.visitedTiles.size() + this.numPennants;
         if (isComplete()) {
             return score * 2;
         }

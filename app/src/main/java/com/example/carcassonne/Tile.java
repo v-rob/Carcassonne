@@ -431,7 +431,8 @@ public class Tile {
      */
     public Section getSection(int part) {
         for (Section section : this.sections.values()) {
-            if (section.isFarmOrCity() && section.getParts().contains(part)) {
+            if ((section.getType() == TYPE_FARM || section.getType() == TYPE_CITY) &&
+                    section.getParts().contains(part)) {
                 return section;
             }
         }

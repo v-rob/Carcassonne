@@ -64,16 +64,6 @@ public class Section {
     }
 
     /**
-     * Queries whether this section is either a farm or a city. It is useful when
-     * dealing with normal parts rather than farms or cities in specific.
-     *
-     * @return True if this section is a farm or city, false otherwise.
-     */
-    public boolean isFarmOrCity() {
-        return this.type == Tile.TYPE_FARM || this.type == Tile.TYPE_CITY;
-    }
-
-    /**
      * Gets the set of all parts in this section. It depends on the type of the section
      * as to the contents; refer to the documentation of the "parts" instance variable
      * for more information.

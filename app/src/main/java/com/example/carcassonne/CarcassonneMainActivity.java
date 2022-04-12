@@ -7,6 +7,7 @@ import java.util.ArrayList;
 /* Header comment for beta release:
  *
  * Necessary functionality added since alpha:
+ * - Scoring and incomplete scoring
  *
  * Additional features/changes:
  * - Loading screen

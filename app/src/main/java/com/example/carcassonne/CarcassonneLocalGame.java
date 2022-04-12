@@ -74,7 +74,7 @@ public class CarcassonneLocalGame extends LocalGame {
         ArrayList<String> highestNames = new ArrayList<>();
 
         for (int i = 0; i < this.gameState.getNumPlayers(); i++) {
-            int score = this.gameState.getPlayerScore(i);
+            int score = this.gameState.getPlayerCompleteScore(i);
             if (score > highestScore) {
                 // If we found a higher score, update the highest score, clear the
                 // list, and add the player.
@@ -88,7 +88,12 @@ public class CarcassonneLocalGame extends LocalGame {
             }
         }
 
-        // Concatenate the list of names with commas.
+        // If there's only one name, return it in the singular.
+        if (highestNames.size() == 1) {
+            return "The winner is " + highestNames.get(0);
+        }
+
+        // Otherwise, concatenate the list of names with commas and use the plural.
         StringBuilder names = new StringBuilder("The winners are ");
         for (int i = 0; i < highestNames.size(); i++) {
             names.append(highestNames.get(i));

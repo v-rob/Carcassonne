@@ -2,6 +2,7 @@ package com.example.carcassonne;
 
 import com.example.carcassonne.infoMsg.GameState;
 
+import java.util.Arrays;
 import java.util.HashSet;
 
 /**
@@ -63,9 +64,7 @@ public class CarcassonneGameState extends GameState {
         this.numPlayers = numPlayers;
 
         this.playerMeeples = new int[numPlayers];
-        for (int i = 0; i < this.playerMeeples.length; i++) {
-            this.playerMeeples[i] = STARTING_MEEPLES;
-        }
+        Arrays.fill(this.playerMeeples, STARTING_MEEPLES);
 
         this.playerCompleteScores = new int[numPlayers];
         this.playerIncompleteScores = new int[numPlayers];
@@ -153,17 +152,6 @@ public class CarcassonneGameState extends GameState {
     }
 
     /**
-     * Adds a certain number of meeples to the specified player's number of meeples.
-     * Used in the Analysis classes in returnMeeples().
-     *
-     * @param player     The player to add meeples to.
-     * @param numMeeples The number of meeples to add to that player's set of meeples.
-     */
-    public void addPlayerMeeples(int player, int numMeeples) {
-        this.playerMeeples[player] += numMeeples;
-    }
-
-    /**
      * Gets the completed score of the specified player.
      *
      * @param player The player to get the completed score of.
@@ -174,24 +162,14 @@ public class CarcassonneGameState extends GameState {
     }
 
     /**
-     * Gets the incomplete score of the specified player.
+     * Gets the incomplete score of the specified player. It will be zero when the
+     * game ends and added to the complete score.
      *
      * @param player The player to get the incomplete score of.
      * @return The incomplete score of that player.
      */
     public int getPlayerIncompleteScore(int player) {
         return this.playerIncompleteScores[player];
-    }
-
-    /**
-     * Gets the total score of the specified player, i.e. the sum of the complete
-     * and incomplete scores.
-     *
-     * @param player The player to get the full score of.
-     * @return The full score of that player.
-     */
-    public int getPlayerScore(int player) {
-        return this.getPlayerCompleteScore(player) + this.getPlayerIncompleteScore(player);
     }
 
     /**
@@ -331,36 +309,37 @@ public class CarcassonneGameState extends GameState {
                 this.playerMeeples[this.currentPlayer]--;
             }
 
-            HashSet<Section> visitedSections = new HashSet<>();
-            for(Section section: this.board.getCurrentTile().getSections()) {
-                MeepleAnalysis analysis = MeepleAnalysis.create(this.board, section);
-                if(!visitedSections.containsAll(analysis.getVisitedSections())){
-                    visitedSections.addAll(analysis.getVisitedSections());
-                    if(analysis.isComplete()){
-                        for(int player: analysis.getScoringPlayers()){
-                            this.playerCompleteScores[player] += analysis.getScore();
-                        }
-                        analysis.returnMeeples(this);
-                    }
+            MeepleAnalysis.analyzeTile(this.board, this.board.getCurrentTile(), (analysis) -> {
+                int type = analysis.getStartSection().getType();
+                if (type != Tile.TYPE_CITY && type != Tile.TYPE_ROAD) {
+                    return;
                 }
 
-            }
-            for(int i = 0; i < board.getWidth(); i++){
-                for(int j = 0; j < board.getHeight(); j++){
-                    Tile tile = board.getTile(i,j);
-                    if(tile != null){
-                        for(Section section : tile.getSectionsByType(Tile.TYPE_CLOISTER)){
-                            MeepleAnalysis analysis = MeepleAnalysis.create(this.board, section);
-                            if(analysis.isComplete()){
-                                for(int player: analysis.getScoringPlayers()){
-                                    this.playerCompleteScores[player] += analysis.getScore();
-                                }
-                                analysis.returnMeeples(this);
-                            }
-                        }
-                    }
+                if (analysis.isComplete()) {
+                    analysis.tallyScores(this.playerCompleteScores);
+                    analysis.returnMeeples(this.playerMeeples);
                 }
-            }
+            });
+
+            MeepleAnalysis.analyzeBoard(this.board, (analysis) -> {
+                if (analysis.getStartSection().getType() != Tile.TYPE_CLOISTER) {
+                    return;
+                }
+
+                if (analysis.isComplete()) {
+                    analysis.tallyScores(this.playerCompleteScores);
+                    analysis.returnMeeples(this.playerMeeples);
+                }
+            });
+
+            // Clear the incomplete score since we re-tally them all from scratch.
+            Arrays.fill(this.playerIncompleteScores, 0);
+
+            MeepleAnalysis.analyzeBoard(this.board, (analysis) -> {
+                if (!analysis.isComplete()) {
+                    analysis.tallyScores(this.playerIncompleteScores);
+                }
+            });
 
             // Confirm the tile and start a new turn.
             this.board.confirmCurrentTile();
@@ -387,25 +366,21 @@ public class CarcassonneGameState extends GameState {
         // and break. LocalGame will detect this and end the game.
         while (true) {
             if (this.deck.isEmpty()) {
-                HashSet<Section> visitedSections = new HashSet<>();
-                for(int i = 0; i < board.getWidth(); i++){
-                    for(int j = 0; j < board.getHeight(); j++){
-                        Tile tile = board.getTile(i,j);
-                        if(tile != null){
-                            for(Section section : tile.getSectionsByType(Tile.TYPE_FARM)){
-                                MeepleAnalysis analysis = MeepleAnalysis.create(this.board, section);
-                                if(!visitedSections.containsAll(analysis.getVisitedSections())) {
-                                    visitedSections.addAll(analysis.getVisitedSections());
-                                    if (analysis.isComplete()) {
-                                        for (int player : analysis.getScoringPlayers()) {
-                                            this.playerCompleteScores[player] += analysis.getScore();
-                                        }
-                                        analysis.returnMeeples(this);
-                                    }
-                                }
-                            }
-                        }
+                MeepleAnalysis.analyzeBoard(this.board, (analysis) -> {
+                    if (analysis.getStartSection().getType() != Tile.TYPE_FARM) {
+                        return;
                     }
+
+                    if (analysis.isComplete()) {
+                        analysis.tallyScores(this.playerCompleteScores);
+                        analysis.returnMeeples(this.playerMeeples);
+                    }
+                });
+
+                // Since the game is over, add all the incomplete scores to the final total.
+                for (int i = 0; i < this.numPlayers; i++) {
+                    this.playerCompleteScores[i] += this.playerIncompleteScores[i];
+                    this.playerIncompleteScores[i] = 0;
                 }
 
                 this.isGameOver = true;
