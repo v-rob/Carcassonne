@@ -340,9 +340,26 @@ public class CarcassonneGameState extends GameState {
                         for(int player: analysis.getScoringPlayers()){
                             this.playerCompleteScores[player] += analysis.getScore();
                         }
+                        analysis.returnMeeples(this);
                     }
                 }
 
+            }
+            for(int i = 0; i < board.getWidth(); i++){
+                for(int j = 0; j < board.getHeight(); j++){
+                    Tile tile = board.getTile(i,j);
+                    if(tile != null){
+                        for(Section section : tile.getSectionsByType(Tile.TYPE_CLOISTER)){
+                            MeepleAnalysis analysis = MeepleAnalysis.create(this.board, section);
+                            if(analysis.isComplete()){
+                                for(int player: analysis.getScoringPlayers()){
+                                    this.playerCompleteScores[player] += analysis.getScore();
+                                }
+                                analysis.returnMeeples(this);
+                            }
+                        }
+                    }
+                }
             }
 
             // Confirm the tile and start a new turn.

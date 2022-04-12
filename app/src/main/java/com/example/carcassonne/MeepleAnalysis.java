@@ -18,7 +18,7 @@ public abstract class MeepleAnalysis {
 
     public abstract HashSet<Integer> getScoringPlayers();
 
-    //public abstract void returnMeeples();
+    public abstract void returnMeeples(CarcassonneGameState gameState);
 
     protected abstract void runAnalysis();
 

@@ -35,16 +35,16 @@ public class CloisterMeepleAnalysis extends MeepleAnalysis {
         return scoringPlayers;
     }
 
-    /*@Override
-    public void returnMeeples() {
+    @Override
+    public void returnMeeples(CarcassonneGameState gameState) {
         assert isComplete();
 
         // If we have a meeple, remove it and add it to the player's meeples.
         if (this.startSection.hasMeeple()) {
-            this.gameState.addPlayerMeeples(this.startSection.getOwner(), 1);
+            gameState.addPlayerMeeples(this.startSection.getOwner(), 1);
             this.startSection.getParent().removeMeeple();
         }
-    }*/
+    }
 
     @Override
     protected void runAnalysis() {

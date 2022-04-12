@@ -75,19 +75,19 @@ public abstract class PartMeepleAnalysis extends MeepleAnalysis {
         return scoringPlayers;
     }
 
-    /*@Override
-    public void returnMeeples() {
+    @Override
+    public void returnMeeples(CarcassonneGameState gameState) {
         assert isComplete();
 
         HashSet<Integer> scoringPlayers = getScoringPlayers();
 
         for (Section section : this.visitedSections) {
             if (section.hasMeeple() && scoringPlayers.contains(section.getOwner())) {
-                this.gameState.addPlayerMeeples(section.getOwner(), 1);
+                gameState.addPlayerMeeples(section.getOwner(), 1);
                 section.getParent().removeMeeple();
             }
         }
-    }*/
+    }
 
     @Override
     protected void runAnalysis() {

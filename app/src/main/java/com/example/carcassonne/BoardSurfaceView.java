@@ -235,7 +235,7 @@ public class BoardSurfaceView extends SurfaceView {
         // If the current tile has been placed on the board, draw the valid/invalid
         // border around it.
         Tile currentTile = board.getCurrentTile();
-        if (currentTile.getX() != -1) {
+        if (currentTile != null && currentTile.getX() != -1) {
             Bitmap border = board.isCurrentPlacementValid() ?
                     bitmapProvider.getValidBorder().bitmap :
                     bitmapProvider.getInvalidBorder().bitmap;
