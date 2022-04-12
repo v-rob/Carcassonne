@@ -27,7 +27,7 @@ public class FarmMeepleAnalysis extends PartMeepleAnalysis {
                 CityMeepleAnalysis analysis = new CityMeepleAnalysis(this.board,
                         diagonalSection);
 
-                visitedCitySections.addAll(analysis.visitedSections);
+                visitedCitySections.addAll(analysis.getVisitedSections());
 
                 if (analysis.isComplete()) {
                     score += 3;

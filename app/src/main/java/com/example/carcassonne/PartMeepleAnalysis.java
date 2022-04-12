@@ -29,6 +29,11 @@ public abstract class PartMeepleAnalysis extends MeepleAnalysis {
         return true;
     }
 
+    @Override
+    public HashSet<Section> getVisitedSections() {
+        return visitedSections;
+    }
+
     public HashSet<Integer> getScoringPlayers() {
         // Create arrays for each player containing all their meeples.
         ArrayList<Section>[] playerMeeples = new ArrayList[CarcassonneGameState.MAX_PLAYERS];

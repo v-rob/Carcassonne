@@ -2,6 +2,8 @@ package com.example.carcassonne;
 
 import com.example.carcassonne.infoMsg.GameState;
 
+import java.util.HashSet;
+
 /**
  * Represents the entire game state of Carcassonne, including the deck of tiles
  * and the current state of the board, the list of player meeples and scores, the
@@ -327,6 +329,20 @@ public class CarcassonneGameState extends GameState {
             // if the player placed one.
             if (this.board.getCurrentTile().hasMeeple()) {
                 this.playerMeeples[this.currentPlayer]--;
+            }
+
+            HashSet<Section> visitedSections = new HashSet<>();
+            for(Section section: this.board.getCurrentTile().getSections()) {
+                MeepleAnalysis analysis = MeepleAnalysis.create(this.board, section);
+                if(!visitedSections.containsAll(analysis.getVisitedSections())){
+                    visitedSections.addAll(analysis.getVisitedSections());
+                    if(analysis.isComplete()){
+                        for(int player: analysis.getScoringPlayers()){
+                            this.playerCompleteScores[player] += analysis.getScore();
+                        }
+                    }
+                }
+
             }
 
             // Confirm the tile and start a new turn.

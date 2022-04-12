@@ -1,5 +1,7 @@
 package com.example.carcassonne;
 
+import java.util.HashSet;
+
 public abstract class MeepleAnalysis {
     protected Board board;
 
@@ -10,7 +12,11 @@ public abstract class MeepleAnalysis {
 
     public abstract boolean isMeepleValid();
 
+    public abstract HashSet<Section> getVisitedSections();
+
     public abstract int getScore();
+
+    public abstract HashSet<Integer> getScoringPlayers();
 
     //public abstract void returnMeeples();
 

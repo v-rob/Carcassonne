@@ -1,5 +1,7 @@
 package com.example.carcassonne;
 
+import java.util.HashSet;
+
 public class CloisterMeepleAnalysis extends MeepleAnalysis {
     private int neighbors;
 
@@ -14,8 +16,23 @@ public class CloisterMeepleAnalysis extends MeepleAnalysis {
     }
 
     @Override
+    public HashSet<Section> getVisitedSections () {
+        HashSet<Section> visitedSections = new HashSet<>();
+        visitedSections.add(this.startSection);
+        return visitedSections;
+    }
+
+    @Override
     public int getScore() {
         return this.neighbors;
+    }
+
+    public HashSet<Integer> getScoringPlayers() {
+        HashSet<Integer> scoringPlayers = new HashSet<>();
+        if(this.startSection.hasMeeple()){
+            scoringPlayers.add(this.startSection.getOwner());
+        }
+        return scoringPlayers;
     }
 
     /*@Override
