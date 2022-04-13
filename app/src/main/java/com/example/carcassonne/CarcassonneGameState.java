@@ -3,7 +3,6 @@ package com.example.carcassonne;
 import com.example.carcassonne.infoMsg.GameState;
 
 import java.util.Arrays;
-import java.util.HashSet;
 
 /**
  * Represents the entire game state of Carcassonne, including the deck of tiles
@@ -235,8 +234,9 @@ public class CarcassonneGameState extends GameState {
     }
 
     /**
-     * Called when the player rotates a tile a specified number of degrees.
+     * Called when the player rotates a tile to a specified number of degrees.
      *
+     * @param rotation The rotation to rotate the tile to.
      * @return True if it is the tile placement stage, false otherwise. If false,
      *         the game state does not change.
      */
@@ -280,15 +280,16 @@ public class CarcassonneGameState extends GameState {
     }
 
     /**
-     * Called when the player wishes to place a meeple on a tile at the specified
-     * X and Y pixel positions.
+     * Called when the player wishes to place a meeple on a tile on the specified
+     * section.
      *
+     * @param section The section to place the meeple on.
      * @return True if it is the meeple placement stage and the player has enough
      *         meeples, false otherwise. If false, the game state does not change.
      */
-    public boolean placeMeeple(int x, int y) {
+    public boolean placeMeeple(Section section) {
         if (!this.isPlacementStage && this.playerMeeples[this.currentPlayer] > 0) {
-            this.board.getCurrentTile().setMeeple(x, y);
+            this.board.getCurrentTile().setMeepleSection(section);
             return true;
         }
         return false;
@@ -309,23 +310,36 @@ public class CarcassonneGameState extends GameState {
                 this.playerMeeples[this.currentPlayer]--;
             }
 
+            // Analyze the current tile for city/road scoring.
             MeepleAnalysis.analyzeTile(this.board, this.board.getCurrentTile(), (analysis) -> {
                 int type = analysis.getStartSection().getType();
                 if (type != Tile.TYPE_CITY && type != Tile.TYPE_ROAD) {
                     return;
                 }
 
+                /* If this section is a road or city, check if it was just now completed
+                 * by this last placement. If it is, score it and return the relevant meeples.
+                 * Since it is closed off, there's no possibility of scoring it again.
+                 */
                 if (analysis.isComplete()) {
                     analysis.tallyScores(this.playerCompleteScores);
                     analysis.returnMeeples(this.playerMeeples);
                 }
             });
 
+            // Analyze the board for cloister scoring. This must analyze the entire board
+            // because a cloister may be completed by placing any adjacent tile.
             MeepleAnalysis.analyzeBoard(this.board, (analysis) -> {
                 if (analysis.getStartSection().getType() != Tile.TYPE_CLOISTER) {
                     return;
                 }
 
+                /* If this section is a cloister and it is complete, score it and return
+                 * the relevant meeples. Note that this code will run every time a tile
+                 * is placed, not just when the cloister is completed; this is fine because
+                 * all meeples will be removed from cloisters when scoring, so there's no
+                 * possibility of scoring them twice.
+                 */
                 if (analysis.isComplete()) {
                     analysis.tallyScores(this.playerCompleteScores);
                     analysis.returnMeeples(this.playerMeeples);
@@ -335,7 +349,10 @@ public class CarcassonneGameState extends GameState {
             // Clear the incomplete score since we re-tally them all from scratch.
             Arrays.fill(this.playerIncompleteScores, 0);
 
+            // Analyze the entire board for incomplete meeple scoring.
             MeepleAnalysis.analyzeBoard(this.board, (analysis) -> {
+                // If this section is not complete, add it to the incomplete scores. Do not
+                // score complete sections because that will result in doubly counted scores.
                 if (!analysis.isComplete()) {
                     analysis.tallyScores(this.playerIncompleteScores);
                 }
@@ -363,30 +380,26 @@ public class CarcassonneGameState extends GameState {
         this.isPlacementStage = true;
 
         // Keep drawing tiles until the deck is empty. If it is, set the game as over
-        // and break. LocalGame will detect this and end the game.
+        // and break. CarcassonneLocalGame will detect this and end the game.
         while (true) {
             if (this.deck.isEmpty()) {
-                MeepleAnalysis.analyzeBoard(this.board, (analysis) -> {
-                    if (analysis.getStartSection().getType() != Tile.TYPE_FARM) {
-                        return;
-                    }
-
-                    if (analysis.isComplete()) {
-                        analysis.tallyScores(this.playerCompleteScores);
-                        analysis.returnMeeples(this.playerMeeples);
-                    }
-                });
-
-                // Since the game is over, add all the incomplete scores to the final total.
+                /* The deck is now empty, so the game is about to end. Add incomplete
+                 * scores to the final complete scores. Note that there is no separate
+                 * farm scoring stage: farms are counted in the incomplete scores, so
+                 * they are accounted for here. Also clear the incomplete scores now
+                 * that the game is complete.
+                 */
                 for (int i = 0; i < this.numPlayers; i++) {
                     this.playerCompleteScores[i] += this.playerIncompleteScores[i];
                     this.playerIncompleteScores[i] = 0;
                 }
 
+                // Now the game really is over. Thanks for playing!
                 this.isGameOver = true;
                 break;
             }
 
+            // Draw a tile and make it current so we can check its validity.
             this.board.setCurrentTile(this.deck.drawTile(this.currentPlayer));
 
             // If there is a valid tile placement for this tile, break since we've found

@@ -394,7 +394,9 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
 
             // Do NOT rotate the X and Y position; received positions are rotated with
             // the GUI object automatically.
-            this.game.sendAction(new CarcassonnePlaceMeepleAction(this, x, y));
+            Tile currentTile = this.gameState.getBoard().getCurrentTile();
+            Section section = currentTile.getSectionFromPosition(x, y);
+            this.game.sendAction(new CarcassonnePlaceMeepleAction(this, section));
         }
         return true;
     }

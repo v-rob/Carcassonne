@@ -29,6 +29,11 @@ public class Deck {
     private Tile startingTile;
 
     /**
+     * The number of tiles that the deck starts out with, including the starting tile.
+     */
+    public static final int NUM_TILES = 72;
+
+    /**
      * Draws a tile from the deck at random. Once drawn, the tile is removed from the
      * deck entirely.
      *
@@ -110,8 +115,9 @@ public class Deck {
         addTiles('W', 4);
         addTiles('X', 1);
 
-        // There must be 71 tiles, not including the starting tile.
-        assert this.tiles.size() == 71;
+        // There must be the total number of tiles in the deck at this point, not including
+        // the starting tile.
+        assert this.tiles.size() == NUM_TILES - 1;
 
         // The starting tile is always D, so create it separately.
         this.startingTile = new Tile('D');

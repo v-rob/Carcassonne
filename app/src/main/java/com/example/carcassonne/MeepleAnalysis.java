@@ -2,6 +2,7 @@ package com.example.carcassonne;
 
 import java.util.HashSet;
 
+// TODO: Document
 public abstract class MeepleAnalysis {
     protected Board board;
 

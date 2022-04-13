@@ -242,8 +242,16 @@ public class Board {
         public int x;
         /** The Y position of this placement. */
         public int y;
+
         /** The tile rotation of this placement. */
         public int rotation;
+
+        /**
+         * The section on the tile to place the meeple at for this placement. Only
+         * meaningful for getValidMeeplePlacements(); it is null for
+         * getValidTilePlacements().
+         */
+        public Section meepleSection;
 
         /**
          * Constructor; just fills in the data values of the same name.
@@ -256,18 +264,33 @@ public class Board {
             this.x = x;
             this.y = y;
             this.rotation = rotation;
+            this.meepleSection = null;
+        }
+
+        /**
+         * Create a new tile placement that is a copy of another one.
+         *
+         * @param other The tile placement to make a copy of.
+         */
+        public TilePlacement(TilePlacement other) {
+            this.x = other.x;
+            this.y = other.y;
+            this.rotation = other.rotation;
+            this.meepleSection = other.meepleSection;
         }
     }
 
     /**
-     * Searches through every position on the board and every rotation of the current tile
-     * and creates an array of all valid positions and rotations that the current tile can
-     * be placed in. It ignores meeples on the current tile.
+     * Searches through every position on the board and every rotation of the current
+     * tile and creates an array of all valid positions and rotations that the current
+     * tile can be placed in. It ignores meeples on the current tile; if there is
+     * already a meeple on the current tile, it may return invalid results.
      *
-     * @return An array of all valid placements of the current tile.
+     * @return An array of all valid placements of the current tile. Each tile will
+     *         have a meepleSection of null. The array will never be empty.
      */
     public ArrayList<TilePlacement> getValidTilePlacements() {
-        // Back up the original position of the current tile since it will be changed.
+        // Backup the original position of the current tile since it will be changed.
         // Rotation automatically goes through a full 360 degrees each inner loop,
         // so no need to back it up.
         int origX = this.currentTile.getX();
@@ -296,6 +319,56 @@ public class Board {
         this.currentTile.setPosition(origX, origY);
 
         return placements;
+    }
+
+    /**
+     * Searches through every valid tile placement (gotten with getValidTilePlacements())
+     * and creates an array of all the valid meeple placements on those tiles.
+     *
+     * @return An array of all valid meeple placements of the current tile. It may be
+     *         empty if there are no valid meeple placements.
+     */
+    public ArrayList<TilePlacement> getValidMeeplePlacements() {
+        // Backup all attributes about the current tile that will be changed in
+        // the loop.
+        int origX = this.currentTile.getX();
+        int origY = this.currentTile.getY();
+        int origRotation = this.currentTile.getRotation();
+        Section origMeepleSection = this.currentTile.getMeepleSection();
+
+        // Loop over all the valid tile placements and find all the sections that
+        // can have meeples placed on them.
+        ArrayList<TilePlacement> tilePlacements = getValidTilePlacements();
+        ArrayList<TilePlacement> meeplePlacements = new ArrayList<>();
+
+        for (int i = 0; i < tilePlacements.size(); i++) {
+            TilePlacement tilePlacement = tilePlacements.get(i);
+
+            // Set the current tile to the parameters for this placement.
+            this.currentTile.setPosition(tilePlacement.x, tilePlacement.y);
+            this.currentTile.setRotation(tilePlacement.rotation);
+
+            // Loop over its sections and set the meeple to each one in turn.
+            for (Section section : this.currentTile.getSections()) {
+                this.currentTile.setMeepleSection(section);
+
+                // If this meeple placement is valid, copy it, add the section, and
+                // add it to the list of valid meeple placements.
+                if (isCurrentMeeplePlacementValid()) {
+                    TilePlacement copy = new TilePlacement(tilePlacement);
+                    copy.meepleSection = section;
+
+                    meeplePlacements.add(copy);
+                }
+            }
+        }
+
+        // Restore the current tile's attributes that were changed.
+        this.currentTile.setPosition(origX, origY);
+        this.currentTile.setRotation(origRotation);
+        this.currentTile.setMeepleSection(origMeepleSection);
+
+        return meeplePlacements;
     }
 
     /**

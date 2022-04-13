@@ -115,24 +115,33 @@ public class CarcassonneLocalGame extends LocalGame {
      */
     @Override
     protected boolean makeMove(GameAction action) {
+        boolean valid = true;
+
         if (action instanceof CarcassonnePlaceTileAction) {
             CarcassonnePlaceTileAction placeTileAction = (CarcassonnePlaceTileAction)action;
-            return this.gameState.placeTile(placeTileAction.getX(), placeTileAction.getY());
+            valid = this.gameState.placeTile(placeTileAction.getX(), placeTileAction.getY());
         } else if (action instanceof CarcassonneRotateTileAction) {
             CarcassonneRotateTileAction rotateTileAction = (CarcassonneRotateTileAction)action;
-            return this.gameState.rotateTile(rotateTileAction.getRotation());
+            valid = this.gameState.rotateTile(rotateTileAction.getRotation());
         } else if (action instanceof CarcassonneConfirmTileAction) {
-            return this.gameState.confirmTile();
+            valid = this.gameState.confirmTile();
         } else if (action instanceof CarcassonneResetTurnAction) {
-            return this.gameState.resetTurn();
+            valid = this.gameState.resetTurn();
         } else if (action instanceof CarcassonnePlaceMeepleAction) {
             CarcassonnePlaceMeepleAction placeMeepleAction = (CarcassonnePlaceMeepleAction)action;
-            return this.gameState.placeMeeple(placeMeepleAction.getX(), placeMeepleAction.getY());
+            valid = this.gameState.placeMeeple(placeMeepleAction.getSection());
         } else if (action instanceof CarcassonneConfirmMeepleAction) {
-            return this.gameState.confirmMeeple();
+            valid = this.gameState.confirmMeeple();
+        } else {
+            // Any other action is invalid automatically.
+            return false;
         }
 
-        // Any other action is invalid automatically.
-        return false;
+        if (action.getPlayer() instanceof GameComputerPlayer) {
+            // If the AI made an invalid move, this is a bug.
+            assert valid;
+        }
+
+        return valid;
     }
 }

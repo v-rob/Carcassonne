@@ -8,6 +8,7 @@ import java.util.ArrayList;
  *
  * Necessary functionality added since alpha:
  * - Scoring and incomplete scoring
+ * - Smart AI
  *
  * Additional features/changes:
  * - Loading screen
@@ -20,7 +21,8 @@ import java.util.ArrayList;
  * - The code for loading sections had some sections flipped
  *
  * Known bugs:
- * - None as of now.
+ * - Smart AI makes an invalid move when running out of meeples
+ * - Touching at the edge of the current tile causes a bitmap out-of-bounds error/
  */
 
 /**
@@ -87,6 +89,12 @@ public class CarcassonneMainActivity extends GameMainActivity {
         playerTypes.add(new GamePlayerType("Computer (Dumb)") {
             public GamePlayer createPlayer(String name) {
                 return new CarcassonneComputerPlayer(name, false);
+            }
+        });
+
+        playerTypes.add(new GamePlayerType("Computer (Smart)") {
+            public GamePlayer createPlayer(String name) {
+                return new CarcassonneComputerPlayer(name, true);
             }
         });
 

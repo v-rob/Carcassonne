@@ -24,8 +24,8 @@ public class Section {
     /** The parent tile that contains this section. */
     private Tile parent;
 
-    /** The type of the section, which is one of the TYPE_* constants in Tile. */
-    private int type;
+    /** The color of the section, gotten from the parent tile's section image. */
+    private int color;
 
     /**
      * The set of all the parts in this section. For TYPE_FARM or TYPE_CITY, it contains
@@ -55,12 +55,36 @@ public class Section {
     }
 
     /**
+     * Gets the color of this section from the section image.
+     *
+     * @return The color of this section.
+     */
+    public int getColor() {
+        return this.color;
+    }
+
+    /**
      * Gets the type of this section.
+     *
+     * Converts a color to a section type by looking it up in the Tile.<TYPE>_COLORS
+     * sets.
      *
      * @return The type of this section, which is one of the TYPE_* constants in Tile.
      */
     public int getType() {
-        return this.type;
+        if (Tile.FARM_COLORS.contains(color)) {
+            return Tile.TYPE_FARM;
+        } else if (Tile.CITY_COLORS.contains(color)) {
+            return Tile.TYPE_CITY;
+        } else if (Tile.ROAD_COLORS.contains(color)) {
+            return Tile.TYPE_ROAD;
+        } else if (color == Tile.CLOISTER_COLOR) {
+            return Tile.TYPE_CLOISTER;
+        }
+
+        // If it's any other color, the images are invalid.
+        assert false;
+        return Tile.NO_TYPE;
     }
 
     /**
@@ -176,7 +200,7 @@ public class Section {
         toStr.add("parent", this.parent.hashCode());
 
         toStr.add("parts", this.parts);
-        toStr.add("type", this.type);
+        toStr.add("color", this.color);
         toStr.add("meepleX", this.meepleX);
         toStr.add("meepleY", this.meepleY);
 
@@ -184,17 +208,17 @@ public class Section {
     }
 
     /**
-     * Creates a new section with the specified type and meeple X and Y display
+     * Creates a new section with the specified color and meeple X and Y display
      * position.
      *
      * @param parent  The parent tile that contains this section.
-     * @param type    The type of the section.
+     * @param color   The color of the section.
      * @param meepleX The X display position of meeples in this section.
      * @param meepleY The Y display position of meeples in this section.
      */
-    public Section(Tile parent, int type, int meepleX, int meepleY) {
+    public Section(Tile parent, int color, int meepleX, int meepleY) {
         this.parent = parent;
-        this.type = type;
+        this.color = color;
 
         this.parts = new HashSet<>();
 
@@ -212,7 +236,7 @@ public class Section {
      */
     public Section(Section other, Tile parent) {
         this.parent = parent;
-        this.type = other.type;
+        this.color = other.color;
 
         this.parts = new HashSet<>(other.parts);
 

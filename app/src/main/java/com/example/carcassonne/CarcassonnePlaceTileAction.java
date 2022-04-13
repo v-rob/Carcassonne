@@ -36,7 +36,7 @@ public class CarcassonnePlaceTileAction extends GameAction {
      *
      * @return The X board position.
      */
-    int getX() {
+    public int getX() {
         return this.x;
     }
 
@@ -45,7 +45,7 @@ public class CarcassonnePlaceTileAction extends GameAction {
      *
      * @return The Y board position.
      */
-    int getY() {
+    public int getY() {
         return this.y;
     }
 }

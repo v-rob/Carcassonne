@@ -406,24 +406,6 @@ public class Tile {
     }
 
     /**
-     * Gets a set of all the sections with the specified type.
-     *
-     * @param type The type of the sections to get.
-     * @return All the sections in this tile with that type.
-     */
-    public Collection<Section> getSectionsByType(int type) {
-        ArrayList<Section> sections = new ArrayList<>();
-
-        for (Section section : this.sections.values()) {
-            if (section.getType() == type) {
-                sections.add(section);
-            }
-        }
-
-        return sections;
-    }
-
-    /**
      * Gets a farm or city section from a normal part.
      *
      * @param part The part to find the parent section for.
@@ -469,6 +451,19 @@ public class Tile {
     }
 
     /**
+     * Gets a section from an X and Y pixel position on the tile.
+     *
+     * @param x The X position to get a section from, in pixels.
+     * @param y The Y position to get a section from, in pixels.
+     */
+    public Section getSectionFromPosition(int x, int y) {
+        BitmapProvider bitmapProvider = CarcassonneMainActivity.getBitmapProvider();
+
+        int color = bitmapProvider.getTile(this.id).map.bitmap.getPixel(x, y);
+        return this.sections.get(color);
+    }
+
+    /**
      * Queries whether the tile has a meeple on it.
      *
      * @return True if there is a meeple on this tile, false otherwise.
@@ -478,35 +473,31 @@ public class Tile {
     }
 
     /**
-     * Sets the meeple on this tile to a new X and Y position. It looks up the section
-     * from the tile's map image.
-     *
-     * @param x The X position to place the meeple at, in pixels.
-     * @param y The Y position to place the meeple at, in pixels.
-     */
-    public void setMeeple(int x, int y) {
-        // Remove any existing meeple first.
-        removeMeeple();
-
-        // We don't need to rotate the positions because the ImageView rotates X
-        // and Y positions automatically.
-        BitmapProvider bitmapProvider = CarcassonneMainActivity.getBitmapProvider();
-
-        this.meepleSection = bitmapProvider.getTile(this.id).map.bitmap.getPixel(x, y);
-    }
-
-    /** Removes the meeple from this tile if there is one. */
-    public void removeMeeple() {
-        this.meepleSection = NO_MEEPLE;
-    }
-
-    /**
      * Queries the section that the meeple is in. If there is no meeple, returns null.
      *
      * @return The section that the meeple is in, or null if no meeple.
      */
     public Section getMeepleSection() {
         return this.sections.get(this.meepleSection);
+    }
+
+    /**
+     * Sets the section that the meeple is in. If it is null, the meeple is removed
+     * from the tile.
+     *
+     * @param section The section to place the meeple in.
+     */
+    public void setMeepleSection(Section section) {
+        if (section == null) {
+            this.meepleSection = NO_MEEPLE;
+        } else {
+            this.meepleSection = section.getColor();
+        }
+    }
+
+    /** Removes the meeple from this tile if there is one. */
+    public void removeMeeple() {
+        this.meepleSection = NO_MEEPLE;
     }
 
     /**
@@ -691,29 +682,6 @@ public class Tile {
     }
 
     /**
-     * Converts a color to a section type by looking it up in the <TYPE>_COLORS sets.
-     * It is an error if the color is not a valid section color.
-     *
-     * @param color The section color to look up the type of.
-     * @return The type of that section color.
-     */
-    private static int getTypeFromColor(int color) {
-        if (FARM_COLORS.contains(color)) {
-            return TYPE_FARM;
-        } else if (CITY_COLORS.contains(color)) {
-            return TYPE_CITY;
-        } else if (ROAD_COLORS.contains(color)) {
-            return TYPE_ROAD;
-        } else if (color == CLOISTER_COLOR) {
-            return TYPE_CLOISTER;
-        }
-
-        // If it's any other color, the images are invalid.
-        assert false;
-        return NO_TYPE;
-    }
-
-    /**
      * Creates the list of sections that this tile has by searching through the provided
      * section bitmap to find the meeple position for each section and creating a new
      * section with that color and meeple position. The sections will have no parts.
@@ -738,7 +706,7 @@ public class Tile {
                 // There should be no duplicate sections with the same color.
                 assert !this.sections.containsKey(color);
 
-                this.sections.put(color, new Section(this, getTypeFromColor(color), x, y));
+                this.sections.put(color, new Section(this, color, x, y));
             }
         }
     }
