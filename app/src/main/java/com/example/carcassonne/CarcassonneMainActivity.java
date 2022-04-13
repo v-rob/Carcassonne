@@ -21,8 +21,7 @@ import java.util.ArrayList;
  * - The code for loading sections had some sections flipped
  *
  * Known bugs:
- * - Smart AI makes an invalid move when running out of meeples
- * - Touching at the edge of the current tile causes a bitmap out-of-bounds error/
+ * - Touching at the edge of the current tile causes a bitmap out-of-bounds error
  */
 
 /**

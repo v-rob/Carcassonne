@@ -4,7 +4,8 @@ import com.example.carcassonne.actionMsg.GameAction;
 
 /**
  * Action class that signifies that a player wishes to place a meeple on the current
- * tile. It contains the section to place it at.
+ * tile. It contains the section to place it at, or null if the meeple should be
+ * removed.
  *
  * @author Sophie Arcangel
  * @author DJ Backus
@@ -13,7 +14,7 @@ import com.example.carcassonne.actionMsg.GameAction;
  * @author Cheyanne Yim
  */
 public class CarcassonnePlaceMeepleAction extends GameAction {
-    /** The section on the tile to place the meeple at. */
+    /** The section on the tile to place the meeple at, or null to remove the meeple. */
     private Section section;
 
     /**
@@ -30,7 +31,7 @@ public class CarcassonnePlaceMeepleAction extends GameAction {
     /**
      * Gets the section on the tile to place the meeple at.
      *
-     * @return The section.
+     * @return The section, or null when the meeple should be removed.
      */
     public Section getSection() {
         return this.section;

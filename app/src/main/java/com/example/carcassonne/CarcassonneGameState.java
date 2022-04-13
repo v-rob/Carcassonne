@@ -19,7 +19,7 @@ public class CarcassonneGameState extends GameState {
     /** The maximum number of players that are allowed to play Carcassonne. */
     public static final int MAX_PLAYERS = 5;
     /** The number of meeples each player starts out with. */
-    public static final int STARTING_MEEPLES = 7;
+    public static final int NUM_MEEPLES = 7;
 
     /** The number of players playing right now. */
     private int numPlayers;
@@ -42,7 +42,7 @@ public class CarcassonneGameState extends GameState {
     /** The player index of the player whose turn it is. */
     private int currentPlayer;
     /** Whether the current player is currently placing tiles or meeples. */
-    private boolean isPlacementStage;
+    private boolean isTileStage;
 
     /** Whether the game is now over, after the last tile has been placed. */
     private boolean isGameOver;
@@ -63,13 +63,13 @@ public class CarcassonneGameState extends GameState {
         this.numPlayers = numPlayers;
 
         this.playerMeeples = new int[numPlayers];
-        Arrays.fill(this.playerMeeples, STARTING_MEEPLES);
+        Arrays.fill(this.playerMeeples, NUM_MEEPLES);
 
         this.playerCompleteScores = new int[numPlayers];
         this.playerIncompleteScores = new int[numPlayers];
 
         this.currentPlayer = 0;
-        this.isPlacementStage = false;
+        this.isTileStage = false;
         this.isGameOver = false;
 
         this.deck = new Deck();
@@ -102,7 +102,7 @@ public class CarcassonneGameState extends GameState {
         this.playerIncompleteScores = Util.copyArray(other.playerIncompleteScores);
 
         this.currentPlayer = other.currentPlayer;
-        this.isPlacementStage = other.isPlacementStage;
+        this.isTileStage = other.isTileStage;
         this.isGameOver = other.isGameOver;
 
         this.deck = new Deck(other.deck);
@@ -124,7 +124,7 @@ public class CarcassonneGameState extends GameState {
         toStr.add("playerCompleteScores", this.playerCompleteScores);
         toStr.add("playerIncompleteScores", this.playerIncompleteScores);
         toStr.add("currentTurn", this.currentPlayer);
-        toStr.add("isPlacementStage", this.isPlacementStage);
+        toStr.add("isPlacementStage", this.isTileStage);
         toStr.add("deck", this.deck);
         toStr.add("board", this.board);
 
@@ -181,12 +181,12 @@ public class CarcassonneGameState extends GameState {
     }
 
     /**
-     * Returns whether the game is currently in the tile or meeple placement stage
+     * Returns whether the game is currently in the tile or meeple placement stage.
      *
      * @return True if in tile placement, false if in meeple placement.
      */
-    public boolean isPlacementStage() {
-        return this.isPlacementStage;
+    public boolean isTileStage() {
+        return this.isTileStage;
     }
 
     /**
@@ -221,12 +221,12 @@ public class CarcassonneGameState extends GameState {
      *
      * @param x The X position to place the tile at.
      * @param y The Y position to place the tile at.
-     * @return True if it is the tile placement stage and it is valid to place a tile
+     * @return True if it is the tile placement stage and it is possible to place a tile
      *         at the specified position, false otherwise. If false, the game state
      *         does not change.
      */
     public boolean placeTile(int x, int y) {
-        if (this.isPlacementStage && this.board.getConfirmedTile(x, y) == null) {
+        if (this.isTileStage && this.board.getConfirmedTile(x, y) == null) {
             this.board.getCurrentTile().setPosition(x, y);
             return true;
         }
@@ -241,7 +241,7 @@ public class CarcassonneGameState extends GameState {
      *         the game state does not change.
      */
     public boolean rotateTile(int rotation) {
-        if (this.isPlacementStage) {
+        if (this.isTileStage) {
             this.board.getCurrentTile().setRotation(rotation);
             return true;
         }
@@ -256,8 +256,8 @@ public class CarcassonneGameState extends GameState {
      *         is valid, false otherwise. If false, the game state does not change.
      */
     public boolean confirmTile() {
-        if (this.isPlacementStage && this.board.isCurrentTilePlacementValid()) {
-            this.isPlacementStage = false;
+        if (this.isTileStage && this.board.isCurrentTilePlacementValid()) {
+            this.isTileStage = false;
             return true;
         }
         return false;
@@ -271,9 +271,9 @@ public class CarcassonneGameState extends GameState {
      *         the game state does not change.
      */
     public boolean resetTurn() {
-        if (!this.isPlacementStage) {
+        if (!this.isTileStage) {
             this.board.getCurrentTile().removeMeeple();
-            this.isPlacementStage = true;
+            this.isTileStage = true;
             return true;
         }
         return false;
@@ -288,83 +288,92 @@ public class CarcassonneGameState extends GameState {
      *         meeples, false otherwise. If false, the game state does not change.
      */
     public boolean placeMeeple(Section section) {
-        if (!this.isPlacementStage && this.playerMeeples[this.currentPlayer] > 0) {
-            this.board.getCurrentTile().setMeepleSection(section);
-            return true;
+        // We can't place meeples in the tile placement stage.
+        if (this.isTileStage) {
+            return false;
         }
-        return false;
+
+        // If we're placing a meeple (not removing it), ensure we have enough meeples.
+        if (section != null && this.playerMeeples[this.currentPlayer] <= 0) {
+            return false;
+        }
+
+        this.board.getCurrentTile().setMeepleSection(section);
+        return true;
     }
 
     /**
      * Called when the player wishes to confirm their meeple placement, finishing
-     * their turn and starting a new turn for the next player.
+     * their turn, scoring the tile, and starting a new turn for the next player.
      *
      * @return True if it is the meeple placement stage and the meeple placement is
      *         valid, false otherwise. If false, the game state will not be changed.
      */
     public boolean confirmMeeple() {
-        if (!this.isPlacementStage && this.board.isCurrentMeeplePlacementValid()) {
-            // Before we confirm and the current tile becomes null, subtract the meeple
-            // if the player placed one.
-            if (this.board.getCurrentTile().hasMeeple()) {
-                this.playerMeeples[this.currentPlayer]--;
+        // Do nothing if it's invalid to confirm a meeple right now.
+        if (this.isTileStage || !this.board.isCurrentMeeplePlacementValid()) {
+            return false;
+        }
+
+        // Before we confirm and the current tile becomes null, subtract the meeple
+        // if the player placed one.
+        if (this.board.getCurrentTile().hasMeeple()) {
+            this.playerMeeples[this.currentPlayer]--;
+        }
+
+        // Analyze the current tile for city/road scoring.
+        MeepleAnalysis.analyzeTile(this.board, this.board.getCurrentTile(), (analysis) -> {
+            int type = analysis.getStartSection().getType();
+            if (type != Tile.TYPE_CITY && type != Tile.TYPE_ROAD) {
+                return;
             }
 
-            // Analyze the current tile for city/road scoring.
-            MeepleAnalysis.analyzeTile(this.board, this.board.getCurrentTile(), (analysis) -> {
-                int type = analysis.getStartSection().getType();
-                if (type != Tile.TYPE_CITY && type != Tile.TYPE_ROAD) {
-                    return;
-                }
+            /* If this section is a road or city, check if it was just now completed
+             * by this last placement. If it is, score it and return the relevant meeples.
+             * Since it is closed off, there's no possibility of scoring it again.
+             */
+            if (analysis.isComplete()) {
+                analysis.tallyScores(this.playerCompleteScores);
+                analysis.returnMeeples(this.playerMeeples);
+            }
+        });
 
-                /* If this section is a road or city, check if it was just now completed
-                 * by this last placement. If it is, score it and return the relevant meeples.
-                 * Since it is closed off, there's no possibility of scoring it again.
-                 */
-                if (analysis.isComplete()) {
-                    analysis.tallyScores(this.playerCompleteScores);
-                    analysis.returnMeeples(this.playerMeeples);
-                }
-            });
+        // Analyze the board for cloister scoring. This must analyze the entire board
+        // because a cloister may be completed by placing any adjacent tile.
+        MeepleAnalysis.analyzeBoard(this.board, (analysis) -> {
+            if (analysis.getStartSection().getType() != Tile.TYPE_CLOISTER) {
+                return;
+            }
 
-            // Analyze the board for cloister scoring. This must analyze the entire board
-            // because a cloister may be completed by placing any adjacent tile.
-            MeepleAnalysis.analyzeBoard(this.board, (analysis) -> {
-                if (analysis.getStartSection().getType() != Tile.TYPE_CLOISTER) {
-                    return;
-                }
+            /* If this section is a cloister and it is complete, score it and return
+             * the relevant meeples. Note that this code will run every time a tile
+             * is placed, not just when the cloister is completed; this is fine because
+             * all meeples will be removed from cloisters when scoring, so there's no
+             * possibility of scoring them twice.
+             */
+            if (analysis.isComplete()) {
+                analysis.tallyScores(this.playerCompleteScores);
+                analysis.returnMeeples(this.playerMeeples);
+            }
+        });
 
-                /* If this section is a cloister and it is complete, score it and return
-                 * the relevant meeples. Note that this code will run every time a tile
-                 * is placed, not just when the cloister is completed; this is fine because
-                 * all meeples will be removed from cloisters when scoring, so there's no
-                 * possibility of scoring them twice.
-                 */
-                if (analysis.isComplete()) {
-                    analysis.tallyScores(this.playerCompleteScores);
-                    analysis.returnMeeples(this.playerMeeples);
-                }
-            });
+        // Clear the incomplete score since we re-tally them all from scratch.
+        Arrays.fill(this.playerIncompleteScores, 0);
 
-            // Clear the incomplete score since we re-tally them all from scratch.
-            Arrays.fill(this.playerIncompleteScores, 0);
+        // Analyze the entire board for incomplete meeple scoring.
+        MeepleAnalysis.analyzeBoard(this.board, (analysis) -> {
+            // If this section is not complete, add it to the incomplete scores. Do not
+            // score complete sections because that will result in doubly counted scores.
+            if (!analysis.isComplete()) {
+                analysis.tallyScores(this.playerIncompleteScores);
+            }
+        });
 
-            // Analyze the entire board for incomplete meeple scoring.
-            MeepleAnalysis.analyzeBoard(this.board, (analysis) -> {
-                // If this section is not complete, add it to the incomplete scores. Do not
-                // score complete sections because that will result in doubly counted scores.
-                if (!analysis.isComplete()) {
-                    analysis.tallyScores(this.playerIncompleteScores);
-                }
-            });
+        // Confirm the tile and start a new turn.
+        this.board.confirmCurrentTile();
+        newTurn((currentPlayer + 1) % this.numPlayers);
 
-            // Confirm the tile and start a new turn.
-            this.board.confirmCurrentTile();
-            newTurn((currentPlayer + 1) % this.numPlayers);
-
-            return true;
-        }
-        return false;
+        return true;
     }
 
     /**
@@ -377,7 +386,7 @@ public class CarcassonneGameState extends GameState {
      */
     private void newTurn(int newPlayer) {
         this.currentPlayer = newPlayer;
-        this.isPlacementStage = true;
+        this.isTileStage = true;
 
         // Keep drawing tiles until the deck is empty. If it is, set the game as over
         // and break. CarcassonneLocalGame will detect this and end the game.

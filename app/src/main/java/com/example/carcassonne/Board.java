@@ -97,6 +97,35 @@ public class Board {
     }
 
     /**
+     * Manually places a tile directly on the board. It does not go through validity
+     * checking, but just places it verbatim. Generally useful for internal functions
+     * and unit testing rather than a normal external interface.
+     *
+     * @param x    The X position to place the tile at.
+     * @param y    The Y position to place the tile at.
+     * @param tile The tile to place at that position.
+     */
+    public void setTileDirectly(int x, int y, Tile tile) {
+        tile.setPosition(x, y);
+        this.tiles[y][x] = tile;
+    }
+
+    /**
+     * Checks if the specified position has an adjacent tile in any of the four
+     * cardinal directions. There does not need to be a tile at the specified position.
+     *
+     * @param x The X position to check for adjacent tiles around.
+     * @param y The Y position to check for adjacent tiles around.
+     * @return True if there is an adjacent tile, false otherwise.
+     */
+    public boolean hasAdjacentTile(int x, int y) {
+        return getTile(x, y - 1) != null ||
+                getTile(x + 1, y) != null ||
+                getTile(x, y + 1) != null ||
+                getTile(x - 1, y) != null;
+    }
+
+    /**
      * Returns the tile currently being placed, or null if there is no such tile.
      *
      * @return The tile currently being placed.
@@ -142,28 +171,26 @@ public class Board {
 
         // Resize the tile array if necessary
         if (incX || incY) {
-            Tile[][] copy = new Tile[getHeight() + (incY ? 1 : 0)]
+            Tile[][] old = this.tiles;
+            this.tiles = new Tile[getHeight() + (incY ? 1 : 0)]
                     [getWidth() + (incX ? 1 : 0)];
 
-            for (int y = 0; y < getHeight(); y++) {
-                for (int x = 0; x < getWidth(); x++) {
-                    Tile tile = this.tiles[y][x];
+            for (int y = 0; y < old.length; y++) {
+                for (int x = 0; x < old[y].length; x++) {
+                    Tile tile = old[y][x];
                     if (tile == null) {
                         continue;
                     }
 
                     // If we inserted to the top or left, we need to add an offset in
-                    // the destination array and update the internal position.
-                    copy[y + (incTop ? 1 : 0)][x + (incLeft ? 1 : 0)] = tile;
-                    tile.setPosition(
+                    // the destination array.
+                    setTileDirectly(
                             tile.getX() + (incLeft ? 1 : 0),
-                            tile.getY() + (incTop ? 1 : 0)
+                            tile.getY() + (incTop ? 1 : 0),
+                            tile
                     );
                 }
             }
-
-            // Replace the original tile array with the copy.
-            this.tiles = copy;
         }
 
         // Reset the current tile to null and no position.
@@ -173,7 +200,7 @@ public class Board {
     /**
      * Queries whether the position of the current tile is valid. This is subject to
      * three requirements:
-     * - The tile is in bounds for the board.
+     * - The tile is in bounds for the board and does not overlap with an existing tile.
      * - The tile has at least one adjacent tile.
      * - All adjacent tiles match up with the current tile.
      *
@@ -189,20 +216,13 @@ public class Board {
             return false;
         }
 
-        // Check all possible surrounding positions for validity in clockwise order
-        // starting from the top
-        Board.AdjacentValidation adjacent = new Board.AdjacentValidation();
-
-        // Refer to the documentation for Tile for the meaning of these magical
-        // constants.
-        isAdjacentValid(adjacent, 0, -1, 0, 1, 0);
-        isAdjacentValid(adjacent, 1,  0, 2, 3, 1);
-        isAdjacentValid(adjacent, 0,  1, 4, 5, 2);
-        isAdjacentValid(adjacent, -1, 0, 6, 7, 3);
-
-        // We can only place the tile if there is another tile next to this one and
-        // if all farms, cities, and roads match up.
-        return adjacent.found && adjacent.isValid;
+        // Check for adjacent tiles and ensure they are all valid. Refer to the
+        // documentation for Tile for the meaning of the magical part constants.
+        return hasAdjacentTile(currentX, currentY) &&
+                isAdjacentValid(0, -1, 0, 1, 0) &&
+                isAdjacentValid(1,  0, 2, 3, 1) &&
+                isAdjacentValid(0,  1, 4, 5, 2) &&
+                isAdjacentValid(-1, 0, 6, 7, 3);
     }
 
     /**
@@ -217,11 +237,13 @@ public class Board {
         // the meeple placement code.
         assert isCurrentTilePlacementValid();
 
+        // It's always valid if there's no meeple.
         Section meepleSection = this.currentTile.getMeepleSection();
         if (meepleSection == null) {
             return true;
         }
 
+        // Otherwise, offload the work to the meeple analysis classes.
         return MeepleAnalysis.create(this, meepleSection).isMeepleValid();
     }
 
@@ -408,10 +430,9 @@ public class Board {
     public Board(Tile startingTile) {
         this.tiles = new Tile[3][3];
 
-        // Place the starting tile on the board. Make sure to set the tile's internal
-        // position as well.
-        startingTile.setPosition(1, 1);
-        this.tiles[1][1] = startingTile;
+        // Place the starting tile on the board. It's always valid, so we can set
+        // it directly.
+        setTileDirectly(1, 1, startingTile);
 
         this.currentTile = null;
     }
@@ -428,32 +449,11 @@ public class Board {
     }
 
     /**
-     * Helper class for isAdjacentValid(). It is necessary because isAdjacentValid()
-     * needs to share two pieces of information with other calls to that function:
-     * is there another tile anywhere, and are the adjacent tiles valid?
-     */
-    private static class AdjacentValidation {
-        /**
-         * True if an adjacent tile was found. Defaults to false until proven that
-         * there is one by a call to isAdjacentValid().
-         */
-        public boolean found = false;
-
-        /**
-         * True if this tile is valid when placed next to all adjacent tiles. Defaults
-         * to true until proven by isAdjacentValid() that at least one adjacent tile
-         * does not match up with this one.
-         */
-        public boolean isValid = true;
-    }
-
-    /**
-     * Checks if there is a tile adjacent to the current tile and if the borders of the
-     * tile match up. It is a helper method for isCurrentTilePlacementValid().
+     * Checks if the borders of the current tile and the adjacent tile at the specified
+     * offset match up. If there is no tile at that adjacent position, returns true
+     * since blank tiles always "match". This is a helper method for
+     * isCurrentTilePlacementValid().
      *
-     * @param adjacent   The object for storing the results of the function across
-     *                   multiple calls. An object should be created and passed to every
-     *                   call of this function, and the results checked afterwards.
      * @param xOffset    The X offset from the current tile to the adjacent tile.
      * @param yOffset    The Y offset from the current tile to the adjacent tile.
      * @param firstPart  One tile part on the current tile to validate with the adjacent
@@ -463,27 +463,22 @@ public class Board {
      * @param roadPart   The road part on the current tile to validate with the adjacent
      *                   tile's road part on the opposite side.
      */
-    private void isAdjacentValid(Board.AdjacentValidation adjacent, int xOffset, int yOffset,
-                                 int firstPart, int secondPart, int roadPart) {
+    private boolean isAdjacentValid(int xOffset, int yOffset, int firstPart, int secondPart,
+                                    int roadPart) {
         Tile tile = getConfirmedTile(this.currentTile.getX() + xOffset,
                 this.currentTile.getY() + yOffset);
         if (tile == null) {
-            // There's no tile: nothing has changed.
-            return;
+            // There's no tile, so it's automatically valid in that direction.
+            return true;
         }
 
-        // If the tile exists, an adjacent tile has been found
-        adjacent.found = true;
-
         // Check whether the types of sections match up, i.e. farm to farm and
-        // city to city.
-        adjacent.isValid &= this.currentTile.getSection(firstPart).getType() ==
-                tile.getSection(Tile.flipPart(firstPart)).getType();
-        adjacent.isValid &= this.currentTile.getSection(secondPart).getType() ==
-                tile.getSection(Tile.flipPart(secondPart)).getType();
-
-        // Check whether the roads match up.
-        adjacent.isValid &= this.currentTile.hasRoad(roadPart) ==
-                tile.hasRoad(Tile.flipRoadPart(roadPart));
+        // city to city, and then check for roads matching up.
+        return this.currentTile.getSection(firstPart).getType() ==
+                        tile.getSection(Tile.flipPart(firstPart)).getType() &&
+                this.currentTile.getSection(secondPart).getType() ==
+                        tile.getSection(Tile.flipPart(secondPart)).getType() &&
+                this.currentTile.hasRoad(roadPart) ==
+                        tile.hasRoad(Tile.flipRoadPart(roadPart));
     }
 }

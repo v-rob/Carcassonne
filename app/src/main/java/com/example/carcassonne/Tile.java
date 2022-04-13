@@ -121,8 +121,9 @@ import java.util.HashSet;
  *
  * Finally, tiles also contain an "owner", which is the player index of the player
  * who placed the tile (and therefore owns the meeple). Tiles also keep track of
- * their ID (for looking up map images in BitmapProvider) and their rotation in
- * degrees (for rendering).
+ * their ID (for looking up map images in BitmapProvider) their rotation in degrees
+ * (for rendering), and their X and Y position on the board (for scoring; kept
+ * updated automatically by Board).
  *
  * @author Sophie Arcangel
  * @author DJ Backus
@@ -162,10 +163,16 @@ public class Tile {
      */
     private int rotation;
 
-    /** The X position of this tile on the board, or -1 if it is not on the board. */
+    /**
+     * The X position of this tile on the board, or -1 if it is not on the board. It
+     * may change when the board is resized.
+     */
     private int x;
 
-    /** The Y position of this tile on the board, or -1 if it is not on the board. */
+    /**
+     * The Y position of this tile on the board, or -1 if it is not on the board. It
+     * may change when the board is resized.
+     */
     private int y;
 
     /** Indicates that a section or section color is a farm. */
@@ -579,7 +586,8 @@ public class Tile {
     }
 
     /**
-     * Queries the X position of this tile on the board.
+     * Queries the X position of this tile on the board. It may change when the board
+     * is resized.
      *
      * @return The X position of the tile, or -1 if it is not on the board yet.
      */
@@ -588,7 +596,8 @@ public class Tile {
     }
 
     /**
-     * Queries the Y position of this tile on the board.
+     * Queries the Y position of this tile on the board. It may change when the board
+     * is resized.
      *
      * @return The Y position of the tile, or -1 if it is not on the board yet.
      */
@@ -597,8 +606,8 @@ public class Tile {
     }
 
     /**
-     * Sets the X and Y coordinates of this tile on the board. It is only valid to call
-     * this function on the current tile.
+     * Sets the X and Y coordinates of this tile on the board. This method should
+     * only be called by Board.
      *
      * @param x The new X position of this tile on the board.
      * @param y The new Y position of this tile on the board.

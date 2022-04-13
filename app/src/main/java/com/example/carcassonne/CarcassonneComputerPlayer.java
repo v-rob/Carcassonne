@@ -60,9 +60,9 @@ public class CarcassonneComputerPlayer extends GameComputerPlayer {
 
     /**
      * The handler for receiving game state information: when it is this player's turn,
-     * it handles the logic for choosing a position and rotation to place its tile at
-     * and then sequentially sends each necessary action to the game state in each
-     * consecutive call.
+     * it handles the logic for choosing a tile position, rotation, and possibly a meeple
+     * position to place everything at, and then sequentially sends each necessary action
+     * to the game state in each consecutive receiveInfo().
      *
      * @param info The game state to be received, or anything else for a no-op.
      */
@@ -91,15 +91,26 @@ public class CarcassonneComputerPlayer extends GameComputerPlayer {
                 Board board = gameState.getBoard();
                 ArrayList<Board.TilePlacement> placements = new ArrayList<>();
 
-                // If we're smart and have enough meeples, place a meeple at random at
-                // approximately even intervals throughout the game.
-                if (this.isSmart && gameState.getPlayerMeeples(this.playerNum) > 0 &&
-                        Math.random() < 1.0) {
-                    placements = board.getValidMeeplePlacements();
+                /* If we're smart and have enough meeples, place a meeple at random at
+                 * approximately even intervals throughout the game.
+                 *
+                 * The way we calculate the probability is as follows: We only get a
+                 * limited number of turns, turns = num_tiles / num_players. If we do
+                 * turns / num_meeples, we get the number of turns before we play the
+                 * next meeple; hence, num_meeples / turns is the probability of placing
+                 * the meeple this turn. We use this with a random number.
+                 */
+                if (this.isSmart && gameState.getPlayerMeeples(this.playerNum) > 0) {
+                    double numTurns = (double)Deck.NUM_TILES / this.allPlayerNames.length;
+                    double probMeeple = (double)CarcassonneGameState.NUM_MEEPLES / numTurns;
+
+                    if (Math.random() <= probMeeple) {
+                        placements = board.getValidMeeplePlacements();
+                    }
                 }
 
-                // If we're dumb or there are no valid meeple placements, just choose a normal
-                // tile to place at.
+                // If we're dumb or there are no valid meeple placements or we decided not
+                // to place a meeple, just choose a normal tile to place at.
                 if (placements.size() == 0) {
                     placements = board.getValidTilePlacements();
                 }

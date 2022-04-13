@@ -11,8 +11,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import java.util.HashSet;
-
 /**
  * Represents a human player for Carcassonne, mainly consisting of GUI objects and
  * listeners for receiving input from the user, sending them to the local game, and
@@ -238,7 +236,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
 
         // Change the text of the buttons above the current tile to be proper for the
         // current placement stage of the game.
-        if (this.gameState.isPlacementStage()) {
+        if (this.gameState.isTileStage()) {
             this.rotateResetButton.setText("Rotate");
             this.confirmButton.setText("✓ Tile");
         } else {
@@ -328,7 +326,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
      * @param button Unused.
      */
     private void onClickRotateReset(View button) {
-        if (this.gameState.isPlacementStage()) {
+        if (this.gameState.isTileStage()) {
             Tile tile = this.gameState.getBoard().getCurrentTile();
             if (tile == null) {
                 // The game has ended; there is no current tile.
@@ -352,7 +350,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
      * @param button Unused.
      */
     private void onClickConfirm(View button) {
-        if (this.gameState.isPlacementStage()) {
+        if (this.gameState.isTileStage()) {
             this.game.sendAction(new CarcassonneConfirmTileAction(this));
         } else {
             this.game.sendAction(new CarcassonneConfirmMeepleAction(this));
@@ -386,7 +384,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
      * @return True since the event was handled.
      */
     private boolean onTouchTileImage(View view, MotionEvent event) {
-        if (!this.gameState.isPlacementStage()) {
+        if (!this.gameState.isTileStage()) {
             // Convert the scaled display pixels of the ImageView to pixels on a tile
             // bitmap.
             int x = (int)(event.getX() / this.currentTileImageView.getWidth() * Tile.SIZE);

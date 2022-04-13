@@ -90,7 +90,7 @@ public class CarcassonneLocalGame extends LocalGame {
 
         // If there's only one name, return it in the singular.
         if (highestNames.size() == 1) {
-            return "The winner is " + highestNames.get(0);
+            return "The winner is " + highestNames.get(0) + "!";
         }
 
         // Otherwise, concatenate the list of names with commas and use the plural.
@@ -102,6 +102,7 @@ public class CarcassonneLocalGame extends LocalGame {
                 names.append(", ");
             }
         }
+        names.append("!");
 
         return names.toString();
     }
@@ -115,7 +116,7 @@ public class CarcassonneLocalGame extends LocalGame {
      */
     @Override
     protected boolean makeMove(GameAction action) {
-        boolean valid = true;
+        boolean valid;
 
         if (action instanceof CarcassonnePlaceTileAction) {
             CarcassonnePlaceTileAction placeTileAction = (CarcassonnePlaceTileAction)action;

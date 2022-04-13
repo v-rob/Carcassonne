@@ -5,9 +5,10 @@ import android.graphics.Point;
 import java.util.HashSet;
 
 /**
- * Represents a single section in a tile. It contains the type of the section, the
- * list of parts or road parts associated with this section, and the X and Y position
- * that a meeple should appear at when placed in this section.
+ * Represents a single section in a tile. It contains the color of the section (from
+ * which the type can be derived from), the list of parts or road parts associated
+ * with this section, and the X and Y position that a meeple should appear at when
+ * placed in this section.
  *
  * When a Section is rotated, the data inside the section (namely the part numbers
  * and meeple position) are rotated with it.
