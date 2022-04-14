@@ -18,12 +18,13 @@ import java.util.ArrayList;
  * - Used Toasts instead of flashing on invalid moves
  * - Show number of tiles left
  *
- * Bugfixes:
+ * Bugs found and fixed from alpha:
  * - Meeples are now shown next to each player
  * - The code for loading sections had some sections flipped
+ * - Bounds checking for meeple placement on the current tile
  *
  * Known bugs:
- * - Touching at the edge of the current tile causes a bitmap out-of-bounds error
+ * - None--we smashed them all WITH A HAMMER.
  */
 
 /**

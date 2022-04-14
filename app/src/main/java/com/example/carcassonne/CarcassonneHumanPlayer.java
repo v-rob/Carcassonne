@@ -401,18 +401,28 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
      * @return True since the event was handled.
      */
     private boolean onTouchTileImage(View view, MotionEvent event) {
-        if (!this.gameState.isTileStage()) {
-            // Convert the scaled display pixels of the ImageView to pixels on a tile
-            // bitmap.
-            int x = (int)(event.getX() / this.currentTileImageView.getWidth() * Tile.SIZE);
-            int y = (int)(event.getY() / this.currentTileImageView.getHeight() * Tile.SIZE);
-
-            // Do NOT rotate the X and Y position; received positions are rotated with
-            // the GUI object automatically.
-            Tile currentTile = this.gameState.getBoard().getCurrentTile();
-            Section section = currentTile.getSectionFromPosition(x, y);
-            this.game.sendAction(new CarcassonnePlaceMeepleAction(this, section));
+        // Do nothing if it isn't the meeple placement stage.
+        if (this.gameState.isTileStage()) {
+            return true;
         }
+
+        // Convert the scaled display pixels of the ImageView to pixels on a tile
+        // bitmap.
+        int x = (int)(event.getX() / this.currentTileImageView.getWidth() * Tile.SIZE);
+        int y = (int)(event.getY() / this.currentTileImageView.getHeight() * Tile.SIZE);
+
+        // It's possible for the very edges of the ImageView to return out of
+        // bounds positions for the map image, so do bounds checking.
+        if (x < 0 || y < 0 || x >= Tile.SIZE || y >= Tile.SIZE) {
+            return true;
+        }
+
+        // Do NOT rotate the X and Y position; received positions are rotated with
+        // the GUI object automatically.
+        Tile currentTile = this.gameState.getBoard().getCurrentTile();
+        Section section = currentTile.getSectionFromPosition(x, y);
+        this.game.sendAction(new CarcassonnePlaceMeepleAction(this, section));
+
         return true;
     }
 
@@ -424,7 +434,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
      *
      * @param view Unused.
      * @param event The motion event to pass along to BoardSurfaceView.onTouch().
-     * @return True since the even was handled.
+     * @return True since the event was handled.
      */
     private boolean onTouchBoardSurfaceView(View view, MotionEvent event) {
         // Pass this event to the board's onTouch() method
