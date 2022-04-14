@@ -12,8 +12,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Carcassonne">
+        <!--
+        External Citation
+        Date: 14 April 2022
+        Problem: Needed a way to handle orientation changes
+        Resource:
+            https://medium.com/hootsuite-engineering/handling-orientation-changes-on-android-41a6b62cb43f
+        Solution: Set android:configChanges for orientation and similar changes so
+            Android only calls setAsGui() again rather than destroying and remaking
+            the application when the orientation changes.
+        -->
         <activity
             android:name=".CarcassonneMainActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

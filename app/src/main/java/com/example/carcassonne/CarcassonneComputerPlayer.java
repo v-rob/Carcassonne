@@ -33,7 +33,7 @@ public class CarcassonneComputerPlayer extends GameComputerPlayer {
      * Constant for nextAction: the AI should choose its tile and meeple placements
      * in this initial stage, and then start by rotating the current tile.
      */
-    private static final int ROTATE_TILE = 0;
+    private static final int CHOOSE_AND_ROTATE_TILE = 0;
     /** Constant for nextAction: The AI should place the tile. */
     private static final int PLACE_TILE = 1;
     /** Constant for nextAction: The AI should confirm the tile. */
@@ -54,7 +54,7 @@ public class CarcassonneComputerPlayer extends GameComputerPlayer {
      */
     public CarcassonneComputerPlayer(String name, boolean isSmart) {
         super(name);
-        this.nextAction = ROTATE_TILE;
+        this.nextAction = CHOOSE_AND_ROTATE_TILE;
         this.isSmart = isSmart;
     }
 
@@ -82,7 +82,7 @@ public class CarcassonneComputerPlayer extends GameComputerPlayer {
 
         // Perform each action that needs to be sent sequentially in each call.
         switch (this.nextAction) {
-            case ROTATE_TILE:
+            case CHOOSE_AND_ROTATE_TILE:
                 // Sleep to give the illusion of thought.
                 sleep(1000);
 
@@ -100,7 +100,7 @@ public class CarcassonneComputerPlayer extends GameComputerPlayer {
                  * the meeple this turn. We use this with a random number.
                  */
                 if (this.isSmart && gameState.getPlayerMeeples(this.playerNum) > 0) {
-                    double numTurns = (double)Deck.NUM_TILES / this.allPlayerNames.length;
+                    double numTurns = (double)Deck.NUM_TILES / gameState.getNumPlayers();
                     double probMeeple = (double)CarcassonneGameState.NUM_MEEPLES / numTurns;
 
                     if (Math.random() <= probMeeple) {
@@ -159,7 +159,7 @@ public class CarcassonneComputerPlayer extends GameComputerPlayer {
 
                 // Our turn ends after we confirm the meeple, so set the action to ROTATE to
                 // prepare for our next turn.
-                this.nextAction = ROTATE_TILE;
+                this.nextAction = CHOOSE_AND_ROTATE_TILE;
                 break;
         }
     }

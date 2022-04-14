@@ -4,6 +4,18 @@ import com.example.carcassonne.config.GameConfig;
 import com.example.carcassonne.config.GamePlayerType;
 import java.util.ArrayList;
 
+/* Header comment for final release:
+ *
+ * Additional features/changes:
+ * - The game works in both portrait and landscape mode, with separate GUIs for each
+ *
+ * Bugs found and fixed from beta:
+ * - None have been found
+ *
+ * Known bugs:
+ * - None
+ */
+
 /* Header comment for beta release:
  *
  * Necessary functionality added since alpha:
@@ -105,9 +117,12 @@ public class CarcassonneMainActivity extends GameMainActivity {
         GameConfig defaultConfig = new GameConfig(playerTypes, 1,
                 CarcassonneGameState.MAX_PLAYERS, "Carcassonne", PORT_NUMBER);
 
-        defaultConfig.addPlayer("Human", 0);
-        defaultConfig.addPlayer("Computer", 1);
-        defaultConfig.setRemoteData("Human (Remote)", "", 0);
+        defaultConfig.addPlayer("Count of Anjou", 0);
+        defaultConfig.addPlayer("Duke of Touraine", 1);
+        defaultConfig.addPlayer("Count of Valois", 2);
+        defaultConfig.addPlayer("Baron of Coucy", 1);
+        defaultConfig.addPlayer("Count of Toulouse", 2);
+        defaultConfig.setRemoteData("Duke of Orléans", "", 0);
 
         return defaultConfig;
     }

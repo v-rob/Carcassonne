@@ -1,11 +1,13 @@
 package com.example.carcassonne;
 
 import com.example.carcassonne.infoMsg.GameInfo;
+import com.example.carcassonne.infoMsg.NotYourTurnInfo;
+
 import android.graphics.Point;
+import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -33,8 +35,8 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
     /** The game state of the game, received in the last receiveInfo() callback. */
     private CarcassonneGameState gameState;
 
-    /** The table rows holding the information for each player. **/
-    private TableRow[] playerTableRows;
+    /** The table rows or linear layouts holding the information for each player. **/
+    private View[] playerContainers;
 
     /**
      * The text views representing the name of each player. It includes all five GUI
@@ -93,7 +95,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
     Toast lastToast;
 
     /** Array of the resources of each player information table row. */
-    private static final int[] PLAYER_TABLE_ROW_RESOURCES = {
+    private static final int[] PLAYER_CONTAINER_RESOURCES = {
             R.id.bluePlayer,
             R.id.yellowPlayer,
             R.id.greenPlayer,
@@ -187,103 +189,27 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
                 this.lastToast.cancel();
             }
 
+            String message = (info instanceof NotYourTurnInfo) ?
+                    "It's not your turn." :
+                    "That move's invalid.";
+
             this.lastToast = Toast.makeText(this.activity.getApplicationContext(),
-                    "That move's invalid.", Toast.LENGTH_SHORT);
+                    message, Toast.LENGTH_SHORT);
             this.lastToast.show();
             return;
         }
 
         this.gameState = (CarcassonneGameState)info;
 
-        // Hand the latest board to the BoardSurfaceView and invalidate it so it
-        // shows the latest updates.
-        Board board = this.gameState.getBoard();
-        this.boardSurfaceView.setBoard(board);
-        this.boardSurfaceView.invalidate();
-
-        /*
-         * External Citation
-         * Date: 6 April 2022
-         * Problem: Required a way to set the visibility of a GUI object programmatically.
-         * Resource:
-         *     https://developer.android.com/reference/android/view/View#setVisibility(int)
-         * Solution: Used View.setVisibility() with View.VISIBLE/View.GONE.
-         */
-
-        // Hide the player table rows for the players who are not playing. It only needs
-        // to be done once, but setAsGui() doesn't know how many players are playing.
-        for (int i = CarcassonneGameState.MAX_PLAYERS - 1; i >= this.allPlayerNames.length; i--) {
-            this.playerTableRows[i].setVisibility(View.GONE);
-        }
-
-        // Update the data for each player.
-        for (int i = 0; i < this.gameState.getNumPlayers(); i++) {
-            // Setting names only has to be done once, but setAsGui() doesn't know the
-            // names of the player.
-            this.playerNameTextViews[i].setText(this.allPlayerNames[i]);
-
-            // Update the meeple counts and scores.
-            this.meepleCountTextViews[i].setText("Meeples: " +
-                    this.gameState.getPlayerMeeples(i));
-            this.scoreTextViews[i].setText("Score: " +
-                    this.gameState.getPlayerCompleteScore(i) +
-                    " | Partial: " + this.gameState.getPlayerIncompleteScore(i));
-
-            // Set the background color back to transparent to remove current player
-            // highlights.
-            this.playerTableRows[i].setBackgroundColor(0x0);
-        }
-
-        // Highlight the background of the current player.
-        int currentPlayer = this.gameState.getCurrentPlayer();
-        this.playerTableRows[currentPlayer].setBackgroundColor(PLAYER_HIGHLIGHT_COLORS[currentPlayer]);
-
-        // Update the number of tiles left in the deck.
-        if (this.gameState.isGameOver()) {
-            // There are no tiles if the game is over.
-            this.tilesLeftTextView.setText("Tiles left: 0");
-        } else {
-            // The total number of tiles is the number of tiles left in the deck plus
-            // the current tile.
-            Deck deck = this.gameState.getDeck();
-            this.tilesLeftTextView.setText("Tiles left: " + (deck.getTilesLeft() + 1));
-        }
-
-        // Change the text of the buttons above the current tile to be proper for the
-        // current placement stage of the game.
-        if (this.gameState.isTileStage()) {
-            this.rotateResetButton.setText("Rotate");
-            this.confirmButton.setText("✓ Tile");
-        } else {
-            this.rotateResetButton.setText("Reset");
-            this.confirmButton.setText("✓ Meeple");
-        }
-
-        // Update the current tile image to have the proper resource and rotation.
-        Tile currentTile = board.getCurrentTile();
-        BitmapProvider bitmapProvider = CarcassonneMainActivity.getBitmapProvider();
-
-        if (currentTile == null) {
-            // There is no image after the game has ended.
-            this.currentTileImageView.setImageResource(bitmapProvider.getEmptyTile().resource);
-        } else {
-            // Otherwise, use the proper image.
-            this.currentTileImageView.setImageResource(
-                    bitmapProvider.getTile(currentTile.getId()).visual.resource);
-            // TODO: Also draw meeples on current tile
-            this.currentTileImageView.setRotation(currentTile.getRotation());
-        }
-
-        // Once the game has finished loading everything and sends the game state to
-        // each player, the game has started and we can remove the loading screen. If
-        // this is a later receiveInfo() call, this is effectively a no-op.
-        this.loadingScreen.setVisibility(View.GONE);
-        this.mainLayout.setVisibility(View.VISIBLE);
+        // Now update the GUI with the new game state.
+        updateGui();
     }
 
     /**
      * Sets up the human player, getting the references to each GUI object and
-     * binding event listeners to the interactive ones.
+     * binding event listeners to the interactive ones. It gets called after the
+     * game framework configuration screen is gone and subsequently every time
+     * the screen's orientation changes.
      *
      * @param activity The main activity of the entire application.
      */
@@ -291,19 +217,35 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
     public void setAsGui(GameMainActivity activity) {
         this.activity = activity;
 
-        // Set this GUI as the one we're using now that the game configuration
-        // screen is through.
-        this.activity.setContentView(R.layout.activity_main);
+        /* External Citation
+         * Date: 14 April 2022
+         * Problem: Needed a way to get the screen dimensions to choose whether to
+         *     use the landscape or portrait layout.
+         * Resource:
+         *     https://stackoverflow.com/questions/4743116/get-screen-width-and-height-in-android
+         * Solution: Used the two magic lines below.
+         */
+        DisplayMetrics windowSize = new DisplayMetrics();
+        activity.getWindowManager().getDefaultDisplay().getMetrics(windowSize);
+
+        // Now that the game configuration screen is gone, we can choose our GUI XML
+        // file. If the screen is wider than it is tall, then choose the landscape
+        // XML; otherwise, use the portrait XML.
+        if (windowSize.widthPixels > windowSize.heightPixels) {
+            this.activity.setContentView(R.layout.carcassonne_gui_landscape);
+        } else {
+            this.activity.setContentView(R.layout.carcassonne_gui_portrait);
+        }
 
         // Create the arrays for the information pertaining to each player and fill
         // them out with the appropriate GUI objects.
-        this.playerTableRows = new TableRow[CarcassonneGameState.MAX_PLAYERS];
+        this.playerContainers = new View[CarcassonneGameState.MAX_PLAYERS];
         this.playerNameTextViews = new TextView[CarcassonneGameState.MAX_PLAYERS];
         this.scoreTextViews = new TextView[CarcassonneGameState.MAX_PLAYERS];
         this.meepleCountTextViews = new TextView[CarcassonneGameState.MAX_PLAYERS];
 
         for (int i = 0; i < CarcassonneGameState.MAX_PLAYERS; i++) {
-            this.playerTableRows[i] = activity.findViewById(PLAYER_TABLE_ROW_RESOURCES[i]);
+            this.playerContainers[i] = activity.findViewById(PLAYER_CONTAINER_RESOURCES[i]);
             this.playerNameTextViews[i] = activity.findViewById(PLAYER_NAME_RESOURCES[i]);
             this.scoreTextViews[i] = activity.findViewById(PLAYER_SCORE_RESOURCES[i]);
             this.meepleCountTextViews[i] = activity.findViewById(MEEPLE_COUNT_RESOURCES[i]);
@@ -330,10 +272,132 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         this.currentTileImageView.setOnTouchListener(this::onTouchTileImage);
         this.boardSurfaceView.setOnTouchListener(this::onTouchBoardSurfaceView);
 
-        // Hide the main layout and show the loading screen. The loading screen will be
-        // hidden after the first receiveInfo() call.
-        this.mainLayout.setVisibility(View.GONE);
-        this.loadingScreen.setVisibility(View.VISIBLE);
+        // When the screen's orientation is changed, setAsGui() gets called again. If
+        // we have a game state, then just update the GUI with it. Otherwise, hide the
+        // main GUI and show the loading screen.
+        if (this.gameState != null) {
+            updateGui();
+        } else {
+            // Hide the main layout and show the loading screen. The loading screen will be
+            // hidden after the first receiveInfo() call.
+            this.mainLayout.setVisibility(View.GONE);
+            this.loadingScreen.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * Updates every part of the GUI with a game state received from the last
+     * receiveInfo().
+     */
+    private void updateGui() {
+        // Hand the latest board to the BoardSurfaceView and invalidate it so it
+        // shows the latest updates.
+        Board board = this.gameState.getBoard();
+        this.boardSurfaceView.setBoard(board);
+        this.boardSurfaceView.invalidate();
+
+        /*
+         * External Citation
+         * Date: 6 April 2022
+         * Problem: Required a way to set the visibility of a GUI object programmatically.
+         * Resource:
+         *     https://developer.android.com/reference/android/view/View#setVisibility(int)
+         * Solution: Used View.setVisibility() with View.VISIBLE/View.GONE/View.INVISIBLE,
+         *     depending on whether the element should be gone entirely or if it should
+         *     just not render while taking up the same space.
+         */
+
+        // Hide the player table rows for the players who are not playing. It only needs
+        // to be done once, but setAsGui() doesn't know how many players are playing.
+        for (int i = this.gameState.getNumPlayers(); i < CarcassonneGameState.MAX_PLAYERS; i++) {
+            this.playerContainers[i].setVisibility(View.INVISIBLE);
+        }
+
+        // Update the data for each player.
+        for (int i = 0; i < this.gameState.getNumPlayers(); i++) {
+            // Setting names only has to be done once, but setAsGui() doesn't know the
+            // names of the player.
+            this.playerNameTextViews[i].setText(this.allPlayerNames[i]);
+
+            // Update the meeple counts and scores.
+            this.meepleCountTextViews[i].setText("Meeples: " +
+                    this.gameState.getPlayerMeeples(i));
+            this.scoreTextViews[i].setText("Score: " +
+                    this.gameState.getPlayerCompleteScore(i) +
+                    " | Partial: " + this.gameState.getPlayerIncompleteScore(i));
+
+            // Set the background color back to transparent to remove current player
+            // highlights.
+            this.playerContainers[i].setBackgroundColor(0x0);
+        }
+
+        // Highlight the background of the current player if the game isn't over.
+        int currentPlayer = this.gameState.getCurrentPlayer();
+        if (!this.gameState.isGameOver()) {
+            this.playerContainers[currentPlayer].setBackgroundColor(
+                    PLAYER_HIGHLIGHT_COLORS[currentPlayer]);
+        }
+
+        // Update the number of tiles left in the deck.
+        if (this.gameState.isGameOver()) {
+            // There are no tiles if the game is over.
+            this.tilesLeftTextView.setText("Tiles left: 0");
+        } else {
+            // The total number of tiles is the number of tiles left in the deck plus
+            // the current tile.
+            Deck deck = this.gameState.getDeck();
+            this.tilesLeftTextView.setText("Tiles left: " + (deck.getTilesLeft() + 1));
+        }
+
+        // Change the text of the buttons above the current tile to be proper for the
+        // current placement stage of the game.
+        if (this.gameState.isTileStage()) {
+            this.rotateResetButton.setText("Rotate");
+            this.confirmButton.setText("✓ Tile");
+        } else {
+            this.rotateResetButton.setText("Reset");
+            this.confirmButton.setText("✓ Meeple");
+        }
+
+        /*
+         * External Citation
+         * Date: 6 April 2022
+         * Problem: Required a way to disable buttons
+         * Resource:
+         *     https://stackoverflow.com/questions/4384890/how-to-disable-an-android-button
+         * Solution: Used View.setEnabled(false)
+         */
+
+        // Set whether the buttons are enabled or disabled based on whether it's
+        // our turn or not.
+        if (currentPlayer == this.playerNum) {
+            this.rotateResetButton.setEnabled(true);
+            this.confirmButton.setEnabled(true);
+        } else {
+            this.rotateResetButton.setEnabled(false);
+            this.confirmButton.setEnabled(false);
+        }
+
+        // Update the current tile image to have the proper resource and rotation.
+        Tile currentTile = board.getCurrentTile();
+        BitmapProvider bitmapProvider = CarcassonneMainActivity.getBitmapProvider();
+
+        if (currentTile == null) {
+            // There is no image after the game has ended.
+            this.currentTileImageView.setImageResource(bitmapProvider.getEmptyTile().resource);
+        } else {
+            // Otherwise, use the proper image.
+            this.currentTileImageView.setImageResource(
+                    bitmapProvider.getTile(currentTile.getId()).visual.resource);
+            // TODO: Also draw meeples on current tile
+            this.currentTileImageView.setRotation(currentTile.getRotation());
+        }
+
+        // Once the game has finished loading everything and sends the game state to
+        // each player, the game has started and we can remove the loading screen. If
+        // this is a later receiveInfo() call, this is effectively a no-op.
+        this.loadingScreen.setVisibility(View.GONE);
+        this.mainLayout.setVisibility(View.VISIBLE);
     }
 
     /**

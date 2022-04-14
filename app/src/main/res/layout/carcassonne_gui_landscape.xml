@@ -17,7 +17,6 @@
         android:visibility="gone">
 
         <ImageView
-            android:id="@+id/imageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="30dp"
@@ -38,11 +37,29 @@
         android:layout_height="match_parent"
         android:orientation="horizontal">
 
-        <com.example.carcassonne.BoardSurfaceView
-            android:id="@+id/boardSurfaceView"
-            android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1" />
+            android:layout_weight="1">
+
+            <com.example.carcassonne.BoardSurfaceView
+                android:id="@+id/boardSurfaceView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/quitButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:text="Quit"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageView
             android:layout_width="10px"
@@ -55,6 +72,12 @@
             android:layout_height="match_parent"
             android:layout_margin="10dp"
             android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginBottom="10dp"
+                android:src="@drawable/title" />
 
             <TableLayout
                 android:layout_width="match_parent"
@@ -271,7 +294,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="3dp"
                     android:layout_weight="1"
-                    android:text="Confirm Tile" />
+                    android:text="✓ Tile" />
             </LinearLayout>
 
             <ImageView
@@ -289,13 +312,6 @@
                 android:text="Tiles left: 71"
                 android:textSize="16sp"
                 android:gravity="center" />
-
-            <Button
-                android:id="@+id/quitButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:text="Quit" />
 
         </LinearLayout>
     </LinearLayout>
