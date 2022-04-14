@@ -1,5 +1,6 @@
 package com.example.carcassonne;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -21,7 +22,7 @@ import java.util.ArrayList;
  * @author Vincent Robinson
  * @author Cheyanne Yim
  */
-public class Board {
+public class Board implements Serializable {
     /**
      * The array of tiles in the board, including the empty border around the board. If
      * there is no tile at some position, that tile is null. The tile currently being

@@ -3,7 +3,7 @@ package com.example.carcassonne;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -131,7 +131,7 @@ import java.util.HashSet;
  * @author Vincent Robinson
  * @author Cheyanne Yim
  */
-public class Tile {
+public class Tile implements Serializable {
     /** The size of every tile image, which is 292 pixels. */
     public static final int SIZE = 292;
 

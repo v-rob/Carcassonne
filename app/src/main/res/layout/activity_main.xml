@@ -282,6 +282,14 @@
                 android:rotation="180"
                 android:src="@drawable/tile_l" />
 
+            <TextView
+                android:id="@+id/tilesLeft"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tiles left: 71"
+                android:textSize="16sp"
+                android:gravity="center" />
+
             <Button
                 android:id="@+id/quitButton"
                 android:layout_width="wrap_content"

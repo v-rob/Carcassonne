@@ -1,5 +1,6 @@
 package com.example.carcassonne;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -14,7 +15,7 @@ import java.util.ArrayList;
  * @author Vincent Robinson
  * @author Cheyanne Yim
  */
-public class Deck {
+public class Deck implements Serializable {
     /**
      * The array of tiles in the deck, not including the starting tile. When tiles
      * are drawn, a random tile is chosen from anywhere in the array, which then
@@ -56,6 +57,15 @@ public class Deck {
         Tile ret = this.startingTile;
         this.startingTile = null;
         return ret;
+    }
+
+    /**
+     * Gets the number of tiles in the deck. This does not include the current tile.
+     *
+     * @return The number of tiles in the deck.
+     */
+    public int getTilesLeft() {
+        return this.tiles.size();
     }
 
     /**

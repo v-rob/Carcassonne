@@ -62,6 +62,9 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
      */
     private Button rotateResetButton;
 
+    /** The text view containing the number of tiles left in the game. */
+    private TextView tilesLeftTextView;
+
     /**
      * The button used for confirming both the current tile placement and the current
      * meeple placement. The text on the button is changed when the placement stage
@@ -234,6 +237,17 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         int currentPlayer = this.gameState.getCurrentPlayer();
         this.playerTableRows[currentPlayer].setBackgroundColor(PLAYER_HIGHLIGHT_COLORS[currentPlayer]);
 
+        // Update the number of tiles left in the deck.
+        if (this.gameState.isGameOver()) {
+            // There are no tiles if the game is over.
+            this.tilesLeftTextView.setText("Tiles left: 0");
+        } else {
+            // The total number of tiles is the number of tiles left in the deck plus
+            // the current tile.
+            Deck deck = this.gameState.getDeck();
+            this.tilesLeftTextView.setText("Tiles left: " + (deck.getTilesLeft() + 1));
+        }
+
         // Change the text of the buttons above the current tile to be proper for the
         // current placement stage of the game.
         if (this.gameState.isTileStage()) {
@@ -280,8 +294,6 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         // screen is through.
         this.activity.setContentView(R.layout.activity_main);
 
-        // TODO: Show how many tiles are left
-
         // Create the arrays for the information pertaining to each player and fill
         // them out with the appropriate GUI objects.
         this.playerTableRows = new TableRow[CarcassonneGameState.MAX_PLAYERS];
@@ -296,12 +308,16 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
             this.meepleCountTextViews[i] = activity.findViewById(MEEPLE_COUNT_RESOURCES[i]);
         }
 
-        // Find all the GUI objects.
+        // Find all the other GUI objects.
+        this.tilesLeftTextView = activity.findViewById(R.id.tilesLeft);
+
         this.rotateResetButton = activity.findViewById(R.id.rotateResetButton);
         this.confirmButton = activity.findViewById(R.id.confirmButton);
         this.quitButton = activity.findViewById(R.id.quitButton);
+
         this.currentTileImageView = activity.findViewById(R.id.currentTile);
         this.boardSurfaceView = activity.findViewById(R.id.boardSurfaceView);
+
         this.mainLayout = activity.findViewById(R.id.gameView);
         this.loadingScreen = activity.findViewById(R.id.loadingLayout);
 

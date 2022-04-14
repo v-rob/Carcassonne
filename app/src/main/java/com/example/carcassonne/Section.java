@@ -2,6 +2,7 @@ package com.example.carcassonne;
 
 import android.graphics.Point;
 
+import java.io.Serializable;
 import java.util.HashSet;
 
 /**
@@ -21,7 +22,7 @@ import java.util.HashSet;
  * @author Vincent Robinson
  * @author Cheyanne Yim
  */
-public class Section {
+public class Section implements Serializable {
     /** The parent tile that contains this section. */
     private Tile parent;
 

@@ -2,6 +2,7 @@ package com.example.carcassonne;
 
 import com.example.carcassonne.infoMsg.GameState;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 /**
@@ -15,7 +16,7 @@ import java.util.Arrays;
  * @author Vincent Robinson
  * @author Cheyanne Yim
  */
-public class CarcassonneGameState extends GameState {
+public class CarcassonneGameState extends GameState implements Serializable {
     /** The maximum number of players that are allowed to play Carcassonne. */
     public static final int MAX_PLAYERS = 5;
     /** The number of meeples each player starts out with. */
