@@ -333,7 +333,7 @@ public class CarcassonneGameState extends GameState implements Serializable {
              * by this last placement. If it is, score it and return the relevant meeples.
              * Since it is closed off, there's no possibility of scoring it again.
              */
-            if (analysis.isComplete()) {
+            if (analysis.isClosed()) {
                 analysis.tallyScores(this.playerCompleteScores);
                 analysis.returnMeeples(this.playerMeeples);
             }
@@ -352,7 +352,7 @@ public class CarcassonneGameState extends GameState implements Serializable {
              * all meeples will be removed from cloisters when scoring, so there's no
              * possibility of scoring them twice.
              */
-            if (analysis.isComplete()) {
+            if (analysis.isClosed()) {
                 analysis.tallyScores(this.playerCompleteScores);
                 analysis.returnMeeples(this.playerMeeples);
             }
@@ -365,7 +365,7 @@ public class CarcassonneGameState extends GameState implements Serializable {
         MeepleAnalysis.analyzeBoard(this.board, (analysis) -> {
             // If this section is not complete, add it to the incomplete scores. Do not
             // score complete sections because that will result in doubly counted scores.
-            if (!analysis.isComplete()) {
+            if (!analysis.isClosed()) {
                 analysis.tallyScores(this.playerIncompleteScores);
             }
         });

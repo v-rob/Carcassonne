@@ -3,13 +3,53 @@ package com.example.carcassonne;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+/**
+ * Analysis class for all section types that consist of parts, i.e. roads, cities,
+ * and farms. Since these classes share the exact same code for everything but
+ * finding the final score, their analysis classes all inherit from this one.
+ *
+ * The main shared part of this code is that all these section types consist of
+ * connected sections that can have many meeples on them, so all the part-based
+ * sections share code for finding all these sections, checking if they are
+ * closed, and finding the scoring players. Hence, the only thing subclasses
+ * are required to implement is getScore().
+ */
 public abstract class PartMeepleAnalysis extends MeepleAnalysis {
+    /** Whether this analysis should use road parts or normal parts. */
     private boolean isRoad;
 
+    /** The set of all tiles that have been visited during partAnalysis(). */
     protected HashSet<Tile> visitedTiles;
+    /** The set of all sections that have been visited during partAnalysis(). */
     protected HashSet<Section> visitedSections;
+
+    /**
+     * True if the sections are closed, i.e. each section has another section
+     * connected to each of its parts.
+     */
     protected boolean isClosed;
 
+    /**
+     * Returns whether the sections are closed, i.e. each section has another
+     * section connected to each of its parts. This does not necessarily mean
+     * that the class should be scored if it is closed.
+     *
+     * @return True if the sections are closed, false if not.
+     */
+    @Override
+    public boolean isClosed() {
+        return this.isClosed;
+    }
+
+    /**
+     * Returns whether the meeple placed on the starting section is valid or
+     * not by checking to see if there are any meeples on any of the connected
+     * tiles. If there are any other meeples, the one being placed is therefore
+     * invalid. If there is no meeple, it is automatically valid.
+     *
+     * @return True if the meeple on the starting section is valid or there is
+     *         no meeple, false otherwise.
+     */
     @Override
     public boolean isMeepleValid() {
         // If the starting section doesn't have a meeple, it can't be invalid.
@@ -29,11 +69,25 @@ public abstract class PartMeepleAnalysis extends MeepleAnalysis {
         return true;
     }
 
+    /**
+     * Gets the set of all sections connected to the starting section, which is all
+     * of the sections visited by partAnalysis().
+     *
+     * @return The set of visited sections.
+     */
     @Override
     protected HashSet<Section> getVisitedSections() {
         return this.visitedSections;
     }
 
+    /**
+     * Gets the set of players who will receive points from the analyzed sections.
+     * If there are no meeples anywhere, it returns an empty set. If there are meeples,
+     * it finds the player with the most meeples, or, if multiple players tied for
+     * the most meeples, it returns the set of all those players.
+     *
+     * @return The set of players who will receive points from the analyzed sections.
+     */
     @Override
     protected HashSet<Integer> getScoringPlayers() {
         // Create arrays for each player containing all their meeples.
@@ -76,6 +130,10 @@ public abstract class PartMeepleAnalysis extends MeepleAnalysis {
         return scoringPlayers;
     }
 
+    /**
+     * Runs the analysis. This consists solely of iterating through the parts
+     * in the starting section and calling partAnalysis() on them.
+     */
     @Override
     protected void runAnalysis() {
         for (int part : this.startSection.getParts()) {
@@ -83,6 +141,17 @@ public abstract class PartMeepleAnalysis extends MeepleAnalysis {
         }
     }
 
+    /**
+     * This is the meat of the PartMeepleAnalysis class. It is a recursive method:
+     * starting from an initial part or road part number in some tile, it gets the
+     * section at that part. If the section has already been visited, it returns.
+     * Otherwise, it adds the section to the set of visited sections and then
+     * recursively calls itself on all parts connected to this section.
+     *
+     * @param x    The X position of the tile being looked at in this call.
+     * @param y    The Y position of the tile being looked at in this call.
+     * @param part The part or road part of the section being looked at in this call.
+     */
     protected void partAnalysis(int x, int y, int part) {
         Tile tile = this.board.getTile(x, y);
         if (tile == null) {
@@ -121,16 +190,19 @@ public abstract class PartMeepleAnalysis extends MeepleAnalysis {
         }
     }
 
-    public PartMeepleAnalysis(Board board, Section startSection,
-                              boolean isRoad) {
+    /**
+     * Creates a new part meeple analysis on the specified section. runAnalysis() is
+     * not called; that is for subclasses to do in their respective constructors.
+     *
+     * @param board        The board containing the tiles and sections being analyzed.
+     * @param startSection The cloister section to start the analysis from.
+     */
+    public PartMeepleAnalysis(Board board, Section startSection) {
         super(board, startSection);
 
-        this.isRoad = isRoad;
+        this.isRoad = startSection.getType() == Tile.TYPE_ROAD;
         this.visitedTiles = new HashSet<>();
         this.visitedSections = new HashSet<>();
         this.isClosed = true;
-
-        // Do not run the analysis; that is for subclasses to do in their
-        // respective constructors.
     }
 }

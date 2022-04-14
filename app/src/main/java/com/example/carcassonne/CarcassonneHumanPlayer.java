@@ -195,9 +195,10 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
 
         this.gameState = (CarcassonneGameState)info;
 
-        // Hand the latest GameState to the BoardSurfaceView and invalidate it so it
+        // Hand the latest board to the BoardSurfaceView and invalidate it so it
         // shows the latest updates.
-        this.boardSurfaceView.setGameState(this.gameState);
+        Board board = this.gameState.getBoard();
+        this.boardSurfaceView.setBoard(board);
         this.boardSurfaceView.invalidate();
 
         /*
@@ -259,7 +260,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         }
 
         // Update the current tile image to have the proper resource and rotation.
-        Tile currentTile = this.gameState.getBoard().getCurrentTile();
+        Tile currentTile = board.getCurrentTile();
         BitmapProvider bitmapProvider = CarcassonneMainActivity.getBitmapProvider();
 
         if (currentTile == null) {
@@ -343,14 +344,14 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
      */
     private void onClickRotateReset(View button) {
         if (this.gameState.isTileStage()) {
-            Tile tile = this.gameState.getBoard().getCurrentTile();
-            if (tile == null) {
+            Tile currentTile = this.gameState.getBoard().getCurrentTile();
+            if (currentTile == null) {
                 // The game has ended; there is no current tile.
                 return;
             }
 
             // Calculate the new rotation, which is 90 degrees clockwise.
-            int rotation = tile.getRotation();
+            int rotation = currentTile.getRotation();
             rotation = (rotation + 90) % 360;
             this.game.sendAction(new CarcassonneRotateTileAction(this, rotation));
         } else {

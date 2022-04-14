@@ -84,8 +84,7 @@ public class CarcassonneComputerPlayer extends GameComputerPlayer {
         switch (this.nextAction) {
             case ROTATE_TILE:
                 // Sleep to give the illusion of thought.
-                // TODO: Longer for smart AI, intersperse it
-                sleep(1500);
+                sleep(1000);
 
                 // Get a list of valid positions that we can place our tiles at.
                 Board board = gameState.getBoard();
@@ -130,6 +129,15 @@ public class CarcassonneComputerPlayer extends GameComputerPlayer {
                 this.nextAction = CONFIRM_TILE;
                 break;
             case CONFIRM_TILE:
+                // Sleep again to make it look like we're thinking about the move.
+                sleep(500);
+
+                if (this.chosenPlacement.meepleSection != null) {
+                    // If we're placing a meeple, sleep a little while longer for
+                    // choosing the meeple position.
+                    sleep(500);
+                }
+
                 this.game.sendAction(new CarcassonneConfirmTileAction(this));
                 this.nextAction = PLACE_MEEPLE;
                 break;
@@ -141,6 +149,12 @@ public class CarcassonneComputerPlayer extends GameComputerPlayer {
                 this.nextAction = CONFIRM_MEEPLE;
                 break;
             case CONFIRM_MEEPLE:
+                if (this.chosenPlacement.meepleSection != null) {
+                    // If we placed a meeple, sleep again so we look like we're contemplating
+                    // whether this meeple placement is a good idea or not.
+                    sleep(500);
+                }
+
                 this.game.sendAction(new CarcassonneConfirmMeepleAction(this));
 
                 // Our turn ends after we confirm the meeple, so set the action to ROTATE to

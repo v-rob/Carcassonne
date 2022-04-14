@@ -404,7 +404,7 @@ public class Tile implements Serializable {
     }
 
     /**
-     * Gets a set of all the sections in this tile of every type.
+     * Gets a collection of all the sections in this tile.
      *
      * @return All the sections in this tile.
      */

@@ -22,11 +22,11 @@ import android.graphics.Canvas;
  */
 public class BoardSurfaceView extends SurfaceView {
     /**
-     * A reference to the game state with the board being drawn. It gets set with
-     * setGameState() every time CarcassonneHumanPlayer receives an updated game
-     * state. It is null when BoardSurfaceView is first constructed.
+     * A reference to the board being drawn. It gets set with setBoard() every time
+     * CarcassonneHumanPlayer receives an updated game state. It is null when
+     * BoardSurfaceView is first constructed.
      */
-    private CarcassonneGameState gameState;
+    private Board board;
 
     /** Number of pixels a touch event may move before it registers as scrolling. */
     private static final float SCROLL_THRESHOLD = 10.0f;
@@ -44,14 +44,14 @@ public class BoardSurfaceView extends SurfaceView {
     /** The previous Y position of the last touch event, used to calculate movement. */
     private float prevTouchY;
 
-    /** The current X scroll of the board, measured in pixels towards the left. */
+    /** The current X scroll of the board, measured in pixels towards the right. */
     private float scrollX;
-    /** The current Y scroll of the board, measured in pixels towards the top. */
+    /** The current Y scroll of the board, measured in pixels towards the bottom. */
     private float scrollY;
 
     /**
      * Constructs a new BoardSurfaceView from the XML. It sets it as drawable and gives
-     * it a white background color. It will have no game state.
+     * it a white background color. It will have no board.
      *
      * @param context Unused.
      * @param attrs   Unused.
@@ -68,13 +68,13 @@ public class BoardSurfaceView extends SurfaceView {
     }
 
     /**
-     * Sets the game state to be used in all drawing. Should be called every time
+     * Sets the board to be used in all drawing. Should be called every time
      * CarcassonneHumanPlayer receives a new game state.
      *
-     * @param gameState The game state to use in drawing.
+     * @param board The board to use in drawing.
      */
-    public void setGameState(CarcassonneGameState gameState) {
-        this.gameState = gameState;
+    public void setBoard(Board board) {
+        this.board = board;
     }
 
     /**
@@ -87,8 +87,8 @@ public class BoardSurfaceView extends SurfaceView {
      *         to place any such tile.
      */
     public Point onTouch(MotionEvent event) {
-        // We can't do anything until we've received the game state from CarcassonneHumanPlayer.
-        if (this.gameState == null) {
+        // We can't do anything until we've received the board from CarcassonneHumanPlayer.
+        if (this.board == null) {
             return null;
         }
 
@@ -128,9 +128,8 @@ public class BoardSurfaceView extends SurfaceView {
 
                     // Ensure the position just calculated is in bounds for the board; otherwise,
                     // still return null.
-                    Board board = this.gameState.getBoard();
-                    if (point.x < 0 || point.x >= board.getWidth() ||
-                            point.y < 0 || point.y >= board.getHeight()) {
+                    if (point.x < 0 || point.x >= this.board.getWidth() ||
+                            point.y < 0 || point.y >= this.board.getHeight()) {
                         point = null;
                     }
                 }
@@ -170,24 +169,24 @@ public class BoardSurfaceView extends SurfaceView {
     }
 
     /**
-     * Draws everything on the board: tiles, empty tile positions, tile borders, and meeples.
+     * Draws everything on the board: tiles, empty tile positions, tile borders, and
+     * meeples.
      *
      * @param canvas The canvas to draw with.
      */
     public void onDraw(Canvas canvas) {
-        // We can't draw unless we've received the game state from CarcassonneHumanPlayer.
-        if (this.gameState == null) {
+        // We can't draw unless we've received the board from CarcassonneHumanPlayer.
+        if (this.board == null) {
             return;
         }
 
-        Board board = this.gameState.getBoard();
         BitmapProvider bitmapProvider = CarcassonneMainActivity.getBitmapProvider();
 
         // Draw all the tiles on the board, including empty tiles.
-        for (int x = -2; x < board.getWidth() + 2; x++) {
-            for (int y = -2; y < board.getHeight() + 2; y++) {
-                Tile tile = board.getTile(x, y);
-                boolean outside = board.isOutOfBounds(x, y);
+        for (int x = -2; x < this.board.getWidth() + 2; x++) {
+            for (int y = -2; y < this.board.getHeight() + 2; y++) {
+                Tile tile = this.board.getTile(x, y);
+                boolean outside = this.board.isOutOfBounds(x, y);
 
                 Bitmap tileBitmap;
 
@@ -234,9 +233,9 @@ public class BoardSurfaceView extends SurfaceView {
 
         // If the current tile has been placed on the board, draw the valid/invalid
         // border around it.
-        Tile currentTile = board.getCurrentTile();
+        Tile currentTile = this.board.getCurrentTile();
         if (currentTile != null && currentTile.getX() != -1) {
-            Bitmap border = board.isCurrentPlacementValid() ?
+            Bitmap border = this.board.isCurrentPlacementValid() ?
                     bitmapProvider.getValidBorder().bitmap :
                     bitmapProvider.getInvalidBorder().bitmap;
 
@@ -249,9 +248,9 @@ public class BoardSurfaceView extends SurfaceView {
         }
 
         // Draw all the meeples _after_ the tiles so tiles never overlap meeples.
-        for (int x = 0; x < board.getWidth(); x++) {
-            for (int y = 0; y < board.getHeight(); y++) {
-                Tile tile = board.getTile(x, y);
+        for (int x = 0; x < this.board.getWidth(); x++) {
+            for (int y = 0; y < this.board.getHeight(); y++) {
+                Tile tile = this.board.getTile(x, y);
                 if (tile == null) {
                     continue;
                 }
@@ -271,8 +270,8 @@ public class BoardSurfaceView extends SurfaceView {
                         bitmapData.normal.bitmap;
 
                 // Draw the meeple centered at the meeple position for the section it's in.
-                float width = meepleBitmap.getWidth();
-                float height = meepleBitmap.getHeight();
+                int width = meepleBitmap.getWidth();
+                int height = meepleBitmap.getHeight();
                 canvas.drawBitmap(meepleBitmap, null, makeRect(
                         x * Tile.SIZE + meepleSection.getMeepleX() - width / 2,
                         y * Tile.SIZE + meepleSection.getMeepleY() - height / 2,
@@ -284,8 +283,8 @@ public class BoardSurfaceView extends SurfaceView {
     }
 
     /**
-     * Creates a new RectF for drawing some Bitmap given a position and size and applies
-     * scrolling.
+     * Creates a new RectF for drawing some Bitmap given a position and size and
+     * applies scrolling.
      *
      * @param x      The left side of the rectangle.
      * @param y      The top of the rectangle.
@@ -296,8 +295,6 @@ public class BoardSurfaceView extends SurfaceView {
     private RectF makeRect(float x, float y, float width, float height) {
         RectF rect = new RectF();
 
-        // Apply scrolling to positions (which is subtracted to move towards the left/top)
-        // and multiply to apply the scaling factor.
         rect.left = x + this.scrollX;
         rect.top = y + this.scrollY;
         rect.right = rect.left + width;

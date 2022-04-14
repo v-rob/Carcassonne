@@ -9,12 +9,14 @@ import java.util.ArrayList;
  * Necessary functionality added since alpha:
  * - Scoring and incomplete scoring
  * - Smart AI
+ * - Network play
  *
  * Additional features/changes:
  * - Loading screen
  * - Improved graphics
  * - Current player highlight, non-players are hidden
  * - Used Toasts instead of flashing on invalid moves
+ * - Show number of tiles left
  *
  * Bugfixes:
  * - Meeples are now shown next to each player
