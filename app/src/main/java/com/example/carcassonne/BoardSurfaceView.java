@@ -31,6 +31,13 @@ public class BoardSurfaceView extends SurfaceView {
     /** Number of pixels a touch event may move before it registers as scrolling. */
     private static final float SCROLL_THRESHOLD = 10.0f;
 
+    /** The current X scroll of the board, measured in pixels towards the right. */
+    private float scrollX;
+    /** The current Y scroll of the board, measured in pixels towards the bottom. */
+    private float scrollY;
+
+    private float scale;
+
     /**
      * Whether the board has been scrolled since the user last started touching the
      * screen. If the touch has moved more than SCROLL_THRESHOLD pixels, this is set
@@ -44,10 +51,7 @@ public class BoardSurfaceView extends SurfaceView {
     /** The previous Y position of the last touch event, used to calculate movement. */
     private float prevTouchY;
 
-    /** The current X scroll of the board, measured in pixels towards the right. */
-    private float scrollX;
-    /** The current Y scroll of the board, measured in pixels towards the bottom. */
-    private float scrollY;
+    private float origDistance;
 
     /**
      * Constructs a new BoardSurfaceView from the XML. It sets it as drawable and gives
@@ -62,9 +66,14 @@ public class BoardSurfaceView extends SurfaceView {
         setWillNotDraw(false);
         setBackgroundColor(0xFFFFFFFF);
 
+        this.moved = false;
+        this.scale = 0.5f;
+
+        float tileSize = getTileSize();
+
         // Hacky code to center the board: will be replaced later.
-        this.scrollX = (float)Tile.SIZE * 1.3f;
-        this.scrollY = (float)Tile.SIZE * 0.4f;
+        this.scrollX = tileSize * -1.3f;
+        this.scrollY = tileSize * -0.4f;
     }
 
     /**
@@ -103,18 +112,19 @@ public class BoardSurfaceView extends SurfaceView {
         float x = event.getX();
         float y = event.getY();
 
-        // TODO: Don't allow scrolling out of bounds
+        float tileSize = getTileSize();
+
         // TODO: Center scrolling initially
         // TODO: Don't jerk when adding to left/top
         // TODO: Allow scaling
 
-        switch (event.getAction()) {
+        switch (event.getActionMasked()) {
             case MotionEvent.ACTION_UP:
                 // The point to return, if any.
                 Point point = null;
 
-                float posX = x - this.scrollX;
-                float posY = y - this.scrollY;
+                float posX = x + this.scrollX;
+                float posY = y + this.scrollY;
 
                 // Return the position the player tapped at if it's in bounds. Also ensure
                 // that the position is non-negative since floor division will round -1 to
@@ -122,8 +132,8 @@ public class BoardSurfaceView extends SurfaceView {
                 if (!this.moved && posX >= 0 && posY >= 0) {
                     // Convert from screen coordinates to tile positions.
                     point = new Point(
-                            (int)(posX / Tile.SIZE),
-                            (int)(posY / Tile.SIZE)
+                            (int)(posX / tileSize),
+                            (int)(posY / tileSize)
                     );
 
                     // Ensure the position just calculated is in bounds for the board; otherwise,
@@ -139,26 +149,63 @@ public class BoardSurfaceView extends SurfaceView {
 
                 return point;
             case MotionEvent.ACTION_MOVE:
-                float deltaX = x - this.prevTouchX;
-                float deltaY = y - this.prevTouchY;
+            case MotionEvent.ACTION_POINTER_UP:
+                if (event.getPointerCount() == 1) {
+                    float deltaX = x - this.prevTouchX;
+                    float deltaY = y - this.prevTouchY;
 
-                // If the user moved only a slight bit after ACTION_DOWN, they're probably
-                // still tapping rather than scrolling. Don't change the previous position.
-                if (!this.moved && Math.abs(deltaX) < SCROLL_THRESHOLD &&
-                        Math.abs(deltaY) < SCROLL_THRESHOLD) {
+                    // If the user moved only a slight bit after ACTION_DOWN, they're probably
+                    // still tapping rather than scrolling. Don't change the previous position.
+                    if (!this.moved && Math.abs(deltaX) < SCROLL_THRESHOLD &&
+                            Math.abs(deltaY) < SCROLL_THRESHOLD) {
+                        break;
+                    }
+
+                    // Otherwise, register as moving and scroll the board.
+                    this.moved = true;
+                    this.scrollX -= deltaX;
+                    this.scrollY -= deltaY;
+
+                    // Perform bounds clipping: if we've scrolled more than half the screen
+                    // away from the edge of the board, snap it back to the edge.
+                    float leftEdge = -(float) getWidth() / 2;
+                    float topEdge = -(float) getHeight() / 2;
+
+                    float rightEdge = board.getWidth() * tileSize + leftEdge;
+                    float bottomEdge = board.getHeight() * tileSize + topEdge;
+
+                    if (this.scrollX < leftEdge) {
+                        this.scrollX = leftEdge;
+                    } else if (this.scrollX > rightEdge) {
+                        this.scrollX = rightEdge;
+                    }
+
+                    if (this.scrollY < topEdge) {
+                        this.scrollY = topEdge;
+                    } else if (this.scrollY > bottomEdge) {
+                        this.scrollY = bottomEdge;
+                    }
+
+                    // Fallthrough
+                } else {
+                    float x2 = event.getX(1);
+                    float y2 = event.getY(1);
+
+                    float distance = (float) Math.sqrt(Math.pow(x2 - x, 2) + Math.pow(y2 - y, 2));
+                    this.scale = distance / this.origDistance;
+
                     break;
                 }
-
-                // Otherwise, register as moving and scroll the board.
-                this.moved = true;
-                this.scrollX += deltaX;
-                this.scrollY += deltaY;
-
-                // Fallthrough
             case MotionEvent.ACTION_DOWN:
                 // Set the last position to the current one.
                 this.prevTouchX = x;
                 this.prevTouchY = y;
+                break;
+            case MotionEvent.ACTION_POINTER_DOWN:
+                float x2 = event.getX(1);
+                float y2 = event.getY(1);
+
+                this.origDistance = (float) Math.sqrt(Math.pow(x2 - x, 2) + Math.pow(y2 - y, 2));
                 break;
         }
 
@@ -180,11 +227,12 @@ public class BoardSurfaceView extends SurfaceView {
             return;
         }
 
-        BitmapProvider bitmapProvider = CarcassonneMainActivity.getBitmapProvider();
+        BitmapProvider bitmapProvider = BitmapProvider.getInstance();
+        float tileSize = getTileSize();
 
         // Draw all the tiles on the board, including empty tiles.
-        for (int x = -2; x < this.board.getWidth() + 2; x++) {
-            for (int y = -2; y < this.board.getHeight() + 2; y++) {
+        for (int x = -3; x < this.board.getWidth() + 3; x++) {
+            for (int y = -3; y < this.board.getHeight() + 3; y++) {
                 Tile tile = this.board.getTile(x, y);
                 boolean outside = this.board.isOutOfBounds(x, y);
 
@@ -216,15 +264,22 @@ public class BoardSurfaceView extends SurfaceView {
 
                 /* Create a transformation matrix. We use the post() methods rather than the
                  * set() methods so earlier changes don't get overwritten. Order matters:
-                 * rotate around the center of the tile, then move the tile. Doing it out of
-                 * order will apply the transformations out of order and give incorrect results.
+                 * scale, then rotate around the center of the tile, then move the tile. Doing
+                 * it out of order will apply the transformations out of order and give
+                 * incorrect results.
                  */
                 Matrix matrix = new Matrix();
 
+                matrix.postScale(this.scale, this.scale);
+
+                // Only rotate actual tiles, not empty tiles or felt
                 if (!outside && tile != null) {
-                    matrix.postRotate(tile.getRotation(), (float)Tile.SIZE / 2, (float)Tile.SIZE / 2);
+                    matrix.postRotate(tile.getRotation(), tileSize / 2,
+                            tileSize / 2);
                 }
-                matrix.postTranslate(x * Tile.SIZE + this.scrollX, y * Tile.SIZE + this.scrollY);
+
+                matrix.postTranslate(x * tileSize - this.scrollX,
+                        y * tileSize - this.scrollY);
 
                 // Draw the bitmap with the above matrix.
                 canvas.drawBitmap(tileBitmap, matrix, null);
@@ -240,10 +295,10 @@ public class BoardSurfaceView extends SurfaceView {
                     bitmapProvider.getInvalidBorder().bitmap;
 
             canvas.drawBitmap(border, null, makeRect(
-                    currentTile.getX() * Tile.SIZE,
-                    currentTile.getY() * Tile.SIZE,
-                    Tile.SIZE,
-                    Tile.SIZE
+                    currentTile.getX() * tileSize,
+                    currentTile.getY() * tileSize,
+                    tileSize,
+                    tileSize
             ), null);
         }
 
@@ -270,16 +325,25 @@ public class BoardSurfaceView extends SurfaceView {
                         bitmapData.normal.bitmap;
 
                 // Draw the meeple centered at the meeple position for the section it's in.
-                int width = meepleBitmap.getWidth();
-                int height = meepleBitmap.getHeight();
+                float width = meepleBitmap.getWidth() * scale;
+                float height = meepleBitmap.getHeight() * scale;
+
+                // Flooring the width and height prevents rounding errors causing meeples
+                // to jiggle around ever so slightly.
                 canvas.drawBitmap(meepleBitmap, null, makeRect(
-                        x * Tile.SIZE + meepleSection.getMeepleX() - width / 2,
-                        y * Tile.SIZE + meepleSection.getMeepleY() - height / 2,
+                        x * tileSize + meepleSection.getMeepleX() * this.scale -
+                                (float)Math.floor(width / 2),
+                        y * tileSize + meepleSection.getMeepleY() * this.scale -
+                                (float)Math.floor(height / 2),
                         width,
                         height
                 ), null);
             }
         }
+    }
+
+    private float getTileSize() {
+        return Tile.SIZE * this.scale;
     }
 
     /**
@@ -295,8 +359,8 @@ public class BoardSurfaceView extends SurfaceView {
     private RectF makeRect(float x, float y, float width, float height) {
         RectF rect = new RectF();
 
-        rect.left = x + this.scrollX;
-        rect.top = y + this.scrollY;
+        rect.left = x - this.scrollX;
+        rect.top = y - this.scrollY;
         rect.right = rect.left + width;
         rect.bottom = rect.top + height;
 

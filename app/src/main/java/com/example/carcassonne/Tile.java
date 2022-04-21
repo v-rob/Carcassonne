@@ -464,7 +464,7 @@ public class Tile implements Serializable {
      * @param y The Y position to get a section from, in pixels.
      */
     public Section getSectionFromPosition(int x, int y) {
-        BitmapProvider bitmapProvider = CarcassonneMainActivity.getBitmapProvider();
+        BitmapProvider bitmapProvider = BitmapProvider.getInstance();
 
         int color = bitmapProvider.getTile(this.id).map.bitmap.getPixel(x, y);
         return this.sections.get(color);
@@ -658,7 +658,7 @@ public class Tile implements Serializable {
         this.x = -1;
         this.y = -1;
 
-        BitmapProvider bitmapProvider = CarcassonneMainActivity.getBitmapProvider();
+        BitmapProvider bitmapProvider = BitmapProvider.getInstance();
         Bitmap sectionBitmap = bitmapProvider.getTile(id).section.bitmap;
 
         // Run all the parsers on the section bitmap to load all the necessary information.

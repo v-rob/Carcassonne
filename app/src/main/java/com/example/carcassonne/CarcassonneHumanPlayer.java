@@ -380,7 +380,7 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
 
         // Update the current tile image to have the proper resource and rotation.
         Tile currentTile = board.getCurrentTile();
-        BitmapProvider bitmapProvider = CarcassonneMainActivity.getBitmapProvider();
+        BitmapProvider bitmapProvider = BitmapProvider.getInstance();
 
         if (currentTile == null) {
             // There is no image after the game has ended.

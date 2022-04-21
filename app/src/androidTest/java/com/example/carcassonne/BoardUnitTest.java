@@ -1,20 +1,32 @@
 package com.example.carcassonne;
 
+import android.content.Context;
+
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static org.junit.Assert.*;
 
 /**
- * Example local unit test, which will execute on the development machine (host).
- *
- * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
+ * Tests everything relating to the Board class
  */
+@RunWith(AndroidJUnit4.class)
 public class BoardUnitTest {
+    @Before
+    public void beforeRun() {
+        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        BitmapProvider.createInstance(appContext.getResources());
+    }
+
     /** Tests the default constructor for Board and ensures that it behaves as expected. */
     @Test
     public void testConstructor() {
-        TileOLD startingTile = new DeckOLD().drawStartingTile();
-        BoardOLD board = new BoardOLD(startingTile);
+        Tile startingTile = new Deck().drawStartingTile();
+        Board board = new Board(startingTile);
 
         // The board should be 3x3.
         assertSame(3, board.getWidth());
@@ -36,8 +48,6 @@ public class BoardUnitTest {
 
         // There should be no current tile on board creation.
         assertSame(null, board.getCurrentTile());
-        assertSame(-1, board.getCurrentTileX());
-        assertSame(-1, board.getCurrentTileY());
     }
 
     /**
@@ -46,18 +56,18 @@ public class BoardUnitTest {
      */
     @Test
     public void testCopyConstructor() {
-        DeckOLD deck = new DeckOLD();
-        TileOLD startingTile = deck.drawStartingTile();
-        TileOLD drawn = deck.drawTile();
+        Deck deck = new Deck();
+        Tile startingTile = deck.drawStartingTile();
+        Tile drawn = deck.drawTile(0);
 
         // Create a board and give it a current tile.
-        BoardOLD orig = new BoardOLD(startingTile);
+        Board orig = new Board(startingTile);
         orig.setCurrentTile(drawn);
-        orig.setCurrentTilePosition(1, 2);
+        drawn.setPosition(1, 2);
 
         // Copy the board and ensure that everything is the same, but all references
         // have changed.
-        BoardOLD copy = new BoardOLD(orig);
+        Board copy = new Board(orig);
 
         // Width and height should be identical.
         assertSame(3, copy.getWidth());
@@ -89,22 +99,18 @@ public class BoardUnitTest {
      * - setCurrentTilePosition()
      * - resetCurrentTilePosition()
      * - getCurrentTile()
-     * - getCurrentTileX()
-     * - getCurrentTileY()
      * - getTile() vs getConfirmedTile()
      */
     @Test
     public void testCurrentTile() {
-        DeckOLD deck = new DeckOLD();
-        BoardOLD board = new BoardOLD(deck.drawStartingTile());
+        Deck deck = new Deck();
+        Board board = new Board(deck.drawStartingTile());
 
         // Set the current tile. It should be set, but the position invalid at (-1, -1).
-        TileOLD drawn = deck.drawTile();
+        Tile drawn = deck.drawTile(0);
         board.setCurrentTile(drawn);
 
         assertSame(drawn, board.getCurrentTile());
-        assertSame(-1, board.getCurrentTileX());
-        assertSame(-1, board.getCurrentTileY());
 
         // Neither getTile() nor getConfirmedTile() should return the tile anywhere.
         for (int x = 0; x < board.getWidth(); x++) {
@@ -115,10 +121,10 @@ public class BoardUnitTest {
         }
 
         // Set an absolute position for the tile.
-        board.setCurrentTilePosition(2, 1);
+        board.getCurrentTile().setPosition(2, 1);
         assertSame(drawn, board.getCurrentTile());
-        assertSame(2, board.getCurrentTileX());
-        assertSame(1, board.getCurrentTileY());
+        assertSame(2, board.getCurrentTile().getX());
+        assertSame(1, board.getCurrentTile().getY());
 
         // The board should not have resized yet.
         assertSame(3, board.getWidth());
@@ -127,10 +133,5 @@ public class BoardUnitTest {
         // Make sure getTile() returns the tile, but not getConfirmedTile().
         assertSame(drawn, board.getTile(2, 1));
         assertSame(null, board.getConfirmedTile(2, 1));
-
-        // Reset the current tile position and make sure it worked.
-        board.resetCurrentTilePosition();
-        assertSame(-1, board.getCurrentTileX());
-        assertSame(-1, board.getCurrentTileY());
     }
 }

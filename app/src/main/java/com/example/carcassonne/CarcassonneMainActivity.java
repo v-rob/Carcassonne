@@ -51,22 +51,6 @@ import java.util.ArrayList;
  * @author Cheyanne Yim
  */
 public class CarcassonneMainActivity extends GameMainActivity {
-    /**
-     * The bitmap provider that provides bitmaps to every part of the game that requires
-     * them, namely Tile (for the map and section images), CarcassonneHumanPlayer (for
-     * the current tile image) and BoardSurfaceView (for the tile images, tile borders,
-     * and meeple images).
-     *
-     * This is static for very good reason: game state objects and objects contained in
-     * it must be entirely serializable, so no GUI objects. This makes it very difficult
-     * and hackish to store the bitmap provider elsewhere (especially with the organization
-     * of the game framework) and pass it up the call chain every time it is required
-     * somewhere. Additionally, it doesn't make much sense to make copies of the bitmap
-     * provider, and it should never be modified in general, so a static variable is the
-     * best solution and very low risk.
-     */
-    private static BitmapProvider bitmapProvider;
-
     private static final int PORT_NUMBER = 2278;
 
     /*
@@ -89,7 +73,7 @@ public class CarcassonneMainActivity extends GameMainActivity {
     public GameConfig createDefaultConfig() {
         // Create the bitmap provider that everyone will use now that we have a
         // resources object now before the game starts.
-        bitmapProvider = new BitmapProvider(getResources());
+        BitmapProvider.createInstance(getResources());
 
         // Define the allowed player types.
         ArrayList<GamePlayerType> playerTypes = new ArrayList<>();
@@ -135,14 +119,5 @@ public class CarcassonneMainActivity extends GameMainActivity {
     @Override
     public LocalGame createLocalGame() {
         return new CarcassonneLocalGame();
-    }
-
-    /**
-     * Gets the global bitmap provider used by the entire game.
-     *
-     * @return The bitmap provider.
-     */
-    public static BitmapProvider getBitmapProvider() {
-        return bitmapProvider;
     }
 }

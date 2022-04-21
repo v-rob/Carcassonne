@@ -19,7 +19,7 @@ import java.util.HashMap;
 /**
  * Class that loads and holds all bitmaps and image resources used by the game. There is
  * only a single BitmapProvider for the entire game, which can be retrieved via
- * CarcassonneMainActivity.getBitmapProvider().
+ * BitmapProvider.getInstance().
  *
  * @author Sophie Arcangel
  * @author DJ Backus
@@ -28,6 +28,30 @@ import java.util.HashMap;
  * @author Cheyanne Yim
  */
 public class BitmapProvider {
+    /**
+     * The bitmap provider that provides bitmaps to every part of the game that requires
+     * them, namely Tile (for the map and section images), CarcassonneHumanPlayer (for
+     * the current tile image) and BoardSurfaceView (for the tile images, tile borders,
+     * and meeple images).
+     *
+     * This is static for very good reason: game state objects and objects contained in
+     * it must be entirely serializable, so no GUI objects. This makes it very difficult
+     * and hackish to store the bitmap provider elsewhere (especially with the organization
+     * of the game framework) and pass it up the call chain every time it is required
+     * somewhere. Additionally, it doesn't make much sense to make copies of the bitmap
+     * provider, and it should never be modified in general, so a static variable is the
+     * best solution and very low risk.
+     */
+    private static BitmapProvider instance;
+
+    public static void createInstance(Resources resources) {
+        instance = new BitmapProvider(resources);
+    }
+
+    public static BitmapProvider getInstance() {
+        return instance;
+    }
+
     /**
      * Holds the data for a single bitmap, namely the bitmap and its resource. All
      * instance variables are public, but they are final as they should not be modified.
