@@ -310,6 +310,8 @@ public class CarcassonneGameState extends GameState implements Serializable {
      * @return True if it is the meeple placement stage and the meeple placement is
      *         valid, false otherwise. If false, the game state will not be changed.
      */
+
+
     public boolean confirmMeeple() {
         // Do nothing if it's invalid to confirm a meeple right now.
         if (this.isTileStage || !this.board.isCurrentMeeplePlacementValid()) {
