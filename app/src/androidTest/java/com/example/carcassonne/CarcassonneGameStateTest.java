@@ -72,6 +72,11 @@ public class CarcassonneGameStateTest extends TestCase {
     @Test
     public void testTurnActions() {
 
+        Tile testTile = gameState.getBoard().getCurrentTile();
+        Board.TilePlacement validPlacement = gameState.getBoard().getValidTilePlacements().get(0);
+
+        assertTrue(gameState.placeTile(validPlacement.x, validPlacement.y));
+
     }
 
 }
