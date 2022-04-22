@@ -389,7 +389,6 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
             // Otherwise, use the proper image.
             this.currentTileImageView.setImageResource(
                     bitmapProvider.getTile(currentTile.getId()).visual.resource);
-            // TODO: Also draw meeples on current tile
             this.currentTileImageView.setRotation(currentTile.getRotation());
         }
 
@@ -505,7 +504,6 @@ public class CarcassonneHumanPlayer extends GameHumanPlayer {
         Point point = this.boardSurfaceView.onTouch(event);
 
         // If the board reports that it was pressed and not scrolled, send an action
-        // TODO: Allow placing meeple from board
         if (point != null) {
             this.game.sendAction(new CarcassonnePlaceTileAction(this, point.x, point.y));
         }

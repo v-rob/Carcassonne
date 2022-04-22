@@ -7,7 +7,8 @@ import java.util.ArrayList;
 /* Header comment for final release:
  *
  * Additional features/changes:
- * - The game works in both portrait and landscape mode, with separate GUIs for each
+ * - The game works in both portrait and landscape mode, with separate GUIs for each.
+ * - The board can zoom in and out with pinch gestures.
  *
  * Bugs found and fixed from beta:
  * - None have been found

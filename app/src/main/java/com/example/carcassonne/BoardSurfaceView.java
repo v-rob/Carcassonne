@@ -36,6 +36,7 @@ public class BoardSurfaceView extends SurfaceView {
     /** The current Y scroll of the board, measured in pixels towards the bottom. */
     private float scrollY;
 
+    /** The current zoom level of the board as a scale factor from 1. */
     private float scale;
 
     /**
@@ -45,7 +46,7 @@ public class BoardSurfaceView extends SurfaceView {
      * as intended to scroll or place a tile.
      */
     private boolean moved;
-
+    /** True if currently switching between scrolling and zooming to avoid jerking. */
     private boolean switching;
 
     /** The previous X position of the last touch event, used to calculate movement. */
@@ -53,8 +54,14 @@ public class BoardSurfaceView extends SurfaceView {
     /** The previous Y position of the last touch event, used to calculate movement. */
     private float prevTouchY;
 
+    /** The original scale at the start of this zoom. */
     private float origScale;
+    /**
+     * The original distance between the two fingers in the pinch at the beginning of
+     * this zoom.
+     */
     private float origDistance;
+    /** The distance between the two fingers in the pinch in the last touch event. */
     private float lastDistance;
 
     /**
@@ -74,12 +81,6 @@ public class BoardSurfaceView extends SurfaceView {
 
         this.moved = false;
         this.switching = false;
-
-        float tileSize = getTileSize();
-
-        // Hacky code to center the board: will be replaced later.
-//        this.scrollX = tileSize * -1.3f;
-//        this.scrollY = tileSize * -0.4f;
     }
 
     /**
@@ -120,10 +121,6 @@ public class BoardSurfaceView extends SurfaceView {
 
         float tileSize = getTileSize();
 
-        // TODO: Center scrolling initially
-        // TODO: Don't jerk when adding to left/top
-        // TODO: Allow scaling
-
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_UP:
                 // The point to return, if any.
@@ -155,6 +152,7 @@ public class BoardSurfaceView extends SurfaceView {
 
                 return point;
             case MotionEvent.ACTION_MOVE:
+                // The change in movement for scrolling.
                 float deltaX;
                 float deltaY;
 
@@ -165,16 +163,19 @@ public class BoardSurfaceView extends SurfaceView {
                     float x2 = event.getX(1);
                     float y2 = event.getY(1);
 
-                    float avgX = (x + x2) / 2;
-                    float avgY = (y + y2) / 2;
+                    // The averaged position between the two fingers, used as the center of
+                    // scrolling and zooming.
+                    float centerX = (x + x2) / 2;
+                    float centerY = (y + y2) / 2;
 
-                    deltaX = avgX - this.prevTouchX;
-                    deltaY = avgY - this.prevTouchY;
+                    deltaX = centerX - this.prevTouchX;
+                    deltaY = centerY - this.prevTouchY;
 
-                    this.prevTouchX = avgX;
-                    this.prevTouchY = avgY;
+                    this.prevTouchX = centerX;
+                    this.prevTouchY = centerY;
 
-                    float distance = (float)Math.sqrt(Math.pow(x2 - x, 2) + Math.pow(y2 - y, 2));
+                    // Get the new scale: the current distance divided by the original distance.
+                    float distance = getDistance(x, y, x2, y2);
                     this.scale = this.origScale * distance / this.origDistance;
 
                     // Clamp scaling to reasonable amounts.
@@ -185,12 +186,15 @@ public class BoardSurfaceView extends SurfaceView {
                     } else {
                         // Otherwise, compensate for zooming around the center of the pinch rather
                         // than the top-left of the screen.
-                        this.scrollX = (this.scrollX + avgX) * distance / this.lastDistance - avgX;
-                        this.scrollY = (this.scrollY + avgY) * distance / this.lastDistance - avgY;
+                        this.scrollX = (this.scrollX + centerX) * distance /
+                                this.lastDistance - centerX;
+                        this.scrollY = (this.scrollY + centerY) * distance /
+                                this.lastDistance - centerY;
                     }
 
                     this.lastDistance = distance;
                 } else {
+                    // Just scroll by the finger's position.
                     deltaX = x - this.prevTouchX;
                     deltaY = y - this.prevTouchY;
 
@@ -244,11 +248,13 @@ public class BoardSurfaceView extends SurfaceView {
                 this.prevTouchY = y;
                 break;
             case MotionEvent.ACTION_POINTER_DOWN:
+                // Start moving by setting up original and last variables for the next
+                // ACTION_MOVE.
                 float x2 = event.getX(1);
                 float y2 = event.getY(1);
 
                 this.origScale = scale;
-                this.origDistance = (float)Math.sqrt(Math.pow(x2 - x, 2) + Math.pow(y2 - y, 2));
+                this.origDistance = getDistance(x, y, x2, y2);
                 this.lastDistance = this.origDistance;
 
                 // Fallthrough
@@ -278,9 +284,15 @@ public class BoardSurfaceView extends SurfaceView {
         BitmapProvider bitmapProvider = BitmapProvider.getInstance();
         float tileSize = getTileSize();
 
-        // Draw all the tiles on the board, including empty tiles.
-        for (int x = -3; x < this.board.getWidth() + 3; x++) {
-            for (int y = -3; y < this.board.getHeight() + 3; y++) {
+        // We need to draw the felt around the board as well, so calculate the maximum
+        // number we'll need at this scrolling level and include these outside tiles
+        // in the drawing loop.
+        int outsideX = (int)Math.ceil(getWidth() / 2.0 / tileSize);
+        int outsideY = (int)Math.ceil(getHeight() / 2.0 / tileSize);
+
+        // Draw all the tiles on the board, including outside tiles.
+        for (int x = -outsideX; x < this.board.getWidth() + outsideX; x++) {
+            for (int y = -outsideY; y < this.board.getHeight() + outsideY; y++) {
                 Tile tile = this.board.getTile(x, y);
                 boolean outside = this.board.isOutOfBounds(x, y);
 
@@ -390,8 +402,26 @@ public class BoardSurfaceView extends SurfaceView {
         }
     }
 
+    /**
+     * Get the current size of each tile according to the current scale.
+     *
+     * @return The current scaled tile size.
+     */
     private float getTileSize() {
         return Tile.SIZE * this.scale;
+    }
+
+    /**
+     * Get the distance between two points.
+     *
+     * @param x1 The X position of the first point.
+     * @param y1 The Y position of the first point.
+     * @param x2 The X position of the second point.
+     * @param y2 The Y position of the second point.
+     * @return The distance between the two points.
+     */
+    private static float getDistance(float x1, float y1, float x2, float y2) {
+        return (float)Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
 
     /**
