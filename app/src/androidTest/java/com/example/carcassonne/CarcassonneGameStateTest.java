@@ -83,6 +83,8 @@ public class CarcassonneGameStateTest extends TestCase {
 
         assertTrue(gameState.placeMeeple(validMeeplePlacement));
 
+        assertTrue(gameState.confirmMeeple());
+
 
     }
 
