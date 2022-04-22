@@ -30,7 +30,7 @@ public class CarcassonneGameStateTest extends TestCase {
 
         gameState = new CarcassonneGameState(2);
 
-        Tile firstTile = new Tile('A');
+      /* Tile firstTile = new Tile('A');
         gameState.getBoard().setTileDirectly(1,1,firstTile);
 
         Tile secondTile = new Tile('A');
@@ -65,6 +65,7 @@ public class CarcassonneGameStateTest extends TestCase {
 
         Tile ninthTile = new Tile('E');
         gameState.getBoard().setTileDirectly(1,1, ninthTile);
+        */
 
     }
 
@@ -72,7 +73,7 @@ public class CarcassonneGameStateTest extends TestCase {
     @Test
     public void testTurnActions() {
 
-        Tile testTile = gameState.getBoard().getCurrentTile();
+        //Tile testTile = gameState.getBoard().getCurrentTile();
         Board.TilePlacement validPlacement = gameState.getBoard().getValidTilePlacements().get(0);
 
         assertTrue(gameState.placeTile(validPlacement.x, validPlacement.y));
