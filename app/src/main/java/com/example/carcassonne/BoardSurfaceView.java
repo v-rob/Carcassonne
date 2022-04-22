@@ -46,12 +46,16 @@ public class BoardSurfaceView extends SurfaceView {
      */
     private boolean moved;
 
+    private boolean switching;
+
     /** The previous X position of the last touch event, used to calculate movement. */
     private float prevTouchX;
     /** The previous Y position of the last touch event, used to calculate movement. */
     private float prevTouchY;
 
+    private float origScale;
     private float origDistance;
+    private float lastDistance;
 
     /**
      * Constructs a new BoardSurfaceView from the XML. It sets it as drawable and gives
@@ -66,14 +70,16 @@ public class BoardSurfaceView extends SurfaceView {
         setWillNotDraw(false);
         setBackgroundColor(0xFFFFFFFF);
 
+        this.scale = 1.0f;
+
         this.moved = false;
-        this.scale = 0.5f;
+        this.switching = false;
 
         float tileSize = getTileSize();
 
         // Hacky code to center the board: will be replaced later.
-        this.scrollX = tileSize * -1.3f;
-        this.scrollY = tileSize * -0.4f;
+//        this.scrollX = tileSize * -1.3f;
+//        this.scrollY = tileSize * -0.4f;
     }
 
     /**
@@ -149,53 +155,89 @@ public class BoardSurfaceView extends SurfaceView {
 
                 return point;
             case MotionEvent.ACTION_MOVE:
-            case MotionEvent.ACTION_POINTER_UP:
-                if (event.getPointerCount() == 1) {
-                    float deltaX = x - this.prevTouchX;
-                    float deltaY = y - this.prevTouchY;
+                float deltaX;
+                float deltaY;
 
-                    // If the user moved only a slight bit after ACTION_DOWN, they're probably
-                    // still tapping rather than scrolling. Don't change the previous position.
-                    if (!this.moved && Math.abs(deltaX) < SCROLL_THRESHOLD &&
-                            Math.abs(deltaY) < SCROLL_THRESHOLD) {
-                        break;
-                    }
-
-                    // Otherwise, register as moving and scroll the board.
+                if (event.getPointerCount() == 2) {
+                    // If they've got more than one finger down, they're definitely not placing.
                     this.moved = true;
-                    this.scrollX -= deltaX;
-                    this.scrollY -= deltaY;
 
-                    // Perform bounds clipping: if we've scrolled more than half the screen
-                    // away from the edge of the board, snap it back to the edge.
-                    float leftEdge = -(float) getWidth() / 2;
-                    float topEdge = -(float) getHeight() / 2;
-
-                    float rightEdge = board.getWidth() * tileSize + leftEdge;
-                    float bottomEdge = board.getHeight() * tileSize + topEdge;
-
-                    if (this.scrollX < leftEdge) {
-                        this.scrollX = leftEdge;
-                    } else if (this.scrollX > rightEdge) {
-                        this.scrollX = rightEdge;
-                    }
-
-                    if (this.scrollY < topEdge) {
-                        this.scrollY = topEdge;
-                    } else if (this.scrollY > bottomEdge) {
-                        this.scrollY = bottomEdge;
-                    }
-
-                    // Fallthrough
-                } else {
                     float x2 = event.getX(1);
                     float y2 = event.getY(1);
 
-                    float distance = (float) Math.sqrt(Math.pow(x2 - x, 2) + Math.pow(y2 - y, 2));
-                    this.scale = distance / this.origDistance;
+                    float avgX = (x + x2) / 2;
+                    float avgY = (y + y2) / 2;
 
+                    deltaX = avgX - this.prevTouchX;
+                    deltaY = avgY - this.prevTouchY;
+
+                    this.prevTouchX = avgX;
+                    this.prevTouchY = avgY;
+
+                    float distance = (float)Math.sqrt(Math.pow(x2 - x, 2) + Math.pow(y2 - y, 2));
+                    this.scale = this.origScale * distance / this.origDistance;
+
+                    // Clamp scaling to reasonable amounts.
+                    if (this.scale < 0.125f) {
+                        this.scale = 0.125f;
+                    } else if (this.scale > 2.0f) {
+                        this.scale = 2.0f;
+                    } else {
+                        // Otherwise, compensate for zooming around the center of the pinch rather
+                        // than the top-left of the screen.
+                        this.scrollX = (this.scrollX + avgX) * distance / this.lastDistance - avgX;
+                        this.scrollY = (this.scrollY + avgY) * distance / this.lastDistance - avgY;
+                    }
+
+                    this.lastDistance = distance;
+                } else {
+                    deltaX = x - this.prevTouchX;
+                    deltaY = y - this.prevTouchY;
+
+                    this.prevTouchX = x;
+                    this.prevTouchY = y;
+                }
+
+                // Don't scroll the first frame after switching between scrolling and zooming
+                // to avoid jerking since the center of motion has changed.
+                if (this.switching) {
+                    this.switching = false;
                     break;
                 }
+
+                // If the user moved only a slight bit after ACTION_DOWN, they're probably
+                // still tapping rather than scrolling. Don't change the previous position.
+                if (!this.moved && Math.abs(deltaX) < SCROLL_THRESHOLD &&
+                        Math.abs(deltaY) < SCROLL_THRESHOLD) {
+                    break;
+                }
+
+                // Otherwise, register as moving and scroll the board.
+                this.moved = true;
+                this.scrollX -= deltaX;
+                this.scrollY -= deltaY;
+
+                // Perform bounds clipping: if we've scrolled more than half the screen
+                // away from the edge of the board, snap it back to the edge.
+                float leftEdge = -(float)getWidth() / 2;
+                float topEdge = -(float)getHeight() / 2;
+
+                float rightEdge = board.getWidth() * tileSize + leftEdge;
+                float bottomEdge = board.getHeight() * tileSize + topEdge;
+
+                if (this.scrollX < leftEdge) {
+                    this.scrollX = leftEdge;
+                } else if (this.scrollX > rightEdge) {
+                    this.scrollX = rightEdge;
+                }
+
+                if (this.scrollY < topEdge) {
+                    this.scrollY = topEdge;
+                } else if (this.scrollY > bottomEdge) {
+                    this.scrollY = bottomEdge;
+                }
+
+                break;
             case MotionEvent.ACTION_DOWN:
                 // Set the last position to the current one.
                 this.prevTouchX = x;
@@ -205,7 +247,13 @@ public class BoardSurfaceView extends SurfaceView {
                 float x2 = event.getX(1);
                 float y2 = event.getY(1);
 
-                this.origDistance = (float) Math.sqrt(Math.pow(x2 - x, 2) + Math.pow(y2 - y, 2));
+                this.origScale = scale;
+                this.origDistance = (float)Math.sqrt(Math.pow(x2 - x, 2) + Math.pow(y2 - y, 2));
+                this.lastDistance = this.origDistance;
+
+                // Fallthrough
+            case MotionEvent.ACTION_POINTER_UP:
+                this.switching = true;
                 break;
         }
 
