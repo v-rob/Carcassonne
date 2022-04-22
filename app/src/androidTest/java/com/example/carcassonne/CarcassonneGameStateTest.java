@@ -30,40 +30,40 @@ public class CarcassonneGameStateTest extends TestCase {
 
         gameState = new CarcassonneGameState(2);
 
-        Tile firstTile = new Tile('a');
+        Tile firstTile = new Tile('A');
         gameState.getBoard().setTileDirectly(1,1,firstTile);
 
-        Tile secondTile = new Tile('a');
+        Tile secondTile = new Tile('A');
         secondTile.setRotation(270);
         gameState.getBoard().setTileDirectly(2,1,secondTile);
         secondTile.setMeepleSection(secondTile.getSectionFromPosition(Tile.SIZE / 2, Tile.SIZE / 2));
 
-        Tile thirdTile = new Tile('k');
+        Tile thirdTile = new Tile('K');
         gameState.getBoard().setTileDirectly(1,2, thirdTile);
 
-        Tile fourthTile = new Tile('t');
+        Tile fourthTile = new Tile('T');
         fourthTile.setRotation(90);
         gameState.getBoard().setTileDirectly(3,1, fourthTile);
         fourthTile.setMeepleSection(fourthTile.getRoadSection(3));
 
-        Tile fifthTile = new Tile('e');
+        Tile fifthTile = new Tile('E');
         fifthTile.setRotation(270);
         gameState.getBoard().setTileDirectly(2,2,fifthTile);
         fifthTile.setMeepleSection(fifthTile.getSection(6));
 
-        Tile sixthTile = new Tile('e');
+        Tile sixthTile = new Tile('E');
         gameState.getBoard().setTileDirectly(3,2,sixthTile);
         sixthTile.setMeepleSection(sixthTile.getSection(5));
 
-        Tile seventhTile = new Tile('e');
+        Tile seventhTile = new Tile('E');
         seventhTile.setRotation(180);
         gameState.getBoard().setTileDirectly(3,1, seventhTile);
         seventhTile.setMeepleSection(seventhTile.getSection(5));
 
-        Tile eighthTile = new Tile('e');
+        Tile eighthTile = new Tile('E');
         gameState.getBoard().setTileDirectly(2,1, eighthTile);
 
-        Tile ninthTile = new Tile('e');
+        Tile ninthTile = new Tile('E');
         gameState.getBoard().setTileDirectly(1,1, ninthTile);
 
     }
