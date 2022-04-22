@@ -75,6 +75,7 @@ public class CarcassonneGameStateTest extends TestCase {
 
         //Tile testTile = gameState.getBoard().getCurrentTile();
         Board.TilePlacement validPlacement = gameState.getBoard().getValidTilePlacements().get(0);
+        assertTrue(gameState.rotateTile(validPlacement.rotation));
 
         assertTrue(gameState.placeTile(validPlacement.x, validPlacement.y));
 
