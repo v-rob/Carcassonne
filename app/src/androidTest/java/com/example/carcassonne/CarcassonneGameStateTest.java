@@ -21,13 +21,14 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(AndroidJUnit4.class)
 public class CarcassonneGameStateTest extends TestCase {
+    CarcassonneGameState gameState;
 
     @Before
     public void beforeRun() {
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         BitmapProvider.createInstance(appContext.getResources());
 
-        CarcassonneGameState gameState = new CarcassonneGameState(2);
+        gameState = new CarcassonneGameState(2);
 
         Tile firstTile = new Tile('a');
         gameState.getBoard().setTileDirectly(1,1,firstTile);
@@ -69,18 +70,8 @@ public class CarcassonneGameStateTest extends TestCase {
 
 
     @Test
-    public void testPlaceTile() {
+    public void testTurnActions() {
+
     }
 
-    @Test
-    public void testConfirmTile() {
-    }
-
-    @Test
-    public void testPlaceMeeple() {
-    }
-
-    @Test
-    public void testConfirmMeeple() {
-    }
 }
