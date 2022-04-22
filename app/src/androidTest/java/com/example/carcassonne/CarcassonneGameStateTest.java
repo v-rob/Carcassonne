@@ -77,6 +77,13 @@ public class CarcassonneGameStateTest extends TestCase {
 
         assertTrue(gameState.placeTile(validPlacement.x, validPlacement.y));
 
+        assertTrue(gameState.confirmTile());
+
+        Section validMeeplePlacement = gameState.getBoard().getValidMeeplePlacements().get(0).meepleSection;
+
+        assertTrue(gameState.placeMeeple(validMeeplePlacement));
+
+
     }
 
 }
